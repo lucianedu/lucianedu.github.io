@@ -1,0 +1,534 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Khối lượng riêng</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: mô hình chiếm 3/4 bên trái (đầu trang: tên bài; chân khung: bản quyền cố định), 3 tab chiếm 1/4 bên phải, mỗi tab có thanh cuộn riêng */
+:root{
+  --bg:#e8eff2; --panel:#ffffff; --ink:#16303a; --muted:#587079; --line:#cddbe1;
+  --teal:#0f7f9c; --teal-soft:#dff0f5; --orange:#f08a1c; --orange-soft:#fde6c8;
+  --stage:#f4efe1; --table:#d3c4a2; --table2:#bfae8a; --ok:#1d8f55; --bad:#d03f37;
+  --lcd:#0e2a1d; --lcdfg:#7dffb0; --card:#f6f9fa; --shadow:rgba(22,48,58,.15);
+  --font:'Be Vietnam Pro','Segoe UI',system-ui,-apple-system,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1b20; --panel:#172830; --ink:#e5f0f3; --muted:#9bb3bb; --line:#2c444e;
+  --teal:#4fc3e0; --teal-soft:#1b3a45; --orange:#ffa23d; --orange-soft:#4a3418;
+  --stage:#1c2b31; --table:#3b4a4d; --table2:#2f3d40; --ok:#4cd18a; --bad:#ff7a70;
+  --lcd:#07170f; --lcdfg:#7dffb0; --card:#1b2f38; --shadow:rgba(0,0,0,.4); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1b20; --panel:#172830; --ink:#e5f0f3; --muted:#9bb3bb; --line:#2c444e;
+  --teal:#4fc3e0; --teal-soft:#1b3a45; --orange:#ffa23d; --orange-soft:#4a3418;
+  --stage:#1c2b31; --table:#3b4a4d; --table2:#2f3d40; --ok:#4cd18a; --bad:#ff7a70;
+  --lcd:#07170f; --lcdfg:#7dffb0; --card:#1b2f38; --shadow:rgba(0,0,0,.4); color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--font);
+  padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.app{display:grid;grid-template-columns:minmax(0,3fr) minmax(300px,1fr);gap:12px;height:100%}
+.stage{display:flex;flex-direction:column;min-height:0;min-width:0;background:var(--stage);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.stage-head{flex:none;padding:10px 14px 8px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line);background:var(--panel)}
+.top-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.course{font-weight:700;font-size:15px;color:var(--teal);letter-spacing:.01em;text-wrap:balance}
+.course em{font-style:normal;color:var(--orange)}
+.scenes{display:flex;gap:6px;flex-wrap:wrap}
+button{font:inherit;color:inherit;cursor:pointer}
+.pill{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.pill:hover{border-color:var(--teal);color:var(--teal)}
+.pill[aria-selected="true"],.pill.on{background:var(--teal);border-color:var(--teal);color:#fff}
+:root[data-theme="dark"] .pill[aria-selected="true"],:root[data-theme="dark"] .pill.on{color:#06222b}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pill[aria-selected="true"],:root:not([data-theme="light"]) .pill.on{color:#06222b}}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+.view{flex:1 1 auto;min-height:0;position:relative}
+.view svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.view svg .hit{cursor:pointer}
+.view svg text{font-family:var(--font)}
+.bottom{flex:none;height:210px;overflow-y:auto;background:var(--panel);border-top:1px solid var(--line);padding:10px 14px;display:grid;grid-template-columns:minmax(210px,.8fr) minmax(0,1.6fr);gap:14px}
+.ctl{display:flex;flex-direction:column;gap:8px;min-width:0}
+.ctl label{display:flex;justify-content:space-between;gap:8px;font-weight:600;font-size:12.5px}
+.ctl output{color:var(--orange);font-variant-numeric:tabular-nums;font-weight:700}
+.ctl input[type=range]{width:100%;accent-color:var(--orange)}
+.ctl select,.ctl input[type=number]{width:100%;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:5px 8px;font:inherit}
+.row2{display:flex;gap:6px;flex-wrap:wrap}
+.hint{font-size:12px;color:var(--muted)}
+.dyn{min-width:0;overflow-x:auto}
+table.bk{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums}
+table.bk th,table.bk td{border:1.5px solid var(--ink);padding:3px 6px;text-align:center}
+table.bk th{background:var(--table);color:#1b2a30}
+table.bk td.q{color:var(--muted)}
+table.bk td.v{font-weight:700;color:var(--teal)}
+.remark{margin-top:6px;font-size:12.5px;padding:6px 9px;border-radius:8px;background:var(--orange-soft);border-left:3px solid var(--orange)}
+.credit{flex:none;text-align:center;padding:6px 10px;font-size:12.5px;background:var(--panel);border-top:1px solid var(--line);color:var(--muted);letter-spacing:.02em}
+.credit b{color:#f58a0a;font-weight:800}
+/* Side */
+.side{display:flex;flex-direction:column;min-height:0;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.tabs{flex:none;display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line)}
+.tab{border:0;background:transparent;padding:11px 4px;font-weight:700;font-size:13px;color:var(--muted);border-bottom:3px solid transparent}
+.tab[aria-selected="true"]{color:var(--teal);border-bottom-color:var(--orange);background:var(--teal-soft)}
+.panels{flex:1 1 auto;min-height:0;position:relative}
+.panel{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;padding:14px 14px 22px;scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:var(--teal) transparent}
+.panel::-webkit-scrollbar{width:8px}.panel::-webkit-scrollbar-thumb{background:var(--teal);border-radius:8px}
+.panel[hidden]{display:none}
+.panel h3{margin:16px 0 6px;font-size:14.5px;color:var(--teal)}
+.panel h3:first-child{margin-top:0}
+.panel p{margin:6px 0}
+.formula{margin:8px 0;padding:8px 10px;text-align:center;font-size:16px;font-weight:700;border-radius:10px;background:var(--teal-soft);color:var(--ink)}
+.box{margin:10px 0;padding:10px 12px;border-radius:10px;background:var(--card);border:1px solid var(--line)}
+.box.or{background:var(--orange-soft);border-color:transparent}
+.go{border:1px solid var(--orange);background:transparent;color:var(--orange);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;margin:2px 4px 2px 0}
+.go:hover{background:var(--orange);color:#1b1206}
+details{margin:6px 0}summary{cursor:pointer;font-weight:600;color:var(--teal)}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.15;margin:0 3px}
+.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 3px}
+.q-card{display:flex;flex-direction:column;gap:8px}
+.opt{display:block;width:100%;text-align:left;padding:9px 11px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);font-weight:500}
+.opt:hover:not(:disabled){border-color:var(--teal)}
+.opt.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 18%,var(--panel))}
+.opt.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 18%,var(--panel))}
+.prog{height:6px;border-radius:6px;background:var(--line);overflow:hidden}.prog i{display:block;height:100%;background:var(--orange);transition:width .3s}
+.btn{border:0;background:var(--teal);color:#fff;border-radius:10px;padding:8px 14px;font-weight:700}
+:root[data-theme="dark"] .btn{color:#06222b}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn{color:#06222b}}
+.fb{padding:8px 10px;border-radius:8px;font-size:13px}.fb.ok{background:color-mix(in srgb,var(--ok) 16%,var(--panel))}.fb.bad{background:color-mix(in srgb,var(--bad) 16%,var(--panel))}
+.ans{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.ans input{width:90px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 8px;font:inherit}
+.keyv{font-variant-numeric:tabular-nums;font-weight:700;color:var(--orange)}
+@keyframes drop{from{transform:translateY(-26px);opacity:.3}to{transform:none;opacity:1}}
+.drop{animation:drop .35s ease-out}
+@media (prefers-reduced-motion:reduce){.drop{animation:none}.panel{scroll-behavior:auto}}
+@media (max-width:860px){
+  html,body{height:auto}
+  .app{display:flex;flex-direction:column;height:auto}
+  .stage{height:auto}
+  .view{flex:none;height:min(56vw,360px);min-height:230px}
+  .bottom{height:auto;max-height:none;grid-template-columns:1fr}
+  .side{height:78vh;min-height:420px}
+}
+</style>
+<div class="app">
+  <main class="stage">
+    <div class="stage-head">
+      <div class="top-row">
+        <div class="course" id="course">Vật lý 8 - 2026-2027 – Bài 13: Khối lượng riêng</div>
+        <button class="pill" id="snd" aria-pressed="true">Âm thanh: Bật</button>
+      </div>
+      <div class="scenes" id="scenes" role="tablist" aria-label="Chọn hình"></div>
+    </div>
+    <div class="view" id="view"><svg id="svg" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Mô hình tương tác khối lượng riêng"></svg></div>
+    <div class="bottom" id="bottom"></div>
+    <footer class="credit">Produced of <b>LucianEdu</b></footer>
+  </main>
+  <aside class="side">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="t0" aria-selected="true" data-t="0">Nội dung</button>
+      <button class="tab" role="tab" id="t1" aria-selected="false" data-t="1">Ôn tập</button>
+      <button class="tab" role="tab" id="t2" aria-selected="false" data-t="2">Trắc nghiệm</button>
+    </div>
+    <div class="panels">
+      <section class="panel" id="p0" role="tabpanel"></section>
+      <section class="panel" id="p1" role="tabpanel" hidden></section>
+      <section class="panel" id="p2" role="tabpanel" hidden></section>
+    </div>
+  </aside>
+</div>
+<script>
+(function(){
+'use strict';
+const $=s=>document.querySelector(s), NS='http://www.w3.org/2000/svg';
+const fmt=(n,d=2)=>{let s=(+n).toFixed(d);if(s.indexOf('.')>=0)s=s.replace(/0+$/,'').replace(/\.$/,'');return s.replace('.',',')};
+const sp=n=>String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+function el(tag,at,parent,txt){const e=document.createElementNS(NS,tag);for(const k in at)e.setAttribute(k,at[k]);if(txt!=null)e.textContent=txt;if(parent)parent.appendChild(e);return e}
+
+/* ===== Âm thanh (Web Audio API) ===== */
+let AC=null,muted=false;
+function ac(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){}return AC}
+function tone(f,t0,d,type,v){const a=ac();if(!a||muted)return;const o=a.createOscillator(),g=a.createGain(),t=a.currentTime+t0;
+  o.type=type||'sine';o.frequency.value=f;g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(v||.08,t+.01);
+  g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.03)}
+const SND={
+  click:()=>tone(680,0,.05,'square',.035),
+  beep:()=>{tone(1250,0,.07,'square',.03);tone(1250,.1,.07,'square',.03)},
+  ok:()=>{tone(523,0,.12,'sine',.09);tone(659,.1,.12,'sine',.09);tone(784,.2,.22,'sine',.09)},
+  bad:()=>{tone(220,0,.18,'sawtooth',.05);tone(150,.16,.28,'sawtooth',.05)}
+};
+window.__snd=SND;
+
+/* ===== Dữ liệu ===== */
+const MAT={
+  sat:{n:'Sắt',D:7.8,a:'#d3dae1',m:'#9aa7b4',b:'#66737f'},
+  nhom:{n:'Nhôm',D:2.7,a:'#e8ecef',m:'#aeb8c2',b:'#7e8a96'},
+  dong:{n:'Đồng',D:8.96,a:'#f3e0a2',m:'#d2a94c',b:'#9c7420'},
+  go:{n:'Gỗ',D:0.8,a:'#e8d0ba',m:'#c39c7c',b:'#8d6b4f'},
+  chi:{n:'Chì',D:11.3,a:'#bcc4cc',m:'#8a949e',b:'#58626c'}
+};
+/* Bảng 13.3 (đơn vị kg/m³) */
+const T13=[
+  {s:'Chì',D:11300,pre:'',c:'#7c8791',solid:1,l:'Thuỷ ngân',lD:13600,lpre:'',lc:'#aeb7bf'},
+  {s:'Sắt',D:7800,pre:'',c:'#8f9ba7',solid:1,l:'Nước',lD:1000,lpre:'',lc:'#4aa3df'},
+  {s:'Nhôm',D:2700,pre:'',c:'#b7c0c9',solid:1,l:'Xăng',lD:700,lpre:'',lc:'#e9c75a'},
+  {s:'Đá',D:2600,pre:'Khoảng ',c:'#a39a8d',solid:1,l:'Dầu hoả',lD:800,lpre:'Khoảng ',lc:'#d9b95b'},
+  {s:'Gạo',D:1200,pre:'Khoảng ',c:'#e8dcbf',solid:1,l:'Dầu ăn',lD:800,lpre:'Khoảng ',lc:'#e6b422'},
+  {s:'Gỗ tốt',D:800,pre:'Khoảng ',c:'#a9815f',solid:1,l:'Rượu, cồn',lD:790,lpre:'Khoảng ',lc:'#c9d9e6'}
+];
+
+const S={scene:0,V:20,mat:'sat',on:null,w:[0,0,0],cV:1,cSel:0,sub:'s0',unit:'kg',lV:5};
+const SCENES=['Hình 13.1 – Thí nghiệm 1','Hình 13.2 – Thí nghiệm 2','Hình 13.3 – Khối 1 cm³','Bảng 13.3 – Khối lượng riêng'];
+const svg=$('#svg');
+
+/* ===== Vẽ chung ===== */
+function defs(){
+  const d=el('defs',{},svg);
+  for(const k in MAT){const M=MAT[k];
+    const g=el('linearGradient',{id:'g-'+k,x1:0,x2:1,y1:0,y2:0},d);
+    [[0,M.b],[.28,M.a],[.58,M.m],[1,M.b]].forEach(p=>el('stop',{offset:p[0],'stop-color':p[1]},g));
+  }
+}
+function surface(g){
+  el('rect',{x:-800,y:-800,width:2400,height:1140,style:'fill:var(--stage)'},g);
+  el('rect',{x:-800,y:340,width:2400,height:900,style:'fill:var(--table)'},g);
+  el('rect',{x:-800,y:340,width:2400,height:5,style:'fill:var(--table2)'},g);
+}
+function caption(g,fig,txt){
+  el('rect',{x:16,y:12,width:fig.length*8.2+22,height:24,rx:12,fill:'#f58f4a'},g);
+  el('text',{x:16+(fig.length*8.2+22)/2,y:29,'text-anchor':'middle','font-size':13,'font-weight':700,fill:'#fff'},g,fig);
+  el('text',{x:16+fig.length*8.2+32,y:29,'font-size':14,style:'fill:var(--ink)'},g,txt);
+}
+/* Cân điện tử: đĩa cân y=300, tâm x=670 */
+function scale(g,mass){
+  el('rect',{x:575,y:310,width:190,height:38,rx:9,fill:'#dfe3e7',stroke:'#8b959e'},g);
+  el('rect',{x:592,y:318,width:112,height:22,rx:4,style:'fill:var(--lcd)'},g);
+  el('text',{x:698,y:335,'text-anchor':'end','font-size':16,'font-family':'monospace','font-weight':700,fill:'#7dffb0'},g,fmt(mass,1)+' g');
+  el('circle',{cx:735,cy:329,r:6,fill:'#c8cfd5',stroke:'#8b959e'},g);
+  el('rect',{x:590,y:300,width:160,height:10,rx:5,fill:'#aab3bb',stroke:'#7d8892'},g);
+  el('text',{x:670,y:374,'text-anchor':'middle','font-size':12.5,'font-weight':600,style:'fill:var(--ink)'},g,'Cân điện tử');
+}
+function cyl(g,key,cx,by,r,h,idx,drop,label){
+  const ry=r*.32,M=MAT[key];
+  const grp=el('g',{class:'hit'+(drop?' drop':''),'data-i':idx,tabindex:0,role:'button','aria-label':label},g);
+  el('ellipse',{cx:cx,cy:by,rx:r,ry:ry,fill:'#0002'},grp).setAttribute('transform','translate(5 3)');
+  el('path',{d:'M'+(cx-r)+','+(by-h)+'L'+(cx-r)+','+by+'A'+r+','+ry+' 0 0 0 '+(cx+r)+','+by+'L'+(cx+r)+','+(by-h)+'Z',fill:'url(#g-'+key+')',stroke:'#0003'},grp);
+  el('ellipse',{cx:cx,cy:by-h,rx:r,ry:ry,fill:M.a,stroke:'#0003'},grp);
+  grp.addEventListener('click',()=>pick(idx));
+  grp.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(idx)}});
+  return grp;
+}
+function pick(i){
+  if(S.scene>1)return;
+  SND.click();
+  if(S.on===i){S.on=null}else{S.on=i;S.w[i]=1;setTimeout(SND.beep,110)}
+  draw();updateBottom();
+}
+
+/* ===== Hình 13.1: V, 2V, 3V ===== */
+function sc1(g){
+  const key=S.mat,xs=[120,250,380],r=36,u=34*(0.6+S.V/50),M=MAT[key];
+  [1,2,3].forEach((m,i)=>{
+    const onS=S.on===i,h=u*m,cx=onS?670:xs[i],by=onS?300:350;
+    cyl(g,key,cx,by,r,h,i,onS,'Thỏi '+(i+1)+', thể tích '+(m>1?m:'')+'V');
+    el('text',{x:cx,y:by-h-r*.32-9,'text-anchor':'middle','font-size':15,'font-weight':700,style:'fill:var(--ink)'},g,(m>1?m:'')+'V');
+    if(!onS)el('text',{x:cx,y:381,'text-anchor':'middle','font-size':12.5,'font-weight':600,style:'fill:var(--ink)'},g,'Thỏi '+(i+1));
+  });
+  scale(g,S.on==null?0:S.V*(S.on+1)*M.D);
+  caption(g,'Hình 13.1','Ba thỏi '+M.n.toLowerCase());
+  el('text',{x:470,y:60,'font-size':12.5,style:'fill:var(--muted)'},g,'Bấm vào một thỏi để đặt lên cân (bấm lần nữa để bỏ xuống)');
+}
+/* ===== Hình 13.2: cùng thể tích ===== */
+function sc2(g){
+  const keys=['sat','nhom','dong'],xs=[110,240,370],r=36,h=70*(0.6+S.V/50);
+  keys.forEach((k,i)=>{
+    const onS=S.on===i,cx=onS?670:xs[i],by=onS?300:350;
+    cyl(g,k,cx,by,r,h,i,onS,'Thỏi '+MAT[k].n.toLowerCase());
+    if(onS)el('text',{x:cx,y:by-h-r*.32-9,'text-anchor':'middle','font-size':14,'font-weight':700,style:'fill:var(--ink)'},g,'Thỏi '+MAT[k].n.toLowerCase());
+    else el('text',{x:cx,y:381,'text-anchor':'middle','font-size':14,'font-weight':600,style:'fill:var(--ink)'},g,MAT[k].n);
+  });
+  scale(g,S.on==null?0:S.V*MAT[keys[S.on]].D);
+  caption(g,'Hình 13.2','Các thỏi sắt, nhôm, đồng có cùng thể tích');
+  el('text',{x:470,y:60,'font-size':12.5,style:'fill:var(--muted)'},g,'Bấm vào từng thỏi để cân khối lượng');
+}
+/* ===== Hình 13.3: khối nhôm, đồng, gỗ ===== */
+function sc3(g){
+  const keys=['nhom','dong','go'],cxs=[160,400,640],s=62*Math.cbrt(S.cV),a=.42*s,b=.3*s,by=332;
+  keys.forEach((k,i)=>{
+    const M=MAT[k],x=cxs[i]-(s+a)/2,sel=S.cSel===i;
+    const grp=el('g',{class:'hit','data-i':i,tabindex:0,role:'button','aria-label':'Khối '+M.n.toLowerCase()},g);
+    const st=sel?'#f58f4a':'#0003',sw=sel?3:1;
+    el('polygon',{points:[x,by-s,x+s,by-s,x+s,by,x,by].join(' '),fill:M.m,stroke:st,'stroke-width':sw,'stroke-linejoin':'round'},grp);
+    el('polygon',{points:[x+s,by-s,x+s+a,by-s-b,x+s+a,by-b,x+s,by].join(' '),fill:M.b,stroke:st,'stroke-width':sw,'stroke-linejoin':'round'},grp);
+    el('polygon',{points:[x,by-s,x+a,by-s-b,x+s+a,by-s-b,x+s,by-s].join(' '),fill:M.a,stroke:st,'stroke-width':sw,'stroke-linejoin':'round'},grp);
+    el('text',{x:cxs[i],y:by-s-b-14,'text-anchor':'middle','font-size':17,'font-weight':700,style:'fill:var(--ink)'},g,fmt(M.D*S.cV)+' g');
+    el('text',{x:cxs[i],y:376,'text-anchor':'middle','font-size':15,'font-weight':600,style:'fill:var(--ink)'},g,M.n);
+    grp.addEventListener('click',()=>{S.cSel=i;SND.click();draw();updateBottom()});
+    grp.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();grp.dispatchEvent(new Event('click'))}});
+  });
+  caption(g,'Hình 13.3','Khối lượng của '+fmt(S.cV)+' cm³ nhôm, đồng và gỗ');
+}
+
+/* ===== Bảng 13.3 + bình chứa ===== */
+function curSub(){const i=+S.sub.slice(1),r=T13[i];return S.sub[0]==='s'?{n:r.s,D:r.D,c:r.c,solid:1}:{n:r.l,D:r.lD,c:r.lc,solid:0}}
+function sc4(g){
+  caption(g,'Bảng 13.3','Khối lượng riêng của một số chất ở nhiệt độ phòng');
+  const x0=14,y0=48,cw=[84,176,96,176],hh=36,rh=33,uk=S.unit==='kg';
+  const unitTxt=uk?'(kg/m³)':'(g/cm³)',hd=['Chất rắn','Khối lượng riêng '+unitTxt,'Chất lỏng','Khối lượng riêng '+unitTxt];
+  let x=x0;
+  hd.forEach((t,c)=>{
+    el('rect',{x:x,y:y0,width:cw[c],height:hh,fill:'#f7b667',stroke:'#e8751a','stroke-width':1.5},g);
+    el('text',{x:x+cw[c]/2,y:y0+23,'text-anchor':'middle','font-size':12.5,'font-weight':700,fill:'#3a2200'},g,t);
+    x+=cw[c];
+  });
+  const val=(pre,D)=>pre+(uk?sp(D):fmt(D/1000,3));
+  T13.forEach((r,i)=>{
+    const y=y0+hh+i*rh;
+    [['s',r.s,val(r.pre,r.D),x0],['l',r.l,val(r.lpre,r.lD),x0+cw[0]+cw[1]]].forEach((h,k)=>{
+      const id=h[0]+i,sel=S.sub===id,w1=cw[k*2],w2=cw[k*2+1];
+      const grp=el('g',{class:'hit',tabindex:0,role:'button','aria-label':h[1]},g);
+      el('rect',{x:h[3],y:y,width:w1,height:rh,style:'fill:'+(sel?'#f9a94b':'var(--orange-soft)'),stroke:'#e8751a','stroke-width':sel?2.5:1.2},grp);
+      el('rect',{x:h[3]+w1,y:y,width:w2,height:rh,style:'fill:'+(sel?'#f9a94b':'var(--orange-soft)'),stroke:'#e8751a','stroke-width':sel?2.5:1.2},grp);
+      el('text',{x:h[3]+9,y:y+21,'font-size':13,'font-weight':sel?700:500,style:'fill:'+(sel?'#2b1700':'var(--ink)')},grp,h[1]);
+      el('text',{x:h[3]+w1+9,y:y+21,'font-size':13,'font-weight':sel?700:500,style:'fill:'+(sel?'#2b1700':'var(--ink)'),'font-variant-numeric':'tabular-nums'},grp,h[2]);
+      const go=()=>{S.sub=id;SND.click();draw();updateBottom()};
+      grp.addEventListener('click',go);
+      grp.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}});
+    });
+  });
+  el('text',{x:x0,y:y0+hh+6*rh+20,'font-size':12,style:'fill:var(--muted)'},g,'Bấm vào một chất để đưa vào bình/khối bên phải.');
+  /* Vật chứa */
+  const sub=curSub(),V=S.lV,mass=sub.D*V/1000,cx=668;
+  if(sub.solid){
+    const s=40*Math.cbrt(V),a=.42*s,b=.3*s,by=330,xx=cx-(s+a)/2;
+    el('polygon',{points:[xx,by-s,xx+s,by-s,xx+s,by,xx,by].join(' '),fill:sub.c,stroke:'#0004'},g);
+    el('polygon',{points:[xx+s,by-s,xx+s+a,by-s-b,xx+s+a,by-b,xx+s,by].join(' '),fill:sub.c,stroke:'#0004'},g);
+    el('polygon',{points:[xx+s,by-s,xx+s+a,by-s-b,xx+s+a,by-b,xx+s,by].join(' '),fill:'#000',opacity:.28},g);
+    el('polygon',{points:[xx,by-s,xx+a,by-s-b,xx+s+a,by-s-b,xx+s,by-s].join(' '),fill:sub.c,stroke:'#0004'},g);
+    el('polygon',{points:[xx,by-s,xx+a,by-s-b,xx+s+a,by-s-b,xx+s,by-s].join(' '),fill:'#fff',opacity:.3},g);
+    el('text',{x:cx,y:by-s-b-14,'text-anchor':'middle','font-size':16,'font-weight':700,style:'fill:var(--ink)'},g,'m = '+fmt(mass,mass<10?2:1)+' kg');
+  }else{
+    const bx=590,bw=150,top=100,bot=330,lvl=22*V;
+    el('rect',{x:bx,y:bot-lvl,width:bw,height:lvl,fill:sub.c,opacity:.85},g);
+    el('line',{x1:bx,x2:bx+bw,y1:bot-lvl,y2:bot-lvl,stroke:'#0006','stroke-width':2},g);
+    el('path',{d:'M'+bx+','+top+'L'+bx+','+(bot)+'L'+(bx+bw)+','+bot+'L'+(bx+bw)+','+top,fill:'none',style:'stroke:var(--ink)','stroke-width':2.5,'stroke-linejoin':'round'},g);
+    for(let k=1;k<=10;k++){const yy=bot-22*k;
+      el('line',{x1:bx+bw,x2:bx+bw-(k%2?7:12),y1:yy,y2:yy,style:'stroke:var(--ink)','stroke-width':1.2},g);
+      if(k%2===0)el('text',{x:bx+bw+4,y:yy+4,'font-size':10.5,style:'fill:var(--muted)'},g,k+' l');}
+    el('text',{x:bx+bw/2,y:bot-lvl-10,'text-anchor':'middle','font-size':16,'font-weight':700,style:'fill:var(--ink)'},g,'m = '+fmt(mass,mass<10?2:1)+' kg');
+  }
+  el('text',{x:cx,y:376,'text-anchor':'middle','font-size':14,'font-weight':600,style:'fill:var(--ink)'},g,sub.n+' – '+fmt(V)+' lít');
+}
+
+/* ===== Điều phối vẽ ===== */
+function draw(){
+  svg.textContent='';defs();
+  const g=el('g',{},svg);surface(g);
+  [sc1,sc2,sc3,sc4][S.scene](g);
+}
+
+/* ===== Bảng điều khiển phía dưới ===== */
+const bottom=$('#bottom');
+function vSlider(id,lab,min,max,step,val,unit){return '<label for="'+id+'">'+lab+'<output id="'+id+'o">'+fmt(val)+' '+unit+'</output></label><input type="range" id="'+id+'" min="'+min+'" max="'+max+'" step="'+step+'" value="'+val+'">'}
+function buildBottom(){
+  const sc=S.scene;let c='';
+  if(sc<2){
+    c=vSlider('vV','Thể tích V',10,50,5,S.V,'cm³');
+    if(sc===0)c+='<label for="vM">Chất làm thỏi</label><select id="vM">'+Object.keys(MAT).map(k=>'<option value="'+k+'"'+(k===S.mat?' selected':'')+'>'+MAT[k].n+' (D = '+fmt(MAT[k].D)+' g/cm³)</option>').join('')+'</select>';
+    else c+='<div class="hint">Đổi V rồi cân lại: m thay đổi nhưng tỉ số m/V của mỗi chất vẫn giữ nguyên.</div>';
+    c+='<div class="hint">Cân điện tử hiển thị m = D × V.</div>';
+  }else if(sc===2){
+    c=vSlider('vC','Thể tích mỗi khối',1,8,1,S.cV,'cm³')+
+      '<label for="cv">Đổi đơn vị: D (kg/m³)</label><div class="row2"><input type="number" id="cv" value="2700" min="0" step="100" style="flex:1;min-width:0"><span id="cvo" class="keyv" style="align-self:center">= 2,7 g/cm³</span></div>';
+  }else{
+    c='<div class="row2" role="group" aria-label="Đơn vị"><button class="pill'+(S.unit==='kg'?' on':'')+'" data-u="kg">kg/m³</button><button class="pill'+(S.unit==='g'?' on':'')+'" data-u="g">g/cm³</button></div>'+
+      vSlider('vL','Thể tích V',1,10,0.5,S.lV,'lít (dm³)')+'<div class="hint">1 lít = 1 dm³ = 0,001 m³</div>';
+  }
+  bottom.innerHTML='<div class="ctl">'+c+'</div><div class="dyn" id="dyn"></div>';
+  const q=id=>document.getElementById(id);
+  if(q('vV'))q('vV').addEventListener('input',e=>{S.V=+e.target.value;draw();updateBottom()});
+  if(q('vV'))q('vV').addEventListener('change',SND.click);
+  if(q('vM'))q('vM').addEventListener('change',e=>{S.mat=e.target.value;S.on=null;S.w=[0,0,0];SND.click();draw();updateBottom()});
+  if(q('vC')){q('vC').addEventListener('input',e=>{S.cV=+e.target.value;draw();updateBottom()});q('vC').addEventListener('change',SND.click)}
+  if(q('cv'))q('cv').addEventListener('input',e=>{const v=parseFloat(e.target.value);q('cvo').textContent=isFinite(v)?'= '+fmt(v/1000,4)+' g/cm³':'—'});
+  if(q('vL')){q('vL').addEventListener('input',e=>{S.lV=+e.target.value;draw();updateBottom()});q('vL').addEventListener('change',SND.click)}
+  bottom.querySelectorAll('[data-u]').forEach(b=>b.addEventListener('click',()=>{S.unit=b.dataset.u;SND.click();buildBottom();draw();updateBottom()}));
+}
+function row(cells,th){return '<tr>'+cells.map((c,i)=>(i===0||th?'<th>':'<td'+(Array.isArray(c)?c[1]:'')+'>')+(Array.isArray(c)?c[0]:c)+(i===0||th?'</th>':'</td>')).join('')+'</tr>'}
+function updateBottom(){
+  const sc=S.scene,dyn=$('#dyn');let h='';
+  const set=(id,t)=>{const o=document.getElementById(id);if(o)o.textContent=t};
+  if(sc<2){
+    set('vVo',fmt(S.V)+' cm³');
+    const keys=sc===0?[S.mat,S.mat,S.mat]:['sat','nhom','dong'];
+    const vs=sc===0?[1,2,3].map(m=>S.V*m):[S.V,S.V,S.V],lab=sc===0?['V₁ = V','V₂ = 2V','V₃ = 3V']:['V₁ = V','V₂ = V','V₃ = V'];
+    const head=sc===0?['Đại lượng','Thỏi 1','Thỏi 2','Thỏi 3']:['Đại lượng','Thỏi sắt','Thỏi nhôm','Thỏi đồng'];
+    h='<table class="bk">'+row(head,1)+
+      row(['Thể tích'].concat(vs.map((v,i)=>lab[i]+' = '+fmt(v)+' cm³')))+
+      row(['Khối lượng'].concat(vs.map((v,i)=>S.w[i]?['m<sub>'+(i+1)+'</sub> = '+fmt(v*MAT[keys[i]].D,1)+' g',' class="v"']:['m<sub>'+(i+1)+'</sub> = ?',' class="q"'])))+
+      row(['Tỉ số m/V'].concat(vs.map((v,i)=>S.w[i]?['= '+fmt(MAT[keys[i]].D)+' g/cm³',' class="v"']:['m<sub>'+(i+1)+'</sub>/V<sub>'+(i+1)+'</sub> = ?',' class="q"'])))+'</table>';
+    const n=S.w.reduce((a,b)=>a+b,0);
+    h+='<div class="remark">'+(n<3?'Đã cân '+n+'/3 thỏi. Bấm vào từng thỏi để đặt lên cân và điền bảng.':
+      (sc===0?'Nhận xét: tỉ số m/V của ba thỏi bằng nhau ('+fmt(MAT[S.mat].D)+' g/cm³), không phụ thuộc thể tích. Dự đoán: với vật liệu khác, tỉ số này sẽ khác (thử đổi chất ở ô bên cạnh).':
+      'Nhận xét: cùng thể tích nhưng khối lượng khác nhau, tỉ số m/V của sắt, nhôm, đồng khác nhau. Mỗi chất có một tỉ số m/V riêng.'))+'</div>';
+  }else if(sc===2){
+    set('vCo',fmt(S.cV)+' cm³');
+    const k=['nhom','dong','go'][S.cSel],M=MAT[k],m=M.D*S.cV;
+    h='<div class="box"><b>Khối '+M.n.toLowerCase()+'</b> (bấm khối khác để so sánh)<br>V = <span class="keyv">'+fmt(S.cV)+' cm³</span>, m = <span class="keyv">'+fmt(m)+' g</span><br>'+
+      'D = <span class="fr"><span>m</span><span>V</span></span> = <span class="fr"><span>'+fmt(m)+' g</span><span>'+fmt(S.cV)+' cm³</span></span> = <span class="keyv">'+fmt(M.D)+' g/cm³</span> = <span class="keyv">'+sp(M.D*1000)+' kg/m³</span></div>'+
+      '<div class="hint">Với 1 cm³: nhôm 2,7 g; đồng 8,96 g; gỗ 0,8 g. Tăng thể tích thì khối lượng tăng tỉ lệ, khối lượng riêng không đổi.</div>';
+  }else{
+    set('vLo',fmt(S.lV)+' lít (dm³)');
+    const s=curSub(),Vm3=S.lV/1000,m=s.D*Vm3;
+    h='<div class="box"><b>'+s.n+'</b> ('+(s.solid?'chất rắn':'chất lỏng')+'): D = <span class="keyv">'+sp(s.D)+' kg/m³</span> = <span class="keyv">'+fmt(s.D/1000,3)+' g/cm³</span><br>'+
+      'V = '+fmt(S.lV)+' dm³ = <span class="keyv">'+fmt(Vm3,4)+' m³</span><br>'+
+      'm = D × V = '+sp(s.D)+' × '+fmt(Vm3,4)+' = <span class="keyv">'+fmt(m,m<10?2:1)+' kg</span><br>'+
+      'Trọng lượng riêng d = 10D = '+sp(s.D*10)+' N/m³; P = 10m = '+fmt(m*10,m<10?1:0)+' N</div>';
+  }
+  dyn.innerHTML=h;
+}
+
+/* ===== Chuyển cảnh ===== */
+const scenesEl=$('#scenes');
+SCENES.forEach((t,i)=>{const b=document.createElement('button');b.className='pill';b.setAttribute('role','tab');b.textContent=t;b.dataset.i=i;
+  b.addEventListener('click',()=>setScene(i));scenesEl.appendChild(b)});
+function setScene(i){
+  S.scene=i;S.on=null;S.w=[0,0,0];SND.click();
+  scenesEl.querySelectorAll('.pill').forEach((b,k)=>b.setAttribute('aria-selected',k===i?'true':'false'));
+  buildBottom();draw();updateBottom();
+}
+window.__setScene=setScene;
+$('#snd').addEventListener('click',e=>{muted=!muted;e.target.textContent='Âm thanh: '+(muted?'Tắt':'Bật');e.target.setAttribute('aria-pressed',String(!muted));if(!muted)SND.click()});
+
+/* ===== Tab: Nội dung ===== */
+const FR=(a,b)=>'<span class="fr"><span>'+a+'</span><span>'+b+'</span></span>';
+$('#p0').innerHTML=
+'<h3>Mục tiêu</h3><p>• Nêu được định nghĩa khối lượng riêng, xác định được khối lượng riêng qua khối lượng và thể tích tương ứng.</p><p>• Liệt kê được một số đơn vị đo khối lượng riêng thường dùng.</p>'+
+'<div class="box or"><i>Trong đời sống, ta thường nói sắt nặng hơn nhôm. Nói như thế có đúng không? Làm thế nào để trả lời câu hỏi này?</i></div>'+
+'<h3>I – Thí nghiệm</h3>'+
+'<div class="box"><b>Thí nghiệm 1</b> (Hình 13.1)<br><i>Chuẩn bị:</i> ba thỏi sắt có thể tích V₁ = V, V₂ = 2V, V₃ = 3V; cân điện tử.<br>'+
+'<b>Bước 1:</b> dùng cân điện tử xác định khối lượng m₁, m₂, m₃.<br><b>Bước 2:</b> ghi số liệu, tính tỉ số '+FR('m','V')+' vào vở theo mẫu Bảng 13.1.<br>'+
+'<button class="go" data-scene="0">Mở Hình 13.1 trên mô hình</button></div>'+
+'<p><b>Câu hỏi:</b> 1. Hãy nhận xét về tỉ số khối lượng và thể tích của ba thỏi sắt. 2. Dự đoán về tỉ số này với các vật liệu khác nhau.</p>'+
+'<details><summary>Gợi ý trả lời</summary><p>1. Tỉ số m/V của ba thỏi sắt bằng nhau (7,8 g/cm³). 2. Với các vật liệu khác nhau, tỉ số này khác nhau.</p></details>'+
+'<div class="box"><b>Thí nghiệm 2</b> (Hình 13.2)<br><i>Chuẩn bị:</i> ba thỏi sắt, nhôm, đồng có cùng thể tích V₁ = V₂ = V₃ = V; cân điện tử.<br>'+
+'<b>Bước 1:</b> cân khối lượng của thỏi sắt, nhôm, đồng: m₁, m₂, m₃.<br><b>Bước 2:</b> tính tỉ số '+FR('m','V')+', ghi vào vở theo mẫu Bảng 13.2.<br>'+
+'<button class="go" data-scene="1">Mở Hình 13.2 trên mô hình</button></div>'+
+'<p><b>Nhận xét:</b> các chất khác nhau có tỉ số giữa khối lượng và thể tích khác nhau.</p>'+
+'<h3>II – Khối lượng riêng, đơn vị khối lượng riêng</h3>'+
+'<p>Khối lượng riêng của một chất cho ta biết khối lượng của một đơn vị thể tích chất đó.</p>'+
+'<div class="formula">Khối lượng riêng = '+FR('khối lượng','thể tích')+'<br>D = '+FR('m','V')+'</div>'+
+'<p>Nếu lấy đơn vị của khối lượng là kg hoặc g và đơn vị tương ứng của thể tích là m³ hoặc cm³ thì đơn vị của khối lượng riêng là kg/m³ hoặc g/cm³ hay g/mL:</p>'+
+'<div class="formula" style="font-size:14px">1 kg/m³ = 0,001 g/cm³<br>1 g/cm³ = 1 g/mL</div>'+
+'<p>Hình 13.3: khối lượng của 1 cm³ nhôm là 2,7 g; đồng là 8,96 g; gỗ là 0,8 g. <button class="go" data-scene="2">Mở Hình 13.3</button></p>'+
+'<p>Khi biết khối lượng riêng của một vật, ta có thể biết vật đó được cấu tạo bằng chất gì bằng cách đối chiếu với bảng khối lượng riêng của các chất. <button class="go" data-scene="3">Mở Bảng 13.3</button></p>'+
+'<div class="box"><b>Câu hỏi</b><br>1. Dựa vào đại lượng nào, người ta nói sắt nặng hơn nhôm?<br>2. Một khối gang hình hộp chữ nhật có chiều dài các cạnh là 2 cm, 3 cm, 5 cm và có khối lượng 210 g. Hãy tính khối lượng riêng của gang.</div>'+
+'<details><summary>Đáp án</summary><p>1. Khối lượng riêng (khối lượng riêng của sắt 7 800 kg/m³ lớn hơn nhôm 2 700 kg/m³).</p><p>2. V = 2 × 3 × 5 = 30 cm³; D = 210 : 30 = 7 g/cm³ = 7 000 kg/m³.</p></details>'+
+'<h3>Em có biết? Trọng lượng riêng</h3>'+
+'<div class="box">Trọng lượng của một mét khối chất gọi là trọng lượng riêng d của chất đó.<div class="formula" style="font-size:15px">d = '+FR('P','V')+'</div>P là trọng lượng (N); V là thể tích (m³). Đơn vị của trọng lượng riêng là N/m³.</div>'+
+'<h3>Em đã học</h3>'+
+'<div class="box">• Khối lượng riêng của một chất được xác định bằng khối lượng của một đơn vị thể tích chất đó: D = '+FR('m','V')+'.<br>• Đơn vị thường dùng đo khối lượng riêng là kg/m³ hoặc g/cm³ hay g/mL: 1 kg/m³ = 0,001 g/cm³; 1 g/cm³ = 1 g/mL.</div>'+
+'<h3>Em có thể</h3>'+
+'<div class="box or">Tính được khối lượng của vật khi biết khối lượng riêng và thể tích. Ví dụ, tính khối lượng của một cột bê tông hình trụ hay khối lượng nước trong một bể hình hộp chữ nhật,…</div>';
+
+/* ===== Tab: Ôn tập ===== */
+const MATS_Q=[['sắt',7800],['nhôm',2700],['đồng',8960],['chì',11300],['nước',1000],['gỗ tốt',800],['thuỷ ngân',13600],['xăng',700]];
+let prob=null;
+function newProb(first){
+  if(first){prob={t:'a',txt:'Một khối gang hình hộp chữ nhật có các cạnh 2 cm, 3 cm, 5 cm và khối lượng 210 g. Tính khối lượng riêng của gang theo g/cm³.',ans:7,unit:'g/cm³',expl:'V = 2 × 3 × 5 = 30 cm³; D = m/V = 210/30 = 7 g/cm³ (= 7 000 kg/m³).'};return}
+  const r=Math.random(),x=MATS_Q[Math.floor(Math.random()*MATS_Q.length)],V=[50,100,200,250,400][Math.floor(Math.random()*5)];
+  if(r<.5){prob={t:'m',txt:'Một khối '+x[0]+' có thể tích '+V+' cm³. Biết khối lượng riêng của '+x[0]+' là '+fmt(x[1]/1000,3)+' g/cm³. Tính khối lượng của khối đó theo g.',ans:x[1]/1000*V,unit:'g',expl:'m = D × V = '+fmt(x[1]/1000,3)+' × '+V+' = '+fmt(x[1]/1000*V,2)+' g.'}}
+  else{const m=x[1]/1000*V;prob={t:'d',txt:'Một vật bằng chất chưa biết có khối lượng '+fmt(m,1)+' g và thể tích '+V+' cm³. Tính khối lượng riêng theo kg/m³ và đối chiếu Bảng 13.3 để đoán chất.',ans:x[1],unit:'kg/m³',expl:'D = m/V = '+fmt(m,1)+'/'+V+' = '+fmt(x[1]/1000,3)+' g/cm³ = '+sp(x[1])+' kg/m³, đó là '+x[0]+'.'}}
+}
+function renderReview(msg){
+  $('#p1').innerHTML=
+  '<h3>Ghi nhớ nhanh</h3>'+
+  '<div class="formula">D = '+FR('m','V')+'</div>'+
+  '<div class="box">• D: khối lượng riêng; m: khối lượng; V: thể tích.<br>• Suy ra: m = D × V và V = m : D.<br>• Đơn vị: kg/m³, g/cm³ (g/mL).<br>• 1 kg/m³ = 0,001 g/cm³; 1 g/cm³ = 1 000 kg/m³.<br>• Trọng lượng riêng d = '+FR('P','V')+' = 10D (N/m³).</div>'+
+  '<h3>Khối lượng riêng một số chất (kg/m³)</h3>'+
+  '<div class="box">Chì 11 300 · Sắt 7 800 · Nhôm 2 700 · Đá ≈ 2 600 · Gạo ≈ 1 200 · Gỗ tốt ≈ 800<br>Thuỷ ngân 13 600 · Nước 1 000 · Xăng 700 · Dầu hoả ≈ 800 · Dầu ăn ≈ 800 · Rượu, cồn ≈ 790</div>'+
+  '<h3>Luyện tính</h3>'+
+  '<div class="box"><div id="pb">'+prob.txt+'</div><div class="ans" style="margin-top:8px"><input id="pa" inputmode="decimal" placeholder="Đáp số" aria-label="Đáp số"><span class="hint">'+prob.unit+'</span><button class="btn" id="pc">Kiểm tra</button></div><div id="pf" style="margin-top:8px">'+(msg||'')+'</div>'+
+  '<button class="go" id="pn" style="margin-top:8px">Câu mới</button><button class="go" data-scene="3" style="margin-top:8px">Mở Bảng 13.3</button></div>'+
+  '<h3>Thử trên mô hình</h3>'+
+  '<div class="box">• Hình 13.1: đổi V rồi cân cả ba thỏi, tỉ số m/V có đổi không?<br>• Hình 13.2: so sánh m/V của sắt, nhôm, đồng.<br>• Hình 13.3: tăng thể tích khối, khối lượng riêng có đổi không?<br>• Bảng 13.3: chọn nước, thể tích 5 lít, tính m.</div>';
+  $('#pc').onclick=()=>{
+    const v=parseFloat(($('#pa').value||'').replace(',','.'));
+    const ok=isFinite(v)&&Math.abs(v-prob.ans)<=Math.max(.01*Math.abs(prob.ans),.011);
+    $('#pf').innerHTML='<div class="fb '+(ok?'ok':'bad')+'">'+(ok?'Chính xác! ':'Chưa đúng. ')+prob.expl+'</div>';
+    ok?SND.ok():SND.bad();
+  };
+  $('#pn').onclick=()=>{SND.click();newProb(false);renderReview()};
+}
+newProb(true);renderReview();
+
+/* ===== Tab: Trắc nghiệm ===== */
+const QZ=[
+ ['Khối lượng riêng của một chất được xác định bằng:',['khối lượng của một đơn vị thể tích chất đó','thể tích của một đơn vị khối lượng chất đó','tích của khối lượng và thể tích','tổng của khối lượng và thể tích'],0,'D là khối lượng của một đơn vị thể tích chất đó.'],
+ ['Công thức tính khối lượng riêng là:',['D = m.V','D = V/m','D = m/V','D = P/V'],2,'D = m/V. Còn d = P/V là trọng lượng riêng.'],
+ ['1 g/cm³ bằng:',['1 g/mL','0,001 g/mL','10 g/mL','1 000 g/mL'],0,'1 g/cm³ = 1 g/mL.'],
+ ['1 kg/m³ bằng bao nhiêu g/cm³?',['1','0,1','0,001','1 000'],2,'1 kg/m³ = 0,001 g/cm³.'],
+ ['Dựa vào đại lượng nào, người ta nói sắt nặng hơn nhôm?',['Thể tích','Khối lượng riêng','Chiều dài','Màu sắc'],1,'Khối lượng riêng của sắt (7 800 kg/m³) lớn hơn nhôm (2 700 kg/m³).'],
+ ['Khối gang hình hộp có các cạnh 2 cm, 3 cm, 5 cm, khối lượng 210 g. Khối lượng riêng của gang là:',['7 g/cm³','70 g/cm³','0,14 g/cm³','21 g/cm³'],0,'V = 30 cm³; D = 210/30 = 7 g/cm³ = 7 000 kg/m³.'],
+ ['Theo Bảng 13.3, khối lượng riêng của nước là:',['700 kg/m³','800 kg/m³','1 000 kg/m³','13 600 kg/m³'],2,'Nước: 1 000 kg/m³.'],
+ ['Theo Hình 13.3, 1 cm³ gỗ có khối lượng:',['2,7 g','8,96 g','0,8 g','7,8 g'],2,'1 cm³ gỗ: 0,8 g (nhôm 2,7 g; đồng 8,96 g).'],
+ ['Chất lỏng nào trong Bảng 13.3 có khối lượng riêng lớn nhất?',['Nước','Xăng','Thuỷ ngân','Dầu ăn'],2,'Thuỷ ngân: 13 600 kg/m³.'],
+ ['Đơn vị của trọng lượng riêng là:',['kg/m³','N/m³','g/cm³','N/kg'],1,'d = P/V, P đo bằng N, V đo bằng m³ nên d đo bằng N/m³.'],
+ ['Ở Thí nghiệm 1, khi tăng thể tích thỏi sắt gấp đôi thì tỉ số m/V:',['tăng gấp đôi','giảm một nửa','không đổi','bằng 0'],2,'Với cùng một chất, m/V không đổi (7,8 g/cm³).']
+];
+let qi=0,score=0,order=[],answered=false;
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function startQuiz(){qi=0;score=0;answered=false;renderQ()}
+function renderQ(){
+  const p=$('#p2');
+  if(qi>=QZ.length){
+    const pct=Math.round(score/QZ.length*100);
+    p.innerHTML='<h3>Kết quả</h3><div class="formula">'+score+' / '+QZ.length+' câu đúng ('+pct+'%)</div><p>'+(pct>=80?'Rất tốt! Em đã nắm vững khối lượng riêng.':pct>=50?'Khá ổn. Hãy xem lại tab Nội dung và thử lại các mô hình.':'Cần ôn thêm. Thử lại các thí nghiệm trên mô hình rồi làm lại nhé.')+'</p><button class="btn" id="qr">Làm lại</button>';
+    $('#qr').onclick=()=>{SND.click();startQuiz()};
+    pct>=50?SND.ok():SND.bad();return;
+  }
+  const q=QZ[qi];order=shuffle([0,1,2,3]);answered=false;
+  p.innerHTML='<div class="q-card"><div class="hint">Câu '+(qi+1)+'/'+QZ.length+' · Điểm: '+score+'</div><div class="prog"><i style="width:'+(qi/QZ.length*100)+'%"></i></div>'+
+   '<b>'+q[0]+'</b>'+order.map(k=>'<button class="opt" data-k="'+k+'">'+q[1][k]+'</button>').join('')+'<div id="qf"></div></div>';
+  p.scrollTop=0;
+  p.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{
+    if(answered)return;answered=true;
+    const k=+b.dataset.k,ok=k===q[2];
+    p.querySelectorAll('.opt').forEach(o=>{o.disabled=true;if(+o.dataset.k===q[2])o.classList.add('ok')});
+    if(!ok)b.classList.add('bad');
+    if(ok){score++;SND.ok()}else SND.bad();
+    $('#qf').innerHTML='<div class="fb '+(ok?'ok':'bad')+'"><b>'+(ok?'Đúng rồi!':'Chưa đúng.')+'</b> '+q[3]+'</div><button class="btn" id="qn" style="margin-top:8px">'+(qi+1<QZ.length?'Câu tiếp theo':'Xem kết quả')+'</button>';
+    $('#qn').onclick=()=>{SND.click();qi++;renderQ()};
+  }));
+}
+startQuiz();
+
+/* ===== Tab + nút mở cảnh ===== */
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
+  const t=+b.dataset.t;SND.click();
+  document.querySelectorAll('.tab').forEach((x,i)=>x.setAttribute('aria-selected',i===t?'true':'false'));
+  [0,1,2].forEach(i=>{$('#p'+i).hidden=i!==t});
+}));
+document.addEventListener('click',e=>{const b=e.target.closest('[data-scene]');if(b)setScene(+b.dataset.scene)});
+
+setScene(0);
+})();
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Chặn phím tắt: F12, Ctrl+U, Ctrl+Shift+I/J/C, Ctrl+S
+    document.addEventListener('keydown', function(e) {
+      const key = e.key.toLowerCase();
+
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) || 
+        (e.ctrlKey && (key === 'u' || key === 's'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 2. Chặn chuột phải (Context Menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  });
+</script>
+</body>
+</html>

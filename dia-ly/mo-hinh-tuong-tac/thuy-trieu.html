@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thủy triều và Mặt trăng – Mô hình 3D</title>
+<style>
+:root{--bg:#eaf4fb;--card:#fff;--tx:#10283d;--mu:#4d6a82;--ac:#0a7ac4;--ac2:#e8f3fc;--bd:#cfe0ee;--ok:#1a9a5b;--no:#d23f3f;--pad-t:env(safe-area-inset-top,0px);--pad-b:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#07172a;--card:#0f2640;--tx:#e6f1fb;--mu:#93aec6;--ac:#4cb4f5;--ac2:#12365a;--bd:#1d3f63;--ok:#43d38b;--no:#ff7676}}
+:root[data-theme="dark"]{--bg:#07172a;--card:#0f2640;--tx:#e6f1fb;--mu:#93aec6;--ac:#4cb4f5;--ac2:#12365a;--bd:#1d3f63;--ok:#43d38b;--no:#ff7676}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--tx);font:15px/1.55 system-ui,"Segoe UI",Roboto,sans-serif}
+body{padding-top:var(--pad-t);padding-bottom:var(--pad-b)}
+#app{display:grid;grid-template-columns:3fr 1fr;height:100%;min-height:0}
+#stage{position:relative;min-width:0;min-height:0;background:radial-gradient(ellipse at 40% 30%,#4a3a5c,#1c1727 55%,#08060d)}
+#foot{left:0;right:0;bottom:0;text-align:center;padding:6px 0 calc(6px);font-size:13px;letter-spacing:.3px;background:rgba(8,6,13,.85);border-top:1px solid rgba(255,255,255,.15);pointer-events:none;z-index:6}
+#foot b{color:#ff8a1f;font-weight:800}
+#c{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.hud{position:absolute;color:#e6f1fb;font-size:13px}
+#title{top:10px;left:12px;max-width:55%}
+#title b{font-size:18px;display:block}
+#title span{opacity:.8}
+#read{top:10px;right:12px;background:rgba(5,18,34,.7);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:8px 12px;min-width:170px;backdrop-filter:blur(6px)}
+#bar{height:8px;border-radius:5px;background:rgba(255,255,255,.18);margin:6px 0;overflow:hidden}
+#bar i{display:block;height:100%;width:50%;background:linear-gradient(90deg,#39b0ff,#8ff);transition:width .15s}
+#ctl{left:10px;right:10px;bottom:42px;background:rgba(5,18,34,.72);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:8px 10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;backdrop-filter:blur(6px)}
+#ctl label{display:flex;gap:6px;align-items:center;flex:1 1 220px}
+#ctl input[type=range]{flex:1;min-width:80px}
+button{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:9px;padding:5px 10px}
+#ctl button{background:rgba(255,255,255,.1);color:#e6f1fb;border-color:rgba(255,255,255,.22);padding:4px 9px;font-size:12.5px}
+button:hover{border-color:var(--ac)}button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+#panel{display:flex;flex-direction:column;min-width:0;min-height:0;border-left:1px solid var(--bd);background:var(--bg)}
+#tabs{display:flex;flex:none;gap:4px;padding:8px 8px 0}
+#tabs button{flex:1;border-radius:9px 9px 0 0;padding:7px 2px;font-size:13px;font-weight:600}
+#tools{flex:none;display:flex;gap:6px;align-items:center;padding:6px 8px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+#tools select{font:inherit;font-size:12.5px;background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:3px}
+.pane{display:none;flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:10px 12px 18px;-webkit-overflow-scrolling:touch}
+.pane.show{display:block}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px 12px;margin:0 0 10px}
+.card h3{margin:0 0 4px;font-size:15px;color:var(--ac);display:flex;justify-content:space-between;gap:6px;align-items:center}
+.card p{margin:0}
+.sp{font-size:12px;padding:2px 7px}
+.fc{cursor:pointer;min-height:70px;transition:.2s}.fc .a{display:none;color:var(--ok);font-weight:600}.fc.f .a{display:block}.fc.f .q{display:none}
+.qopt{display:block;width:100%;text-align:left;margin:6px 0;padding:8px 10px}
+.qopt.ok{background:var(--ok);color:#fff;border-color:var(--ok)}.qopt.no{background:var(--no);color:#fff;border-color:var(--no)}
+.mu{color:var(--mu);font-size:13px}
+table{border-collapse:collapse;width:100%;font-size:13px}td,th{border:1px solid var(--bd);padding:4px 6px;text-align:left}
+#toast{position:fixed;left:50%;bottom:calc(14px + var(--pad-b));transform:translateX(-50%);background:#000c;color:#fff;padding:8px 14px;border-radius:20px;font-size:13px;display:none;z-index:9;max-width:90%}
+@media(max-width:820px){#app{grid-template-columns:1fr;grid-template-rows:56% 44%}#panel{border-left:0;border-top:1px solid var(--bd)}#title{display:none}#read{top:6px;right:6px;padding:5px 8px;min-width:0}}
+</style>
+</head>
+<body>
+<div id="app">
+ <div id="stage">
+  <canvas id="c"></canvas>
+  <div class="hud" id="title"><b>🌊 Thủy triều &amp; Mặt trăng</b><span>Kéo để xoay · cuộn/chụm để phóng to · 📍 là người quan sát</span></div>
+  <div class="hud" id="read"><div id="phase">Trăng mới</div><div id="spring" class="mu" style="color:#9fd">—</div><div id="bar"><i></i></div><div id="lvl">Nơi 📍: …</div></div>
+  <div class="hud" id="ctl">
+   <label>🌙 <input id="ph" type="range" min="0" max="360" value="0"><span id="phv" style="min-width:36px">0°</span></label>
+   <button data-p="0">Trăng mới</button><button data-p="90">Thượng huyền</button><button data-p="180">Trăng tròn</button><button data-p="270">Hạ huyền</button>
+   <button id="bOrb">▶ Mặt trăng quay</button><button id="bRot" class="on">⟳ Trái đất quay</button><button id="bSnd">🔈 Sóng biển</button>
+  </div>
+  <div class="hud" id="foot">Produced of <b>LucianEdu</b></div>
+ </div>
+ <div id="panel">
+  <div id="tabs"><button data-t="0" class="on">📖 Mô tả</button><button data-t="1">🧠 Ôn tập</button><button data-t="2">🎮 Trò chơi</button></div>
+  <div id="tools"><button id="bRead">🔊 Đọc tab</button><button id="bStop">⏹</button><select id="rate" title="Tốc độ đọc"><option value=".8">Chậm</option><option value="1" selected>Vừa</option><option value="1.2">Nhanh</option></select><select id="lv" title="Mức độ"><option value="s">🧒 Tiểu học</option><option value="m" selected>🧑 THCS</option><option value="d">🎓 THPT</option></select></div>
+  <div class="pane show" id="p0"></div><div class="pane" id="p1"></div><div class="pane" id="p2"></div>
+ </div>
+</div>
+<div id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+window.addEventListener('error',e=>{const d=document.createElement('div');d.style.cssText='position:absolute;left:12px;right:12px;top:50%;color:#fff;background:#a22;padding:10px;border-radius:8px;z-index:5;font-size:13px';d.textContent='Lỗi: '+e.message+' (dòng '+e.lineno+')';$('#stage').appendChild(d)});
+/* ===== ÂM THANH ===== */
+let AC,amb,ambOn=false;
+function ac(){if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}
+function tone(f,d=.15,type='sine',v=.12,delay=0){try{const a=ac(),o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.value=f;const t=a.currentTime+delay;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(a.destination);o.start(t);o.stop(t+d+.02)}catch(e){}}
+const sfx={click:()=>tone(660,.08,'triangle'),ok:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.18,'triangle',.13,i*.09)),no:()=>{tone(180,.3,'sawtooth',.09);tone(150,.3,'sawtooth',.09,.12)},flip:()=>tone(880,.06,'square',.05),win:()=>[523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,.25,'triangle',.14,i*.11))};
+function ambient(on){ambOn=on;const a=ac();if(on&&!amb){const n=a.sampleRate*2,b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);let l=0;for(let i=0;i<n;i++){l=(l+.02*(Math.random()*2-1))/1.02;d[i]=l*3.5}
+ const s=a.createBufferSource();s.buffer=b;s.loop=true;const f=a.createBiquadFilter();f.type='lowpass';f.frequency.value=500;const g=a.createGain();g.gain.value=0;s.connect(f).connect(g).connect(a.destination);s.start();amb={g,f};
+ setInterval(()=>{if(!ambOn)return;const t=a.currentTime;f.frequency.setTargetAtTime(350+300*Math.sin(t*.9)**2,t,.3)},200)}
+ if(amb)amb.g.gain.setTargetAtTime(on?.35:0,AC.currentTime,.3)}
+/* ===== GIỌNG ĐỌC TIẾNG VIỆT ===== */
+let reading=false;
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(t._x);t._x=setTimeout(()=>t.style.display='none',3500)}
+function stopSpeak(){reading=false;if('speechSynthesis'in window)speechSynthesis.cancel();$('#bRead').textContent='🔊 Đọc tab';$('#bRead').classList.remove('on')}
+function speak(text,done){if(!('speechSynthesis'in window)){toast('Trình duyệt chưa hỗ trợ giọng đọc.');return}
+ stopSpeak();reading=true;$('#bRead').textContent='⏸ Đang đọc…';$('#bRead').classList.add('on');
+ const vs=speechSynthesis.getVoices(),v=vs.find(x=>/^vi/i.test(x.lang));if(!v)toast('Thiết bị chưa có giọng tiếng Việt; thử bật giọng vi-VN trong cài đặt hệ thống.');
+ const ch=(text.replace(/\s+/g,' ').match(/[^.!?;:]+[.!?;:]?/g)||[]).map(s=>s.trim()).filter(Boolean);
+ ch.forEach((s,i)=>{const u=new SpeechSynthesisUtterance(s);u.lang='vi-VN';if(v)u.voice=v;u.rate=+$('#rate').value;if(i==ch.length-1)u.onend=()=>{if(reading){stopSpeak();done&&done()}};speechSynthesis.speak(u)})}
+if('speechSynthesis'in window)speechSynthesis.onvoiceschanged=()=>{};
+/* ===== NỘI DUNG ===== */
+const SEC=[
+['🌙','Mặt trăng kéo đại dương',
+ 'Mặt trăng kéo nước biển về phía nó bằng lực hấp dẫn. Nhờ vậy nước biển dâng lên rồi rút xuống mỗi ngày. Đó là thủy triều.',
+ 'Sự dâng lên và hạ xuống của thủy triều trên khắp các vùng duyên hải là sự nhắc nhở hàng ngày về tác động của Mặt trăng lên hành tinh của chúng ta. Lực hấp dẫn của Mặt trăng hút lên Trái đất là nguyên nhân chính của thủy triều đại dương. Nó làm biến dạng quả cầu đá của hành tinh xanh chỉ vài centimét, nhưng làm các đại dương co giãn từ 1 đến 3 mét. Sự kéo giật liên tục của thủy triều đang làm chậm dần chuyển động quay của Trái đất và làm quỹ đạo rộng hơn. Ngày dài ra khoảng 2 mili giây mỗi thế kỉ, và mỗi năm Mặt trăng lùi ra xa chừng 3,8 xăng-ti-mét.'],
+['🌍','Thủy triều và Mặt trăng: hai chỗ nhô',
+ 'Trái đất giống quả bóng nước hơi bị kéo dài. Nước nhô lên ở phía gần Mặt trăng và cả phía xa Mặt trăng. Trái đất tự quay nên mỗi nơi lần lượt đi qua hai chỗ nhô đó.',
+ 'Lực hấp dẫn của Mặt trăng làm Trái đất dẹt thành hình hơi oval, vì lực hút mạnh nhất ở phía Trái đất đối diện Mặt trăng và yếu nhất ở phía bên kia. Các đại dương co giãn nhiều hơn quả cầu đá vì chúng ở thể lỏng. Điều này tạo ra chỗ nhô thủy triều ở cả hai phía địa cầu. Chuyển động hằng ngày của Trái đất kéo hai đỉnh thủy triều đi cùng nó, nên chúng quét qua khắp hành tinh và nằm ở phía trước Mặt trăng một chút chứ không thẳng hàng.'],
+['📈','Triều dâng và triều rút',
+ 'Mỗi ngày thường có hai lần nước lên và hai lần nước xuống, cách nhau hơn 12 tiếng. Mỗi nơi lên xuống mạnh yếu khác nhau tùy bờ biển và độ sâu.',
+ 'Độ cao và tần suất thủy triều thay đổi từ vùng biển này sang vùng biển khác do nhiều yếu tố, chẳng hạn hình dạng đường bờ biển và chiều sâu của nước. Chênh lệch giữa triều cao và triều thấp ở vịnh Fundy, cong và hẹp, thuộc Canada, là gần 16 mét, lớn nhất thế giới. Đa số vùng duyên hải có hai lần triều dâng mỗi ngày, cách nhau 12 giờ 25 phút, nhưng một số nơi chỉ có một lần triều dâng trong 24 giờ 50 phút.'],
+['⚡','Nhà máy điện thủy triều',
+ 'Nước lên xuống làm quay tuabin để tạo ra điện sạch. Nhà máy đầu tiên của thế giới ở nước Pháp, mở năm 1966.',
+ 'Năng lượng thủy triều có thể khai thác để phát điện. Nhà máy điện thủy triều mở cửa ở Brittany, Pháp, năm 1966, là nhà máy đầu tiên trên thế giới. Một con đập dài 750 mét vắt ngang cửa sông Rance. Nước chảy qua các tuabin khi thủy triều dâng vào và rút ra. Nước chảy làm quay tuabin, phát ra điện.'],
+['🦀','Hốc đá do thủy triều',
+ 'Khi nước rút, cua, ốc, sao biển ở lại các hốc đá đầy nước để khỏi bị khô. Khi nước lên, biển lại phủ kín chúng.',
+ 'Chu kì thủy triều tạo ra một môi trường sống lưỡng cư ở vùng bờ biển. Lúc triều cao, môi trường đó ngập chìm trong nước. Khi triều rút, nước biến mất và động vật biển lộ ra phải trú ẩn trong các hốc đá. Một số dạng sống tồn tại bên ngoài hốc đá vì chúng đủ bền bỉ để chống chọi với sự khô nước.'],
+['☀️','Triều cường và triều cạn',
+ 'Mặt trời cũng kéo nước biển nhưng yếu hơn Mặt trăng. Trăng mới và trăng tròn: hai lực cùng hướng, nước lên rất cao (triều cường). Trăng bán nguyệt: hai lực làm yếu nhau, nước lên thấp (triều cạn).',
+ 'Mặt trời cũng ảnh hưởng đến thủy triều đại dương, dù sức hút yếu hơn Mặt trăng. Mức thủy triều cao nhất, gọi là triều cường, xảy ra khi Mặt trời và Mặt trăng hợp lực với nhau lúc trăng mới và trăng tròn. Mức thủy triều thấp nhất, gọi là triều cạn, xảy ra lúc một phần tư mặt trăng đầu và cuối, khi lực hút của Mặt trời phần nào kháng lại lực hút của Mặt trăng.']];
+const MID=['Lực hấp dẫn của Mặt trăng hút lên Trái đất là nguyên nhân chính gây ra thủy triều đại dương. Lực này chỉ làm quả cầu đá biến dạng vài centimét, nhưng làm đại dương lên xuống khoảng 1 đến 3 mét. Thủy triều còn làm Trái đất quay chậm dần: ngày dài thêm khoảng 2 mili giây mỗi thế kỉ và Mặt trăng lùi xa khoảng 3,8 cm mỗi năm.',
+'Lực hút của Mặt trăng mạnh nhất ở phía gần Mặt trăng và yếu nhất ở phía xa, nên nước biển nhô lên ở hai phía đối diện nhau, khiến Trái đất hơi oval. Trái đất tự quay nên các vùng bờ biển lần lượt đi qua hai chỗ nhô này, nghĩa là mỗi ngày có hai lần nước dâng.',
+'Hầu hết vùng ven biển có hai lần triều dâng mỗi ngày, cách nhau 12 giờ 25 phút. Một số nơi chỉ có một lần trong 24 giờ 50 phút. Độ cao thủy triều phụ thuộc hình dạng bờ biển và độ sâu. Vịnh Fundy ở Canada, cong và hẹp, có chênh lệch gần 16 m, lớn nhất thế giới.',
+'Nước chảy theo thủy triều làm quay tuabin để phát điện. Nhà máy điện thủy triều đầu tiên thế giới mở năm 1966 ở Brittany, Pháp, với đập dài 750 m chắn ngang cửa sông Rance. Nước chảy qua tuabin cả khi triều dâng vào lẫn khi triều rút ra.',
+'Vùng triều là môi trường lúc ngập nước, lúc lộ ra. Khi triều rút, động vật biển phải trú trong các hốc đá còn đọng nước. Một số loài đủ bền bỉ để sống ngoài hốc đá và chịu được khô.',
+'Mặt trời cũng gây thủy triều nhưng yếu hơn Mặt trăng. Lúc trăng mới và trăng tròn, Mặt trời, Mặt trăng và Trái đất gần thẳng hàng, hai lực cộng lại gây triều cường (cao nhất). Lúc thượng huyền và hạ huyền, hai lực lệch nhau 90 độ nên yếu đi, gây triều cạn (thấp nhất).'];
+const EXT=['Về bản chất đó là lực triều: chênh lệch lực hấp dẫn giữa các điểm trên Trái đất, tỉ lệ nghịch với lập phương khoảng cách. Vì Mặt trăng ở gần nên gây thủy triều mạnh hơn Mặt trời khoảng 2,2 lần. Ma sát triều làm Trái đất mất mô men động lượng quay, còn Mặt trăng nhận thêm nên lùi ra xa.',
+'Nếu lấy tâm Trái đất làm mốc, phần lực hấp dẫn còn lại hướng về Mặt trăng ở phía gần và hướng ra xa ở phía đối diện, tạo hai chỗ nhô. Ma sát giữa nước và đáy biển kéo đỉnh triều lệch về phía trước Mặt trăng, như trên mô hình 3D, tạo mô men làm chậm sự quay của Trái đất.',
+'Ngày thủy triều dài 24 giờ 50 phút vì khi Trái đất quay một vòng, Mặt trăng cũng đi tiếp trên quỹ đạo, nên Trái đất phải quay thêm khoảng 50 phút mới đối mặt lại Mặt trăng. Ở các vịnh hẹp hình phễu như Fundy, hiện tượng cộng hưởng làm biên độ triều tăng mạnh.',
+'Công suất phụ thuộc chênh lệch mực nước và lượng nước qua tuabin: thế năng của nước được chuyển thành động năng, quay tuabin và máy phát điện. Ưu điểm là sản lượng dự đoán được theo lịch thiên văn. Hạn chế là chi phí xây dựng cao và có tác động đến hệ sinh thái cửa sông.',
+'Sinh vật vùng triều thích nghi với biến động mạnh về độ mặn, nhiệt độ và độ khô, ví dụ bám chắc vào đá hoặc khép kín vỏ để giữ nước. Môi trường chia thành các đới theo độ cao so với mực triều, mỗi đới có quần xã sinh vật riêng.',
+'Chu kì tuần trăng khoảng 29,5 ngày nên triều cường và triều cạn lặp lại mỗi nửa chu kì, khoảng 14,8 ngày. Biên độ triều còn thay đổi theo khoảng cách Trái đất – Mặt trăng và địa hình, nên mỗi nơi có đặc trưng thủy triều riêng.'];
+function txt(i,L){return L=='s'?SEC[i][2]:L=='m'?MID[i]:SEC[i][3]+' '+EXT[i]}
+const CARDS=[['Nguyên nhân chính của thủy triều?','Lực hấp dẫn của Mặt trăng.'],['Đại dương co giãn bao nhiêu?','Khoảng 1 – 3 m (quả cầu đá chỉ vài cm).'],['Vì sao có hai chỗ nhô?','Lực hút mạnh nhất ở phía gần Mặt trăng, yếu nhất ở phía xa, nên nước nhô cả hai phía.'],['Mỗi ngày có mấy lần triều dâng?','Thường 2 lần, cách nhau 12 giờ 25 phút (một số nơi chỉ 1 lần mỗi 24 giờ 50 phút).'],['Nơi chênh lệch triều lớn nhất?','Vịnh Fundy (Canada), gần 16 m.'],['Nhà máy điện thủy triều đầu tiên?','Sông Rance, Brittany (Pháp), năm 1966, đập dài 750 m.'],['Triều cường xảy ra khi nào?','Trăng mới và trăng tròn: Mặt trời, Mặt trăng hợp lực.'],['Triều cạn xảy ra khi nào?','Một phần tư đầu và cuối (bán nguyệt): hai lực kháng nhau.'],['Thủy triều ảnh hưởng gì đến Trái đất?','Ngày dài thêm ~2 mili giây/thế kỉ; Mặt trăng lùi xa ~3,8 cm/năm.']];
+const QS=[['Nguyên nhân chính gây ra thủy triều đại dương là gì?','Lực hấp dẫn của Mặt trăng',['Gió thổi mạnh','Động đất dưới đáy biển','Dòng sông đổ ra biển'],'Lực hút của Mặt trăng kéo nước biển tạo ra thủy triều.'],
+['Thủy triều làm đại dương co giãn khoảng bao nhiêu?','1 – 3 mét',['Vài centimét','50 mét','16 mét ở khắp nơi'],'Đại dương co giãn 1 – 3 m, còn quả cầu đá chỉ biến dạng vài cm.'],
+['Mỗi năm Mặt trăng lùi ra xa Trái đất khoảng bao nhiêu?','3,8 cm',['3,8 m','38 cm','0,38 mm'],'Mặt trăng lùi xa chừng 3,8 cm mỗi năm.'],
+['Ngày dài ra khoảng bao nhiêu mỗi thế kỉ?','2 mili giây',['2 giờ','2 phút','2 giây'],'Thủy triều làm Trái đất quay chậm dần, ngày dài ra khoảng 2 mili giây mỗi thế kỉ.'],
+['Vì sao nước nhô lên ở cả hai phía Trái đất?','Lực hút mạnh nhất ở phía gần và yếu nhất ở phía xa Mặt trăng',['Vì Mặt trời chiếu cả hai phía','Vì có hai Mặt trăng','Vì gió đẩy nước'],'Chênh lệch lực hút làm Trái đất hơi oval, nước nhô ở hai phía.'],
+['Đa số vùng duyên hải có mấy lần triều dâng mỗi ngày?','2 lần',['1 lần','3 lần','4 lần'],'Thường 2 lần, cách nhau 12 giờ 25 phút.'],
+['Nơi nào có chênh lệch thủy triều lớn nhất thế giới (~16 m)?','Vịnh Fundy, Canada',['Sông Rance, Pháp','Biển Đông','Vịnh Hạ Long'],'Vịnh Fundy cong và hẹp nên chênh lệch triều gần 16 m.'],
+['Nhà máy điện thủy triều đầu tiên mở ở đâu, năm nào?','Cửa sông Rance (Pháp), 1966',['Canada, 1900','Nhật Bản, 1980','Mỹ, 2000'],'Đập dài 750 m ngang cửa sông Rance, nước chảy làm quay tuabin.'],
+['Triều cường xảy ra vào lúc nào?','Trăng mới và trăng tròn',['Thượng huyền và hạ huyền','Chỉ ban đêm','Chỉ mùa đông'],'Mặt trời và Mặt trăng cùng hợp lực nên nước lên cao nhất.'],
+['Triều cạn xảy ra vào lúc nào?','Một phần tư mặt trăng đầu và cuối',['Trăng mới','Trăng tròn','Không bao giờ'],'Lực hút của Mặt trời phần nào kháng lại lực hút của Mặt trăng.'],
+['Lực hút của Mặt trời so với Mặt trăng đối với thủy triều?','Yếu hơn',['Mạnh hơn nhiều','Không có','Bằng hệt nhau'],'Mặt trời cũng ảnh hưởng thủy triều nhưng sức hút yếu hơn Mặt trăng.'],
+['Khi triều rút, động vật biển bị lộ ra thường làm gì?','Trú ẩn trong các hốc đá',['Bay lên trời','Chui vào cát sâu 100 m','Bỏ đi hết khỏi bờ biển mãi mãi'],'Hốc đá giữ nước giúp chúng chống khô.']];
+const CS=[['Ai kéo nước biển lên xuống?','Mặt trăng, bằng sức hút (lực hấp dẫn).'],['Nước biển lên xuống mỗi ngày gọi là gì?','Thủy triều.'],['Mỗi ngày nước dâng mấy lần?','Thường là 2 lần.'],['Nước biển nhô lên ở phía nào?','Cả phía gần và phía xa Mặt trăng, nên Trái đất giống quả bóng nước hơi dài ra.'],['Khi nước rút, cua và ốc làm gì?','Trốn vào các hốc đá còn nước để khỏi bị khô.'],['Làm sao có điện từ thủy triều?','Nước chảy làm quay tuabin. Nhà máy đầu tiên ở nước Pháp.'],['Trăng tròn và trăng mới thì nước thế nào?','Lên rất cao, gọi là triều cường.']];
+const CD=[['Lực triều tỉ lệ với gì?','Tỉ lệ nghịch với lập phương khoảng cách (M/d³).'],['Mặt trăng gây triều mạnh hơn Mặt trời bao nhiêu?','Khoảng 2,2 lần, vì ở gần hơn.'],['Vì sao hai lần triều cách nhau 12 giờ 25 phút?','Mặt trăng đi tiếp trên quỹ đạo nên một ngày thủy triều dài 24 giờ 50 phút.'],['Vì sao đỉnh triều lệch về phía trước Mặt trăng?','Ma sát nước – đáy biển và sự quay của Trái đất kéo đỉnh triều đi trước.'],['Hệ quả lâu dài của ma sát triều?','Ngày dài thêm ~2 mili giây/thế kỉ; Mặt trăng lùi xa ~3,8 cm/năm.'],['Triều cường lặp lại sau bao lâu?','Khoảng 14,8 ngày (nửa chu kì tuần trăng 29,5 ngày).'],['Vì sao vịnh Fundy chênh lệch gần 16 m?','Vịnh cong, hẹp; cộng hưởng làm biên độ triều tăng mạnh.'],['Triều cạn xảy ra khi nào, vì sao?','Thượng huyền và hạ huyền: lực Mặt trời kháng lại lực Mặt trăng.'],['Ưu và nhược của điện thủy triều?','Dự đoán được sản lượng; nhưng chi phí cao, ảnh hưởng hệ sinh thái cửa sông.']];
+const CL={s:CS,m:CARDS,d:CD};
+const QSs=[['Ai kéo nước biển lên xuống?','Mặt trăng',['Con gió','Cá voi'],'Mặt trăng hút nước biển bằng lực hấp dẫn.'],['Nước biển lên xuống mỗi ngày gọi là gì?','Thủy triều',['Sóng thần','Bão'],'Đó là thủy triều.'],['Mỗi ngày thường nước dâng mấy lần?','2 lần',['10 lần','Không lần nào'],'Thường có hai lần nước dâng mỗi ngày.'],['Khi nước rút, cua và ốc trốn ở đâu?','Trong các hốc đá có nước',['Trên mây','Trong nhà'],'Hốc đá giữ nước giúp chúng khỏi bị khô.'],['Nhà máy điện thủy triều làm gì để có điện?','Cho nước làm quay tuabin',['Đốt than','Dùng gió thổi'],'Nước chảy làm quay tuabin phát ra điện.'],['Nhà máy điện thủy triều đầu tiên ở nước nào?','Pháp',['Nhật Bản','Brazil'],'Nhà máy ở cửa sông Rance, nước Pháp, mở năm 1966.'],['Trăng tròn và trăng mới thì nước biển thế nào?','Lên rất cao',['Biến mất','Đóng băng'],'Đó là triều cường.'],['Mặt trời có kéo nước biển không?','Có, nhưng yếu hơn Mặt trăng',['Không bao giờ','Mạnh hơn Mặt trăng'],'Mặt trời cũng gây thủy triều nhưng yếu hơn.']];
+const QSd=[['Lực triều tỉ lệ với đại lượng nào của khoảng cách d?','1/d³',['1/d','d²','d'],'Lực triều tỉ lệ nghịch với lập phương khoảng cách.'],['Mặt trăng gây thủy triều mạnh hơn Mặt trời khoảng bao nhiêu lần?','Khoảng 2,2 lần',['Khoảng 100 lần','Khoảng 0,5 lần','Bằng nhau'],'Mặt trăng nhỏ nhưng ở gần nên tác dụng triều mạnh hơn.'],['Vì sao hai lần triều dâng cách nhau 12 giờ 25 phút?','Ngày thủy triều dài 24 giờ 50 phút vì Mặt trăng đi tiếp trên quỹ đạo',['Trái đất quay chậm một nửa','Gió đổi hướng','Mặt trời lệch quỹ đạo'],'Trái đất phải quay thêm khoảng 50 phút để đối mặt lại Mặt trăng.'],['Vì sao đỉnh triều nằm lệch phía trước Mặt trăng?','Ma sát nước – đáy biển và sự quay của Trái đất kéo đỉnh triều đi trước',['Mặt trăng quá nhỏ','Từ trường Trái đất','Thực ra không bao giờ lệch'],'Sự lệch này tạo mô men làm Trái đất quay chậm dần.'],['Hệ quả lâu dài của ma sát triều là gì?','Ngày dài thêm, Mặt trăng lùi xa',['Ngày ngắn lại, Mặt trăng lại gần','Không thay đổi gì','Trái đất nóng lên'],'Mô men động lượng chuyển từ Trái đất sang quỹ đạo Mặt trăng.'],['Triều cường lặp lại khoảng bao lâu một lần?','Khoảng 14,8 ngày',['24 giờ','Một năm','Khoảng 100 ngày'],'Bằng nửa chu kì tuần trăng 29,5 ngày.'],['Vì sao vịnh Fundy có chênh lệch triều gần 16 m?','Vịnh cong, hẹp, cộng hưởng làm biên độ tăng',['Ở gần cực','Mặt trăng ở sát vịnh','Nước ở đó nóng hơn'],'Hình dạng bờ biển khuếch đại biên độ thủy triều.'],['Triều cạn xảy ra khi nào?','Thượng huyền và hạ huyền, lực Mặt trời kháng lực Mặt trăng',['Trăng mới','Trăng tròn','Mọi thời điểm'],'Hai lực lệch nhau khoảng 90 độ nên yếu đi.'],['Chuỗi chuyển đổi năng lượng ở nhà máy điện thủy triều?','Thế năng → động năng → điện năng',['Nhiệt năng → điện năng','Hóa năng → cơ năng','Quang năng → nhiệt năng'],'Nước ở đập chảy làm quay tuabin và máy phát.'],['Hạn chế của điện thủy triều là gì?','Chi phí xây dựng cao, ảnh hưởng hệ sinh thái cửa sông',['Không thể dự đoán sản lượng','Thải nhiều CO2','Cần đốt than'],'Sản lượng dự đoán được theo lịch thiên văn nhưng xây dựng tốn kém.']];
+const QL={s:QSs,m:QS,d:QSd};
+/* render tabs */
+function renderDesc(){const L=$('#lv').value;$('#p0').innerHTML=SEC.map((s,i)=>`<div class="card"><h3><span>${s[0]} ${s[1]}</span><button class="sp" data-r="${i}">🔊</button></h3><p>${txt(i,L)}</p></div>`).join('')+'<p class="mu">Gợi ý: kéo thanh 🌙 ở mô hình 3D để thấy nước biển thay đổi theo pha trăng.</p>'}
+$('#p0').onclick=e=>{const b=e.target.closest('[data-r]');if(b){sfx.click();const s=SEC[b.dataset.r];speak(s[1]+'. '+txt(+b.dataset.r,$('#lv').value))}};
+$('#lv').onchange=()=>{stopSpeak();sfx.click();renderDesc();renderRev();quizStart();toast('Đã chuyển mức: '+$('#lv').selectedOptions[0].textContent)};
+function renderRev(){const CARDS=CL[$('#lv').value];$('#p1').innerHTML=`<div class="card"><h3>🔁 Bấm vào thẻ để lật</h3><p class="mu">Tự trả lời trước, rồi lật xem đáp án.</p></div>`+CARDS.map((c,i)=>`<div class="card fc"><div class="q"><b>${i+1}. ${c[0]}</b></div><div class="a">${c[1]}</div></div>`).join('')+`<div class="card"><h3>⚖️ So sánh nhanh</h3><table><tr><th></th><th>Triều cường</th><th>Triều cạn</th></tr><tr><td>Pha trăng</td><td>Mới, tròn</td><td>Bán nguyệt</td></tr><tr><td>Mặt trời – Mặt trăng</td><td>Thẳng hàng, hợp lực</td><td>Vuông góc, kháng nhau</td></tr><tr><td>Mực nước</td><td>Cao nhất</td><td>Thấp nhất</td></tr></table></div><div class="card"><h3>💡 Mẹo nhớ</h3><p>“Trăng <b>tròn – khuyết</b>: nước <b>cường</b>. Trăng <b>bán</b> nguyệt: nước <b>cạn</b>.” Nước nhô <b>hai bên</b> nên ngày có <b>hai</b> lần triều dâng.</p></div>`}
+$('#p1').onclick=e=>{const c=e.target.closest('.fc');if(c){c.classList.toggle('f');sfx.flip()}};
+/* quiz */
+let qi=0,sc=0,st=0,best=0,Q=[],lock=false;
+const sh=a=>a.map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+function quizStart(){Q=sh(QL[$('#lv').value]).slice(0,10);qi=sc=st=0;quizShow()}
+function quizShow(){const p=$('#p2');if(qi>=Q.length){const pc=sc/Q.length;sfx.win();p.innerHTML=`<div class="card"><h3>🏆 Hoàn thành!</h3><p style="font-size:28px;margin:6px 0"><b>${sc}/${Q.length}</b> điểm</p><p>${pc>=.9?'Xuất sắc! Em là chuyên gia thủy triều 🌊':pc>=.6?'Khá tốt! Ôn lại thẻ ghi nhớ để hoàn hảo hơn.':'Cố lên! Hãy đọc lại tab Mô tả rồi thử lại.'}</p><p class="mu">Chuỗi đúng dài nhất: ${best}</p><button id="again">🔄 Chơi lại</button></div>`;$('#again').onclick=()=>{sfx.click();quizStart()};return}
+ const q=Q[qi];lock=false;const o=sh([q[1],...q[2]]);
+ p.innerHTML=`<div class="card"><div class="mu">Câu ${qi+1}/${Q.length} · Điểm ${sc} · 🔥 chuỗi ${st}</div><div id="bar2" style="height:6px;background:var(--ac2);border-radius:4px;margin:6px 0"><div style="height:100%;width:${qi/Q.length*100}%;background:var(--ac);border-radius:4px"></div></div><h3 style="color:var(--tx)">${q[0]}</h3>${o.map(x=>`<button class="qopt">${x}</button>`).join('')}<div id="fb" style="margin-top:6px"></div><button id="rq" class="sp">🔊 Đọc câu hỏi</button></div>`;
+ $('#rq').onclick=()=>speak(q[0]+'. '+o.map((x,i)=>'Đáp án '+'ABCD'[i]+': '+x).join('. '));
+ $$('.qopt').forEach(b=>b.onclick=()=>{if(lock)return;lock=true;const ok=b.textContent===q[1];b.classList.add(ok?'ok':'no');if(ok){sc++;st++;best=Math.max(best,st);sfx.ok()}else{st=0;sfx.no();$$('.qopt').forEach(x=>{if(x.textContent===q[1])x.classList.add('ok')})}
+  $('#fb').innerHTML=`<p><b>${ok?'✅ Chính xác!':'❌ Chưa đúng.'}</b> ${q[3]}</p><button id="nx">${qi==Q.length-1?'Xem kết quả':'Câu tiếp ▶'}</button>`;if(!ok)toast('Đáp án đúng: '+q[1]);$('#nx').onclick=()=>{sfx.click();qi++;quizShow()};$('#p2').scrollTop=9999})}
+/* tab handling */
+let tab=0;
+$$('#tabs button').forEach(b=>b.onclick=()=>{stopSpeak();sfx.click();tab=+b.dataset.t;$$('#tabs button').forEach(x=>x.classList.toggle('on',x===b));$$('.pane').forEach((p,i)=>p.classList.toggle('show',i==tab))});
+$('#bRead').onclick=()=>{if(reading){stopSpeak();return}sfx.click();const p=$('#p'+tab);if(tab==2){const q=Q[qi];speak(q?q[0]:'Hãy bắt đầu chơi lại.')}else speak(p.innerText)};
+$('#bStop').onclick=stopSpeak;
+renderDesc();renderRev();quizStart();
+/* ===== MÔ HÌNH 3D ===== */
+const cv=$('#c'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
+const S=new THREE.Scene(),cam=new THREE.PerspectiveCamera(45,1,.1,200);
+S.add(new THREE.AmbientLight(0x6a7f99,.55));const sunL=new THREE.DirectionalLight(0xffffff,1.25);sunL.position.set(10,0,0);S.add(sunL);
+function cvs(w,h,f){const c=document.createElement('canvas');c.width=w;c.height=h;f(c.getContext('2d'),w,h);return new THREE.CanvasTexture(c)}
+function label(t,sz=.8){const tx=cvs(256,64,(g,w,h)=>{g.font='bold 34px sans-serif';g.textAlign='center';g.fillStyle='#fff';g.shadowColor='#000';g.shadowBlur=6;g.fillText(t,w/2,44)});const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,depthTest:false,transparent:true}));s.scale.set(4*sz,sz,1);s.renderOrder=9;return s}
+/* sao */
+{const p=[];for(let i=0;i<700;i++){const u=Math.random()*6.2832,z=Math.random()*2-1,s=Math.sqrt(1-z*z),k=60+Math.random()*30;p.push(k*s*Math.cos(u),k*z,k*s*Math.sin(u))}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));S.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:.25})))}
+/* Trái đất (đáy + lục địa) */
+const earth=new THREE.Mesh(new THREE.SphereGeometry(1.5,48,32),new THREE.MeshPhongMaterial({map:cvs(512,256,(g,w,h)=>{g.fillStyle='#0b2a52';g.fillRect(0,0,w,h);g.fillStyle='#4a9a55';[[110,90,60,40],[140,170,22,48],[270,80,22,22],[285,150,30,50],[370,80,70,38],[430,190,28,16]].forEach(a=>{g.beginPath();g.ellipse(a[0],a[1],a[2],a[3],0,0,7);g.fill()});g.fillStyle='#e8f4ff';g.fillRect(0,0,w,14);g.fillRect(0,h-14,w,14)}),shininess:8}));S.add(earth);
+const ogeo=new THREE.SphereGeometry(1,64,40),pos=ogeo.attributes.position,base=Float32Array.from(pos.array);
+const ocean=new THREE.Mesh(ogeo,new THREE.MeshPhongMaterial({color:0x3fd8ff,transparent:true,opacity:.78,shininess:90,specular:0x99ccff}));S.add(ocean);
+/* Mặt trăng, Mặt trời */
+const moon=new THREE.Mesh(new THREE.SphereGeometry(.5,32,24),new THREE.MeshPhongMaterial({map:cvs(256,128,(g,w,h)=>{g.fillStyle='#9a9a9a';g.fillRect(0,0,w,h);for(let i=0;i<70;i++){g.fillStyle=`rgba(${60+Math.random()*60|0},${60+Math.random()*60|0},${60+Math.random()*60|0},.55)`;g.beginPath();g.arc(Math.random()*w,Math.random()*h,2+Math.random()*9,0,7);g.fill()}}),shininess:2}));S.add(moon);
+const mL=label('Mặt trăng',.6);mL.position.y=1.1;moon.add(mL);
+const sun=new THREE.Mesh(new THREE.SphereGeometry(1.1,32,24),new THREE.MeshBasicMaterial({color:0xffc933}));sun.position.set(10,0,0);S.add(sun);
+const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:cvs(128,128,(g)=>{const r=g.createRadialGradient(64,64,6,64,64,64);r.addColorStop(0,'rgba(255,220,100,.9)');r.addColorStop(1,'rgba(255,160,0,0)');g.fillStyle=r;g.fillRect(0,0,128,128)}),blending:THREE.AdditiveBlending,depthWrite:false}));glow.scale.set(6,6,1);sun.add(glow);
+const sL=label('Mặt trời',.6);sL.position.y=1.9;sun.add(sL);
+const eL=label('Trái đất',.6);eL.position.set(0,-2.7,0);S.add(eL);
+const orbit=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([...Array(120)].map((_,i)=>new THREE.Vector3(Math.cos(i/120*6.2832)*5.4,0,-Math.sin(i/120*6.2832)*5.4))),new THREE.LineBasicMaterial({color:0x7fb8ff,transparent:true,opacity:.35}));S.add(orbit);
+const pin=new THREE.Mesh(new THREE.SphereGeometry(.11,16,12),new THREE.MeshBasicMaterial({color:0xff3b3b}));S.add(pin);
+const pinL=label('📍 Quan sát',.4);pinL.position.y=.45;pin.add(pinL);
+/* vật lý thủy triều (phóng đại) */
+const AM=.38,AS=.17,R0=1.7,LEAD=12*Math.PI/180;let phi=0,mAx=new THREE.Vector3(),sAx=new THREE.Vector3(1,0,0),dirty=true;
+function hAt(n){const a=n.dot(mAx),b=n.dot(sAx);return AM*(3*a*a-1)/2+AS*(3*b*b-1)/2}
+function setPhase(d){phi=((d%360)+360)%360;const r=phi*Math.PI/180;moon.position.set(Math.cos(r)*5.4,0,-Math.sin(r)*5.4);const t=r+LEAD;mAx.set(Math.cos(t),0,-Math.sin(t));dirty=true;
+ $('#ph').value=phi|0;$('#phv').textContent=(phi|0)+'°';
+ const names=[[0,'Trăng mới'],[45,'Trăng non (lưỡi liềm)'],[90,'Thượng huyền (¼ đầu)'],[135,'Trăng khuyết đầu'],[180,'Trăng tròn'],[225,'Trăng khuyết cuối'],[270,'Hạ huyền (¼ cuối)'],[315,'Trăng tàn']];
+ let nm=names.reduce((a,x)=>Math.abs(((phi-x[0]+540)%360)-180)<=22.5?x:a,names[0]);$('#phase').innerHTML='🌙 '+nm[1];
+ const c=Math.cos(2*r),sp=$('#spring');if(c>.7){sp.textContent='⬆ Triều cường (Mặt trời + Mặt trăng hợp lực)';sp.style.color='#8ff'}else if(c<-.7){sp.textContent='⬇ Triều cạn (hai lực kháng nhau)';sp.style.color='#ffd37a'}else{sp.textContent='Triều trung gian';sp.style.color='#cde'}}
+function deform(){const n=new THREE.Vector3();for(let i=0;i<pos.count;i++){n.set(base[i*3],base[i*3+1],base[i*3+2]);pos.setXYZ(i,n.x*(R0+hAt(n)),n.y*(R0+hAt(n)),n.z*(R0+hAt(n)))}pos.needsUpdate=true;ogeo.computeVertexNormals();dirty=false}
+$('#ph').oninput=e=>{auto=false;$('#bOrb').classList.remove('on');setPhase(+e.target.value)};
+$$('[data-p]').forEach(b=>b.onclick=()=>{auto=false;$('#bOrb').classList.remove('on');sfx.click();setPhase(+b.dataset.p)});
+let auto=false,rot=true;
+$('#bOrb').onclick=e=>{auto=!auto;e.target.classList.toggle('on',auto);sfx.click()};
+$('#bRot').onclick=e=>{rot=!rot;e.target.classList.toggle('on',rot);sfx.click()};
+$('#bSnd').onclick=e=>{ac();const o=!ambOn;ambient(o);e.target.classList.toggle('on',o);e.target.textContent=o?'🔊 Sóng biển':'🔈 Sóng biển';sfx.click()};
+/* camera */
+let th=.6,ph=.75,rd=17;const tgt=new THREE.Vector3(2.2,0,0);
+function camUp(){cam.position.set(tgt.x+rd*Math.sin(ph)*Math.cos(th),tgt.y+rd*Math.cos(ph),tgt.z+rd*Math.sin(ph)*Math.sin(th));cam.lookAt(tgt)}
+const ptr=new Map();let pd=0;
+cv.onpointerdown=e=>{cv.setPointerCapture(e.pointerId);ptr.set(e.pointerId,[e.clientX,e.clientY]);cv.style.cursor='grabbing'};
+cv.onpointerup=cv.onpointercancel=e=>{ptr.delete(e.pointerId);pd=0;cv.style.cursor='grab'};
+cv.onpointermove=e=>{const p=ptr.get(e.pointerId);if(!p)return;if(ptr.size==1){th-=(e.clientX-p[0])*.008;ph=Math.min(1.5,Math.max(.15,ph-(e.clientY-p[1])*.008))}p[0]=e.clientX;p[1]=e.clientY;if(ptr.size==2){const [a,b]=[...ptr.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(pd)rd=Math.min(40,Math.max(7,rd*pd/d));pd=d}};
+cv.onwheel=e=>{e.preventDefault();rd=Math.min(40,Math.max(7,rd*(1+e.deltaY*.001)))};
+function fit(){const r=$('#stage').getBoundingClientRect();R.setSize(r.width,r.height,false);cam.aspect=r.width/r.height;cam.updateProjectionMatrix()}
+new ResizeObserver(fit).observe($('#stage'));fit();
+/* vòng lặp */
+const clock=new THREE.Clock(),pdir=new THREE.Vector3(),tmp=new THREE.Vector3();let lastT=-1;
+setPhase(0);
+(function loop(){requestAnimationFrame(loop);const dt=Math.min(clock.getDelta(),.1);
+ if(rot)earth.rotation.y+=dt*.5;if(auto)setPhase(phi+dt*18);
+ moon.rotation.y=-phi*Math.PI/180;if(dirty)deform();
+ pdir.set(Math.cos(earth.rotation.y),0,-Math.sin(earth.rotation.y)).normalize();const h=hAt(pdir);pin.position.copy(pdir).multiplyScalar(R0+h+.06);
+ const lo=-.5*(AM+AS),hi=AM+AS,t=Math.max(0,Math.min(1,(h-lo)/(hi-lo)));
+ $('#bar i').style.width=(t*100|0)+'%';const q=Math.round(t*100)/100;$('#lvl').textContent='Nơi 📍: '+(t>.66?'🌊 Triều dâng (cao)':t<.33?'🏖️ Triều rút (thấp)':'↔ Mực nước trung bình');
+ if(ambOn&&Math.abs(t-lastT)>.05){lastT=t;amb.g.gain.setTargetAtTime(.12+.5*t,AC.currentTime,.2)}
+ camUp();R.render(S,cam)})();
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Chặn phím tắt: F12, Ctrl+U, Ctrl+Shift+I/J/C, Ctrl+S
+    document.addEventListener('keydown', function(e) {
+      const key = e.key.toLowerCase();
+
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) || 
+        (e.ctrlKey && (key === 'u' || key === 's'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 2. Chặn chuột phải (Context Menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  });
+</script>
+</body>
+</html>

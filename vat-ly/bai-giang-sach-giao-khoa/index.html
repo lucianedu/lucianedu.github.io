@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài Giảng Sách Giáo Khoa - Vật lý - LucianEdu</title>
+    <link rel="stylesheet" href="../../style.css">
+    <style>
+        .grade-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-top: 20px; }
+        .grade-btn { background: #ffffff; border: 2px solid #3498db; color: #3498db; padding: 15px; text-align: center; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; transition: all 0.2s; }
+        .grade-btn:hover { background: #3498db; color: #ffffff; }
+
+        .hero-title-row { display: flex; align-items: baseline; gap: 15px; flex-wrap: wrap; }
+        .hero-title-row h1 { font-size: 38px; color: #ffffff; margin: 0; }
+        .hero-title-row p { font-size: 20px; color: #e0f0ff; margin: 0; white-space: nowrap; }
+    </style>
+</head>
+<body>
+    <header class="hero" style="background: linear-gradient(135deg, #1d3557 0%, #457b9d 100%);">
+        <div class="hero-content">
+            <span class="badge" style="font-size: 14px; padding: 6px 12px; margin-bottom: 10px; display: inline-block; background: #3498db;">Bài Giảng Sách Giáo Khoa</span>
+            <div class="hero-title-row">
+                <h1>📚 Chọn Khối Lớp Vật Lý</h1>
+                <p>Hệ thống bài giảng bám sát chương trình sách giáo khoa.</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="card" style="border-top-color: #3498db;">
+            <h2>Danh sách các khối lớp</h2>
+            <p>Vui lòng chọn khối lớp tương ứng để xem danh sách bài học:</p>
+            
+            <div class="grade-grid">
+                <a href="khoi-6/index.html" class="grade-btn">Khối 6</a>
+                <a href="khoi-7/index.html" class="grade-btn">Khối 7</a>
+                <a href="khoi-8/index.html" class="grade-btn">Khối 8</a>
+                <a href="khoi-9/index.html" class="grade-btn">Khối 9</a>
+            </div>
+
+            <a href="../index.html" class="btn secondary" style="margin-top: 30px; display: inline-block;">⬅ Quay lại trang môn học</a>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 <strong>LucianEdu</strong>. Phát triển bởi Lucian.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Tiến hóa hệ tuần hoàn ở động vật</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e9f1f3;--ink:#10283c;--mut:#4d6577;--pan:#fff;--line:#cfdde3;--acc:#0d6e6e;--organ:#dbe8ec;--chip:#eef4f6;--ok:#17803d;--no:#c2253b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1c27;--ink:#e6f0f5;--mut:#9bb3c2;--pan:#13293a;--line:#264155;--acc:#58c7c0;--organ:#1f3a4e;--chip:#193043;--ok:#4cd07d;--no:#ff7088}}
+:root[data-theme="dark"]{--bg:#0e1c27;--ink:#e6f0f5;--mut:#9bb3c2;--pan:#13293a;--line:#264155;--acc:#58c7c0;--organ:#1f3a4e;--chip:#193043;--ok:#4cd07d;--no:#ff7088}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0}
+body{font-family:'Be Vietnam Pro',system-ui,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.55}
+button{font:inherit;color:inherit;cursor:pointer}
+.app{height:100%;display:grid;grid-template-columns:minmax(0,3fr) minmax(290px,1fr)}
+.stage{display:flex;flex-direction:column;min-height:0;min-width:0;padding:10px 12px;gap:8px}
+.sp{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;flex:none}
+.sp button{flex:none;border:1px solid var(--line);background:var(--pan);border-radius:20px;padding:5px 12px;font-weight:600}
+.sp button[aria-pressed=true]{background:var(--acc);color:#fff;border-color:var(--acc)}
+.svgw{flex:1;min-height:0;background:var(--pan);border:1px solid var(--line);border-radius:14px}
+svg{width:100%;height:100%;display:block}
+.lab{font-size:13px;fill:var(--ink);font-weight:600}.lab3{font-size:10px;fill:#fff;font-weight:600}
+.org{fill:var(--organ)}.tube{fill:none;stroke-width:11;stroke-linecap:round;stroke-linejoin:round;opacity:.22}
+.part{stroke:var(--ink);stroke-opacity:.35;stroke-width:1.5;cursor:pointer}.part:hover,.part:focus{stroke-opacity:1;stroke-width:3}
+.hit{fill:none;stroke:transparent;stroke-width:24;stroke-linejoin:round;pointer-events:stroke;cursor:pointer}.ghost{display:none}.part:focus{outline:none}.seg{stroke:var(--ink);stroke-opacity:.12;stroke-width:2}.tr{stroke:var(--mut);stroke-width:2;stroke-dasharray:5 5;opacity:.5}
+.own{flex:none;text-align:center;font-size:13px;color:var(--mut);padding-top:2px}.own b{color:#f26a1b;font-weight:800}
+.cap{flex:none;background:var(--pan);border:1px solid var(--line);border-radius:12px;padding:8px 12px;min-height:3.2em;max-height:5.4em;overflow-y:auto}
+.ctl{flex:none;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ctl button,.btn{border:1px solid var(--line);background:var(--pan);border-radius:10px;padding:4px 10px}
+.lg{display:flex;gap:10px;flex-wrap:wrap;margin-left:auto;color:var(--mut);font-size:12px}.lg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
+.panel{display:flex;flex-direction:column;min-height:0;background:var(--pan);border-left:1px solid var(--line)}
+.tabs{display:flex;flex:none;border-bottom:1px solid var(--line)}
+.tabs button{flex:1;border:0;background:none;padding:11px 4px;font-weight:600;color:var(--mut);border-bottom:3px solid transparent}
+.tabs button[aria-selected=true]{color:var(--acc);border-bottom-color:var(--acc)}
+.pb{flex:1;min-height:0;overflow-y:auto;padding:14px 16px;overscroll-behavior:contain}
+.pb[hidden]{display:none}
+h2{font-size:20px;margin:0}h3{font-size:15px;margin:18px 0 6px}.sub{color:var(--mut);margin:2px 0 10px}.id{font-weight:400;color:var(--mut);font-size:14px}
+dt{font-weight:600;margin-top:8px}dd{margin:0;color:var(--mut)}ul{padding-left:18px;margin:4px 0}li{margin:3px 0}
+.fun{background:var(--chip);border-radius:10px;padding:8px 10px}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:12px}td,th{border:1px solid var(--line);padding:4px 6px;text-align:left;vertical-align:top}tr.cu td{background:var(--chip);font-weight:600}
+.fc{display:block;width:100%;text-align:left;margin:6px 0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--chip)}
+.fc b{display:block}.fc span{display:none;color:var(--acc);margin-top:4px}.fc.on span{display:block}
+.bars div{display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12px}.bars b{width:84px;font-weight:600}.bars i{height:12px;border-radius:6px;background:#e0243f}
+.opt{display:block;width:100%;text-align:left;margin:6px 0;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--chip)}
+.opt.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 18%,transparent)}.opt.no{border-color:var(--no);background:color-mix(in srgb,var(--no) 18%,transparent)}
+.bar{height:6px;border-radius:3px;background:var(--chip);margin:6px 0 10px}.bar i{display:block;height:100%;border-radius:3px;background:var(--acc)}
+.row{display:flex;gap:8px;flex-wrap:wrap}.btn.p{background:var(--acc);color:#fff;border-color:var(--acc)}
+@media(max-width:820px){.app{grid-template-columns:1fr;grid-template-rows:minmax(0,3fr) minmax(0,2fr)}.panel{border-left:0;border-top:1px solid var(--line)}.lg{margin-left:0}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style></head><body>
+<div class="app">
+<main class="stage">
+<div class="sp" id="sp" role="group" aria-label="Chọn loài"></div>
+<div class="svgw"><svg id="svg" viewBox="0 0 800 440" role="img" aria-label="Mô hình hệ tuần hoàn"></svg></div>
+<div class="cap" id="cap" aria-live="polite"></div>
+<div class="ctl">
+<button id="pv" aria-label="Loài trước">⏮</button><button id="pl" aria-label="Tạm dừng">⏸</button><button id="nx" aria-label="Loài sau">⏭</button>
+<label>Tốc độ <input type="range" id="sd" min="0.4" max="2.5" step="0.1" value="1"></label>
+<button id="sn" aria-pressed="true">🔊 Âm thanh</button>
+<span class="lg"><span><i style="background:#e0243f"></i>giàu O₂</span><span><i style="background:#3b7cf0"></i>nghèo O₂</span><span><i style="background:#9246c4"></i>máu pha</span><span><i style="background:#7fae2a"></i>dịch máu</span></span>
+</div>
+<div class="own">Produced of <b>LucianEdu</b></div>
+</main>
+<aside class="panel">
+<div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-t="0">📖 Mô tả</button><button role="tab" aria-selected="false" data-t="1">📝 Ôn tập</button><button role="tab" aria-selected="false" data-t="2">🎮 Trắc nghiệm</button></div>
+<div class="pb" id="p0"></div><div class="pb" id="p1" hidden></div><div class="pb" id="p2" hidden></div>
+</aside>
+</div>
+<script>
+const R='#e0243f',B='#3b7cf0',M='#9246c4',M2='#c63a86',H='#7fae2a',NS='http://www.w3.org/2000/svg';
+const D=[
+{id:'A',e:'🪱',n:'Giun đất',g:'Ngành Giun đốt',kieu:'Kín (đơn giản)',tim:'Chưa có tim thật: 5 đôi “tim bên” là các vòng mạch co bóp',vong:'1 vòng',mau:'Máu đỏ, chảy trong mạch kín',bpm:30,draw:()=>dA(),
+cap:'Hệ tuần hoàn kín đơn giản. Nhấp vào tim bên, mạch lưng, mạch bụng để xem chú thích.',
+ds:['(1) Tim bên: vòng mạch co bóp, đẩy máu từ mạch lưng sang mạch bụng','Mạch lưng: máu chảy về phía đầu','Mạch bụng: máu chảy về phía đuôi','Mao mạch da: trao đổi khí qua da ẩm','Chưa có động mạch chủ, tĩnh mạch chủ: chỉ có mạch lưng và mạch bụng'],
+ex:'Giun đất, đỉa, rươi, giun đỏ (thường gặp ở đất ẩm, ao hồ).',fun:'Giun đất thở bằng da nên da phải luôn ẩm. Trời mưa to đất ngập nước, giun chui lên mặt đất vì thiếu O₂.'},
+{id:'B',e:'🦗',n:'Châu chấu',g:'Ngành Chân khớp – Lớp Sâu bọ',kieu:'Hở',tim:'Tim hình ống ở mặt lưng (2), có các lỗ tim nhận máu',vong:'Không có vòng kín',mau:'Dịch máu (không màu hoặc xanh lục nhạt), tràn vào khoang cơ thể',bpm:60,draw:()=>dB(),
+cap:'Hệ tuần hoàn hở: dịch máu tràn vào khoang cơ thể, tắm trực tiếp các tế bào rồi trở về tim.',
+ds:['(2) Tim hình ống nằm ở lưng, co bóp đẩy dịch máu về phía đầu','Lỗ tim: hút dịch máu từ khoang cơ thể trở về tim','Khoang cơ thể: dịch máu chảy chậm, áp lực thấp','Ống khí (nét đứt): dẫn O₂ thẳng đến tế bào, máu không chở O₂','Hệ hở nên chưa có động mạch, tĩnh mạch rõ rệt'],
+ex:'Châu chấu, ong, bướm, gián, kiến; tôm, cua cũng có hệ tuần hoàn hở.',fun:'Vì O₂ đi bằng ống khí nên côn trùng thiếu máu vẫn thở được. Máu của chúng chủ yếu chở chất dinh dưỡng và chất thải.'},
+{id:'C',e:'🐟',n:'Cá',g:'Lớp Cá',kieu:'Kín',tim:'2 ngăn: 1 tâm nhĩ + 1 tâm thất (2)',vong:'1 vòng (vòng đơn)',mau:'Tim chứa máu nghèo O₂. Máu giàu O₂ sau mang đi nuôi cơ thể nhưng chảy chậm',bpm:45,draw:()=>dC(),
+cap:'Một vòng tuần hoàn: tim → mang → cơ quan → tim. Tim chỉ chứa máu nghèo O₂.',
+ds:['(2) Tâm thất bơm máu nghèo O₂ lên mang','Mang: trao đổi khí, máu trở nên giàu O₂','Máu sau mang đi thẳng nuôi cơ thể, áp lực giảm nên chảy chậm','Tâm nhĩ nhận máu nghèo O₂ từ các cơ quan trở về','Động mạch chủ bụng: tim → mang. Động mạch chủ lưng: mang → cơ thể. Tĩnh mạch chủ: cơ thể → tim','Cá không có phổi nên không có động mạch và tĩnh mạch phổi'],
+ex:'Cá chép, cá rô phi, cá basa, cá thu, cá trê.',fun:'Máu chỉ đi qua tim một lần trong mỗi vòng, nên cá hoạt động kém bền sức hơn chim và thú.'},
+{id:'D',e:'🐸',n:'Ếch',g:'Lớp Lưỡng cư',kieu:'Kín',tim:'3 ngăn: 2 tâm nhĩ + 1 tâm thất',vong:'2 vòng (vòng nhỏ qua phổi, vòng lớn qua cơ thể)',mau:'Máu pha (giàu O₂ trộn nghèo O₂) ở tâm thất',bpm:50,draw:()=>dD(0),
+cap:'Tim 3 ngăn, 2 vòng tuần hoàn. Tâm thất chung nên máu nuôi cơ thể là máu pha.',
+ds:['Nhĩ phải nhận máu nghèo O₂ từ cơ thể','Nhĩ trái nhận máu giàu O₂ từ phổi','Tâm thất: hai loại máu gặp nhau, tạo máu pha','Vòng nhỏ: tim → phổi → tim. Vòng lớn: tim → cơ thể → tim','Động mạch phổi: đưa máu nghèo O₂ từ tim lên phổi. Tĩnh mạch phổi: đưa máu giàu O₂ từ phổi về nhĩ trái','Động mạch chủ: đưa máu pha từ tim đi nuôi cơ thể. Tĩnh mạch chủ: đưa máu nghèo O₂ từ cơ thể về nhĩ phải'],
+ex:'Ếch đồng, cóc, nhái, ễnh ương, sa giông.',fun:'Ếch còn thở qua da ẩm, giúp bổ sung O₂ cho máu.'},
+{id:'E',e:'🦎',n:'Thằn lằn',g:'Lớp Bò sát',kieu:'Kín',tim:'3 ngăn, tâm thất có vách ngăn hụt',vong:'2 vòng',mau:'Máu pha nhưng ít hơn ếch',bpm:55,draw:()=>dD(1),
+cap:'Vách hụt trong tâm thất làm máu ít bị pha hơn ếch, trao đổi chất tốt hơn.',
+ds:['Vách ngăn hụt: ngăn một phần hai dòng máu','Máu nuôi cơ thể giàu O₂ hơn ếch','Vòng nhỏ qua phổi, vòng lớn qua cơ thể','Vẫn là động vật biến nhiệt (nhiệt độ thân thay đổi theo môi trường)','Động mạch phổi: máu nghèo O₂ lên phổi. Tĩnh mạch phổi: máu giàu O₂ về nhĩ trái','Động mạch chủ: đưa máu ít pha đi nuôi cơ thể. Tĩnh mạch chủ: máu nghèo O₂ về nhĩ phải'],
+ex:'Thằn lằn bóng, tắc kè, rắn, rùa. Riêng cá sấu có tim 4 ngăn.',fun:'Thằn lằn thường phơi nắng buổi sáng để sưởi ấm cơ thể trước khi đi kiếm ăn.'},
+{id:'G',e:'🕊️',n:'Chim bồ câu',g:'Lớp Chim',kieu:'Kín',tim:'4 ngăn: 2 tâm nhĩ + 2 tâm thất',vong:'2 vòng',mau:'Máu không pha: máu giàu O₂ nuôi cơ thể',bpm:120,draw:()=>dD(2),
+cap:'Tim 4 ngăn, vách ngăn hoàn toàn: máu đỏ tươi nuôi cơ thể, đáp ứng nhu cầu bay.',
+ds:['Tâm thất phải bơm máu nghèo O₂ lên phổi','Tâm thất trái bơm máu giàu O₂ đi nuôi cơ thể','Hai nửa tim tách hẳn, máu không pha','Là động vật hằng nhiệt, nhịp tim nhanh','Động mạch phổi: máu nghèo O₂ từ thất phải lên phổi. Tĩnh mạch phổi: máu giàu O₂ từ phổi về nhĩ trái','Động mạch chủ: máu giàu O₂ từ thất trái đi nuôi cơ thể. Tĩnh mạch chủ: máu nghèo O₂ về nhĩ phải'],
+ex:'Bồ câu, gà, vịt, đại bàng, chim sẻ.',fun:'Chim bay tiêu tốn nhiều năng lượng nên cần tim khỏe, nhịp nhanh để cung cấp nhiều O₂.'},
+{id:'H',e:'🐇',n:'Thỏ',g:'Lớp Thú',kieu:'Kín',tim:'4 ngăn: 2 tâm nhĩ + 2 tâm thất',vong:'2 vòng',mau:'Máu không pha: máu giàu O₂ nuôi cơ thể',bpm:110,draw:()=>dD(2),
+cap:'Tim 4 ngăn hoàn chỉnh, hằng nhiệt. Đây là mức tiến hóa cao nhất trong hình.',
+ds:['Tâm thất trái có thành cơ dày nhất, bơm máu đi khắp cơ thể','Tâm thất phải bơm máu lên phổi','Máu giàu O₂ không bị pha, trao đổi chất mạnh','Là động vật hằng nhiệt','Động mạch phổi: máu nghèo O₂ từ thất phải lên phổi. Tĩnh mạch phổi: máu giàu O₂ từ phổi về nhĩ trái','Động mạch chủ: máu giàu O₂ từ thất trái đi nuôi cơ thể. Tĩnh mạch chủ: máu nghèo O₂ về nhĩ phải'],
+ex:'Thỏ, chó, mèo, trâu bò, voi, cá voi và cả con người.',fun:'Nhờ tim 4 ngăn, thú có thể duy trì nhiệt độ cơ thể ổn định và sống ở nhiều môi trường khác nhau.'}];
+const $=s=>document.querySelector(s),E=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);p&&p.appendChild(e);return e};
+let cur=0,play=true,snd=true,spd=1,T=0,bp=0,lb=0,pulse=0,last=0,flows=[],hg,hc,gT,gP,gD,PP,ac,unl=false;
+const svg=$('#svg'),cap=$('#cap');
+function tone(f,d,ty='sine',v=.2,t0=0){if(!snd||!unl)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+t0;o.type=ty;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d+.05)}catch(e){}}
+addEventListener('pointerdown',()=>{unl=true;ac&&ac.resume&&ac.resume()});
+const beat=()=>{tone(70,.16,'sine',.45);tone(55,.14,'sine',.3,.17)};
+function part(x,y,w,h,f,t,i,rx=10,p){const r=E('rect',{x,y,width:w,height:h,rx,class:f=='transparent'?'ghost':f?'part':'part org',tabindex:0},p||PP);if(f)r.setAttribute('fill',f);r.onclick=()=>info(t,i);r.onkeydown=e=>e.key=='Enter'&&info(t,i);return r}
+const lab=(x,y,s,c='lab')=>{const t=E('text',{x,y,class:c,'text-anchor':'middle'},gP);t.textContent=s;return t};
+function tube(d,c,j=0,t,i){const p=E('path',{d,class:'tube',stroke:c},gT),len=p.getTotalLength(),n=Math.max(3,Math.round(len/38));if(t){const h=E('path',{d,class:'hit'},gP);h.onclick=()=>info(t,i)}flows.push({p,len,n,j,d:[...Array(n)].map(()=>E('circle',{r:4.6,fill:c},gD))})}
+function heart(x,y){hg=E('g',{},gP);hc=[x,y];PP=hg}
+function info(t,i){cap.innerHTML=`<b>${t}:</b> ${i}`;tone(660,.12,'triangle',.12)}
+function dA(){
+part(60,140,650,170,null,'Cơ thể giun đất','Cơ thể phân đốt, da ẩm. Giun trao đổi khí qua da.',85);
+for(let x=120;x<700;x+=36)E('line',{x1:x,y1:150,x2:x,y2:300,class:'seg'},gP);
+tube('M690 185 H100',R,0,'Mạch lưng','dẫn máu về phía đầu. Máu giàu O₂ sau khi qua mao mạch da.');tube('M100 265 H690',B,0,'Mạch bụng','dẫn máu về phía đuôi, phân phối đến các đốt.');
+for(let x=130;x<=250;x+=30)tube(`M${x} 185 V265`,M);
+for(let x=330;x<=690;x+=72)tube(`M${x} 265 V185`,M,0,'Mao mạch da','máu từ mạch bụng đi qua da ẩm, nhận O₂ rồi đổ vào mạch lưng.');
+part(100,177,590,16,'transparent','Mạch lưng','dẫn máu về phía đầu. Máu giàu O₂ sau khi qua mao mạch da.',8);
+part(100,257,590,16,'transparent','Mạch bụng','dẫn máu về phía đuôi, phân phối đến các đốt.',8);
+heart(190,225);PP=hg;[130,160,190,220,250].forEach(x=>{const c=E('circle',{cx:x,cy:225,r:11,fill:M2,class:'part',tabindex:0},hg);c.onclick=()=>info('Tim bên (1)','5 đôi vòng mạch co bóp, đẩy máu từ mạch lưng sang mạch bụng.')});PP=gP;
+lab(190,122,'Tim bên (1)');lab(480,170,'Mạch lưng: máu về phía đầu');lab(480,297,'Mạch bụng: máu về phía đuôi');lab(95,128,'Đầu');lab(680,128,'Đuôi');lab(510,232,'Mao mạch da (trao đổi khí)')}
+function dB(){
+part(80,140,600,150,null,'Cơ thể châu chấu','Cơ thể có vỏ kitin cứng. Khoang cơ thể chứa dịch máu và các nội quan.',70);
+[260,360,460,560].forEach(x=>E('line',{x1:x,y1:215,x2:x,y2:282,class:'tr'},gP));
+tube('M650 195 H165',H);tube('M165 195 C100 195 105 262 175 262 H610 C675 262 690 195 650 195',H,9);tube('M165 195 C115 195 120 238 185 238 H600 C655 238 660 195 650 195',H,7);
+heart(400,195);part(165,186,490,18,H,'Tim hình ống (2)','nằm ở mặt lưng, co bóp đẩy dịch máu về phía đầu.',9).setAttribute('fill-opacity',.55);
+[215,290,365,440,515,590].forEach(x=>{const c=E('circle',{cx:x,cy:207,r:4,fill:'#10283c',class:'part',tabindex:0},hg);c.onclick=()=>info('Lỗ tim','hút dịch máu từ khoang cơ thể trở về tim.')});PP=gP;
+lab(400,172,'Tim hình ống (2) ở mặt lưng');lab(400,282,'Dịch máu tràn vào khoang cơ thể, tắm trực tiếp các tế bào');lab(400,312,'O₂ đi theo ống khí (nét đứt), không nhờ máu');lab(105,128,'Đầu');lab(660,128,'Đuôi')}
+function dC(){
+part(140,180,80,80,null,'Các cơ quan','nơi máu cung cấp O₂, chất dinh dưỡng và nhận CO₂.');lab(180,224,'Cơ quan');
+part(440,180,50,80,null,'Mang','trao đổi khí: máu nghèo O₂ trở thành máu giàu O₂.');lab(465,224,'Mang');
+tube('M580 220 H490',B,0,'Động mạch chủ bụng','đưa máu nghèo O₂ từ tâm thất lên mang. Cá không có phổi nên không có động mạch và tĩnh mạch phổi.');tube('M440 220 H400 V115 H180 V178',R,0,'Động mạch chủ lưng','đưa máu giàu O₂ sau mang đi nuôi các cơ quan.');tube('M180 262 V345 H605 V284',B,0,'Tĩnh mạch chủ','đưa máu nghèo O₂ từ các cơ quan về tâm nhĩ.');
+heart(605,235);part(580,250,50,34,B,'Tâm nhĩ','nhận máu nghèo O₂ từ cơ thể.');part(580,195,50,48,'#2a62c9','Tâm thất (2)','bơm máu nghèo O₂ lên mang.');PP=gP;
+lab(605,224,'Tâm thất','lab3');lab(605,271,'Tâm nhĩ','lab3');lab(605,176,'Tim 2 ngăn (2)');
+part(490,212,90,16,'transparent','Động mạch chủ bụng','đưa máu nghèo O₂ từ tâm thất lên mang. Cá không có phổi nên không có động mạch và tĩnh mạch phổi.',8);
+part(180,107,220,16,'transparent','Động mạch chủ lưng','đưa máu giàu O₂ sau mang đi nuôi các cơ quan.',8);
+part(180,337,425,16,'transparent','Tĩnh mạch chủ','đưa máu nghèo O₂ từ các cơ quan về tâm nhĩ.',8);
+lab(535,205,'ĐM chủ bụng');lab(290,102,'Động mạch chủ lưng: máu giàu O₂ đi nuôi cơ thể');lab(400,368,'Tĩnh mạch chủ: máu nghèo O₂ về tim');lab(320,240,'1 vòng tuần hoàn duy nhất')}
+function dD(k){
+const a=D[cur],bo=[M,M2,R][k];
+part(100,180,80,80,null,'Phổi','trao đổi khí, máu nghèo O₂ trở nên giàu O₂.');lab(140,224,'Phổi');
+part(620,180,80,80,null,'Cơ quan cơ thể','máu cung cấp O₂ cho tế bào và nhận CO₂.');lab(660,224,'Cơ thể');
+tube('M358 262 H270 V335 H140 V262',B,0,'Động mạch phổi','đưa máu nghèo O₂ từ tâm thất lên phổi. Mạch đi ra khỏi tim đều gọi là động mạch, dù máu nghèo O₂.');tube('M140 178 V110 H430 V170',R,0,'Tĩnh mạch phổi','đưa máu giàu O₂ từ phổi về nhĩ trái. Mạch đi về tim đều gọi là tĩnh mạch, dù máu giàu O₂.');tube('M450 262 H540 V335 H660 V262',bo,0,'Động mạch chủ','đưa '+['máu pha','máu ít pha hơn ếch','máu giàu O₂'][k]+' từ tâm thất đi nuôi cơ thể.');tube('M660 178 V55 H374 V170',B,0,'Tĩnh mạch chủ','đưa máu nghèo O₂ từ cơ thể về nhĩ phải.');
+heart(402,240);
+part(350,170,48,36,B,'Nhĩ phải','nhận máu nghèo O₂ từ cơ thể.');part(406,170,48,36,R,'Nhĩ trái','nhận máu giàu O₂ từ phổi.');
+if(k<2){part(350,212,104,66,[M,M2][k],'Tâm thất',k?'có vách ngăn hụt nên máu ít pha hơn ếch.':'chỉ có một ngăn nên máu giàu và nghèo O₂ trộn lẫn.')}
+else{part(350,212,48,66,B,'Tâm thất phải','bơm máu nghèo O₂ lên phổi.');part(406,212,48,66,R,'Tâm thất trái','thành cơ dày, bơm máu giàu O₂ đi nuôi cơ thể.')}
+if(k==1)E('rect',{x:400,y:246,width:4,height:32,fill:'#10283c'},hg);PP=gP;
+lab(374,192,'Nhĩ phải','lab3');lab(430,192,'Nhĩ trái','lab3');
+if(k<2){lab(402,232,'Tâm thất','lab3');k||lab(402,250,'(máu pha)','lab3')}else{lab(374,248,'Thất phải','lab3');lab(430,248,'Thất trái','lab3')}
+lab(402,306,['Tim 3 ngăn','Tim 3 ngăn, vách hụt','Tim 4 ngăn'][k]);
+const ao=['máu pha','máu ít pha hơn ếch','máu giàu O₂'][k];
+part(140,327,130,16,'transparent','Động mạch phổi','đưa máu nghèo O₂ từ tâm thất lên phổi. Mạch đi ra khỏi tim đều gọi là động mạch, dù máu nghèo O₂.',8);
+part(140,102,290,16,'transparent','Tĩnh mạch phổi','đưa máu giàu O₂ từ phổi về nhĩ trái. Mạch đi về tim đều gọi là tĩnh mạch, dù máu giàu O₂.',8);
+part(540,327,120,16,'transparent','Động mạch chủ','đưa '+ao+' từ tâm thất đi nuôi cơ thể.',8);
+part(374,47,286,16,'transparent','Tĩnh mạch chủ','đưa máu nghèo O₂ từ cơ thể về nhĩ phải.',8);
+lab(220,98,'Tĩnh mạch phổi: máu giàu O₂ về tim');lab(520,44,'Tĩnh mạch chủ: máu nghèo O₂ về tim');lab(205,322,'Động mạch phổi');lab(600,322,'Động mạch chủ');lab(205,358,'Vòng tuần hoàn nhỏ');lab(600,358,'Vòng tuần hoàn lớn')}
+function build(){const a=D[cur];svg.innerHTML='';flows=[];hg=null;gT=E('g',{},svg);gP=E('g',{},svg);gD=E('g',{'pointer-events':'none'},svg);PP=gP;
+E('text',{x:735,y:78,'font-size':84,'text-anchor':'middle',opacity:.16},gT).textContent=a.e;a.draw();cap.innerHTML=`<b>${a.e} ${a.n}:</b> ${a.cap}`;
+document.querySelectorAll('#sp button').forEach((b,i)=>b.setAttribute('aria-pressed',i==cur));desc();bp=lb=0}
+function tick(ms){const dt=Math.min(.05,(ms-last)/1000);last=ms;
+if(play){T+=dt*spd;bp+=dt*spd*D[cur].bpm/60;if(Math.floor(bp)>lb){lb=Math.floor(bp);beat();pulse=1}}
+pulse=Math.max(0,pulse-dt*4);
+if(hg)hg.setAttribute('transform',`translate(${hc[0]} ${hc[1]}) scale(${1+.1*pulse}) translate(${-hc[0]} ${-hc[1]})`);
+flows.forEach(f=>f.d.forEach((c,k)=>{const u=((T*70/f.len+k/f.n)%1),p=f.p.getPointAtLength(u*f.len);c.setAttribute('cx',p.x);c.setAttribute('cy',p.y+(f.j?Math.sin(T*3+k*2)*f.j:0))}));
+requestAnimationFrame(tick)}
+function sel(i){cur=(i+D.length)%D.length;tone(520,.15,'triangle',.15);tone(780,.15,'triangle',.12,.1);build()}
+D.forEach((a,i)=>{const b=document.createElement('button');b.textContent=`${a.e} ${a.id}. ${a.n}`;b.onclick=()=>sel(i);$('#sp').appendChild(b)});
+$('#pv').onclick=()=>sel(cur-1);$('#nx').onclick=()=>sel(cur+1);
+$('#pl').onclick=e=>{play=!play;e.target.textContent=play?'⏸':'▶'};
+$('#sd').oninput=e=>spd=+e.target.value;
+$('#sn').onclick=e=>{snd=!snd;e.target.setAttribute('aria-pressed',snd);e.target.textContent=(snd?'🔊':'🔇')+' Âm thanh';if(!snd)speechSynthesis&&speechSynthesis.cancel()};
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x==b));[0,1,2].forEach(i=>$('#p'+i).hidden=i!=+b.dataset.t);tone(440,.1,'triangle',.12)});
+function say(t){if(!('speechSynthesis' in window))return;if(speechSynthesis.speaking){speechSynthesis.cancel();return}const u=new SpeechSynthesisUtterance(t);u.lang='vi-VN';speechSynthesis.speak(u)}
+function desc(){const a=D[cur];$('#p0').innerHTML=`<h2>${a.e} ${a.n} <span class="id">(${a.id})</span></h2><p class="sub">${a.g}</p>
+<dl><dt>Kiểu hệ tuần hoàn</dt><dd>${a.kieu}</dd><dt>Cấu tạo tim</dt><dd>${a.tim}</dd><dt>Số vòng tuần hoàn</dt><dd>${a.vong}</dd><dt>Máu</dt><dd>${a.mau}</dd></dl>
+<h3>Chú thích trên mô hình</h3><ul>${a.ds.map(x=>`<li>${x}</li>`).join('')}</ul>
+<h3>Ví dụ minh họa</h3><p>${a.ex}</p><p class="fun">💡 ${a.fun}</p><button class="btn p" id="rd">🔈 Đọc to</button>
+<h3>So sánh các loài</h3><div class="tw"><table><tr><th>Loài</th><th>Kiểu</th><th>Tim</th><th>Vòng</th></tr>${D.map((x,i)=>`<tr class="${i==cur?'cu':''}"><td>${x.n}</td><td>${x.kieu}</td><td>${x.tim.split(':')[0].split(',')[0]}</td><td>${x.vong.split(' (')[0]}</td></tr>`).join('')}</table></div>`;
+$('#rd').onclick=()=>say(`${a.n}. ${a.g}. Hệ tuần hoàn ${a.kieu}. Tim: ${a.tim}. ${a.vong}. ${a.mau}. ${a.cap}`);$('#p0').scrollTop=0}
+const FC=[['Xu hướng tiến hóa của hệ tuần hoàn?','Hở → kín; 1 vòng → 2 vòng; tim 2 → 3 → 4 ngăn; máu pha ít dần.'],['Vì sao tim 4 ngăn tiến bộ hơn?','Máu giàu O₂ không bị pha, đi nuôi cơ thể nhanh, trao đổi chất mạnh, giữ được thân nhiệt ổn định.'],['Hệ tuần hoàn hở khác kín thế nào?','Hở: dịch máu tràn vào khoang cơ thể, áp lực thấp. Kín: máu chảy trong mạch, áp lực cao hơn.'],['Máu ở tim ếch có đặc điểm gì?','Tâm thất chung nên máu giàu và nghèo O₂ trộn lẫn (máu pha).'],['Thằn lằn tiến bộ hơn ếch ở điểm nào?','Tâm thất có vách ngăn hụt, máu ít pha hơn.'],['Châu chấu thở bằng gì?','Hệ thống ống khí. O₂ đến thẳng tế bào, không nhờ máu.'],['Tên các mạch lớn ở vòng nhỏ và vòng lớn?','Vòng nhỏ: động mạch phổi (máu nghèo O₂ lên phổi), tĩnh mạch phổi (máu giàu O₂ về tim). Vòng lớn: động mạch chủ (đi nuôi cơ thể), tĩnh mạch chủ (về tim).']];
+$('#p1').innerHTML=`<h2>Ôn tập nhanh</h2><p class="sub">Nhấp vào thẻ để xem đáp án.</p>
+<h3>Thang tiến hóa</h3><ul><li>Giun đất → <b>kín đơn giản</b>, tim bên</li><li>Châu chấu → <b>hở</b>, tim ống</li><li>Cá → <b>1 vòng</b>, tim 2 ngăn</li><li>Ếch, thằn lằn → <b>2 vòng</b>, tim 3 ngăn</li><li>Chim, thú → <b>2 vòng</b>, tim 4 ngăn, máu không pha</li></ul>
+<h3>Số ngăn tim (động vật có xương sống)</h3><div class="bars">${[['Cá',2],['Ếch',3],['Thằn lằn',3],['Chim',4],['Thú',4]].map(([n,c])=>`<div><b>${n}</b><i style="width:${c*40}px"></i>${c}</div>`).join('')}</div>
+<h3>Thẻ ghi nhớ</h3>${FC.map(([q,a])=>`<button class="fc"><b>${q}</b><span>${a}</span></button>`).join('')}
+<h3>Mẹo nhớ</h3><p class="fun">“Cá hai – Ếch ba – Chim bốn.” Từ ba ngăn trở đi có hai vòng tuần hoàn; chỉ từ bốn ngăn máu mới không bị pha.</p>`;
+document.querySelectorAll('.fc').forEach(b=>b.onclick=()=>{b.classList.toggle('on');tone(600,.08,'triangle',.1)});
+const Q=[[0,'Hệ tuần hoàn của châu chấu thuộc loại nào?',['Hở','Kín','Kép','Không có'],0,'Dịch máu tràn vào khoang cơ thể nên là hệ tuần hoàn hở.'],
+[0,'Tim của cá có mấy ngăn?',['1','2','3','4'],1,'Tim cá gồm 1 tâm nhĩ và 1 tâm thất.'],
+[0,'Tim của ếch có mấy ngăn?',['2','3','4','5'],1,'Ếch có 2 tâm nhĩ và 1 tâm thất.'],
+[0,'Động vật nào dưới đây có tim 4 ngăn?',['Cá chép','Ếch đồng','Thằn lằn bóng','Thỏ'],3,'Chim và thú có tim 4 ngăn.'],
+[0,'Mạch lưng của giun đất dẫn máu về phía nào?',['Phía đầu','Phía đuôi','Cả hai phía','Không dẫn máu'],0,'Mạch lưng dẫn máu về phía đầu, mạch bụng dẫn máu về phía đuôi.'],
+[0,'Máu nuôi cơ thể ếch là máu gì?',['Máu giàu O₂','Máu nghèo O₂','Máu pha','Không có máu'],2,'Tâm thất chỉ có một ngăn nên máu bị trộn lẫn.'],
+[1,'Cá có bao nhiêu vòng tuần hoàn?',['1 vòng','2 vòng','3 vòng','Không có'],0,'Máu đi tim → mang → cơ thể → tim: chỉ một vòng.'],
+[1,'Ưu điểm lớn nhất của tim 4 ngăn là gì?',['Tim nhỏ hơn','Máu không bị pha, giàu O₂ nuôi cơ thể','Máu chảy chậm hơn','Không cần phổi'],1,'Máu giàu O₂ cung cấp cho trao đổi chất mạnh và giữ thân nhiệt ổn định.'],
+[1,'Thằn lằn tiến bộ hơn ếch ở điểm nào?',['Có 4 ngăn tim','Tâm thất có vách hụt, máu ít pha hơn','Chỉ có 1 vòng','Tim nằm ngoài cơ thể'],1,'Vách hụt ngăn một phần hai dòng máu.'],
+[1,'Vì sao hệ tuần hoàn của châu chấu không cần chở O₂?',['Vì không cần O₂','Vì O₂ đi trực tiếp đến tế bào qua ống khí','Vì thở bằng mang','Vì thở qua da'],1,'Hệ thống ống khí dẫn O₂ đến từng tế bào.'],
+[1,'Xu hướng tiến hóa nào đúng?',['Kín → hở; 4 → 2 ngăn','Hở → kín; 1 vòng → 2 vòng; tim 2 → 4 ngăn','Hở → kín; tim 4 → 2 ngăn','Không thay đổi'],1,'Hệ tuần hoàn ngày càng hoàn thiện, máu pha giảm dần.'],
+[1,'Chức năng của tim bên ở giun đất?',['Hút khí','Đẩy máu từ mạch lưng sang mạch bụng','Tiêu hóa','Lọc nước'],1,'Tim bên là các vòng mạch co bóp nối mạch lưng với mạch bụng.']];
+let qs,qi,sc,ans;
+function qHome(){$('#p2').innerHTML=`<h2>Trò chơi trắc nghiệm</h2><p class="sub">Chọn mức độ phù hợp với học sinh.</p><div class="row"><button class="btn p" data-l="0">Dễ (6 câu)</button><button class="btn p" data-l="1">Nâng cao (6 câu)</button><button class="btn p" data-l="2">Tất cả (12 câu)</button></div>`;document.querySelectorAll('#p2 [data-l]').forEach(b=>b.onclick=()=>qRun(+b.dataset.l))}
+function qRun(l){qs=Q.filter(q=>l==2||q[0]==l).sort(()=>Math.random()-.5);qi=0;sc=0;qShow()}
+function qShow(){const q=qs[qi];ans=false;const o=q[2].map((t,i)=>[t,i]).sort(()=>Math.random()-.5);
+$('#p2').innerHTML=`<p class="sub">Câu ${qi+1}/${qs.length} · Điểm: ${sc}</p><div class="bar"><i style="width:${qi/qs.length*100}%"></i></div><h3 style="margin-top:0">${q[1]}</h3>${o.map(([t,i])=>`<button class="opt" data-i="${i}">${t}</button>`).join('')}<div id="fb"></div>`;
+document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(ans)return;ans=true;const ok=+b.dataset.i==q[3];
+document.querySelectorAll('.opt').forEach(x=>{if(+x.dataset.i==q[3])x.classList.add('ok')});if(!ok)b.classList.add('no');
+if(ok){sc++;[523,659,784].forEach((f,k)=>tone(f,.18,'triangle',.18,k*.1))}else{tone(180,.3,'sawtooth',.12)}
+$('#fb').innerHTML=`<p class="fun">${ok?'✅ Chính xác!':'❌ Chưa đúng.'} ${q[4]}</p><button class="btn p" id="nq">${qi+1<qs.length?'Câu tiếp theo':'Xem kết quả'}</button>`;
+$('#nq').onclick=()=>{qi++;qi<qs.length?qShow():qEnd()};$('#nq').scrollIntoView({block:'nearest'})})}
+function qEnd(){const r=sc/qs.length;[523,659,784,1047].forEach((f,k)=>tone(f,.25,'triangle',.18,k*.12));
+$('#p2').innerHTML=`<h2>Kết quả: ${sc}/${qs.length}</h2><p style="font-size:28px;margin:6px 0">${r>.8?'🌟🌟🌟':r>.5?'🌟🌟':'🌟'}</p><p>${r>.8?'Xuất sắc! Em nắm rất vững kiến thức.':r>.5?'Khá tốt! Xem lại tab Ôn tập để hoàn thiện.':'Cố lên! Hãy quan sát lại mô hình và thử lại.'}</p><div class="row"><button class="btn p" id="ag">Chơi lại</button><button class="btn" id="hm">Chọn mức độ</button></div>`;
+$('#ag').onclick=()=>qRun(2);$('#hm').onclick=qHome}
+qHome();build();requestAnimationFrame(tick);
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Chặn phím tắt: F12, Ctrl+U, Ctrl+Shift+I/J/C, Ctrl+S
+    document.addEventListener('keydown', function(e) {
+      const key = e.key.toLowerCase();
+
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) || 
+        (e.ctrlKey && (key === 'u' || key === 's'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 2. Chặn chuột phải (Context Menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  });
+</script>
+</body>
+</html>

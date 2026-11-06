@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vật lý 7 – Bài 13: Độ to và độ cao của âm</title>
+<style>
+:root{--bg:#f4f1ea;--pn:#fff;--tx:#222;--mu:#667;--ac:#e8711a;--ln:#ddd;--ok:#1b8a3c;--no:#c0392b;--hl:#fff3e6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1c20;--pn:#26272c;--tx:#eee;--mu:#aab;--ln:#3a3b42;--hl:#33291f}}
+:root[data-theme="dark"]{--bg:#1b1c20;--pn:#26272c;--tx:#eee;--mu:#aab;--ln:#3a3b42;--hl:#33291f}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--tx);font:14px/1.5 system-ui,"Segoe UI",Roboto,Arial,sans-serif;overflow:hidden}
+.app{display:flex;height:100%;gap:8px;padding:8px;box-sizing:border-box}
+.model{flex:3;position:relative;background:var(--pn);border-radius:12px;border:1px solid var(--ln);display:flex;flex-direction:column;padding:8px 10px 30px;min-width:0}
+.side{flex:1;min-width:290px;background:var(--pn);border-radius:12px;border:1px solid var(--ln);display:flex;flex-direction:column;min-height:0}
+.title{font-weight:700;font-size:15px;color:var(--ac)}
+svg{flex:1;min-height:0;width:100%}
+.ctl{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:4px 2px}
+.ctl label{font-size:13px;display:flex;align-items:center;gap:6px}
+.ctl input[type=range]{width:130px}
+button{font:inherit;border:1px solid var(--ln);background:var(--pn);color:var(--tx);border-radius:8px;padding:3px 9px;cursor:pointer}
+button:hover{border-color:var(--ac)}
+button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.row{display:flex;flex-wrap:wrap;gap:5px;padding:2px;align-items:center}
+.row b{font-size:12px;color:var(--mu)}
+.info{background:var(--hl);border-left:4px solid var(--ac);border-radius:6px;padding:5px 9px;font-size:13px;min-height:38px}
+.read{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;font-weight:600}
+.read span{background:var(--hl);padding:2px 8px;border-radius:6px}
+.foot{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-size:13px;color:var(--mu);pointer-events:none}
+.foot b{color:#f57c00}
+.tabs{display:flex;border-bottom:1px solid var(--ln)}
+.tabs button{flex:1;border:0;border-radius:12px 12px 0 0;padding:9px 4px;font-weight:600;background:none}
+.tabs button.on{background:var(--ac);color:#fff}
+.pane{display:none;flex:1;overflow-y:auto;padding:10px 12px;min-height:0;scroll-behavior:smooth}
+.pane.on{display:block}
+h3{margin:10px 0 4px;color:var(--ac);font-size:15px}
+.box{border-radius:8px;padding:6px 10px;margin:6px 0;background:var(--hl)}
+.q{border:1px solid var(--ln);border-radius:8px;padding:8px;margin:8px 0}
+.opt{display:block;width:100%;text-align:left;margin:4px 0}
+.opt.ok{background:var(--ok);color:#fff}.opt.no{background:var(--no);color:#fff}
+.hit{cursor:pointer}.hit:hover{filter:brightness(1.12)}
+input[type=number]{width:70px;font:inherit;padding:2px 4px}
+@media(max-width:760px){body{overflow:auto}.app{flex-direction:column;height:auto}.model{min-height:640px}.side{height:520px}}
+</style></head>
+<body>
+<div class="app">
+<section class="model">
+  <div class="title">Môn Vật lý 7 – Bài 13: Độ to và độ cao của âm</div>
+  <svg id="sv" viewBox="0 0 800 400" role="img" aria-label="Mô hình âm thoa, micrô và dao động kí">
+    <text x="105" y="26" font-size="14" fill="currentColor">Âm thoa</text>
+    <text x="245" y="26" font-size="14" fill="currentColor">Micrô</text>
+    <text x="500" y="26" font-size="14" fill="currentColor">Máy dao động kí</text>
+    <line x1="270" y1="32" x2="290" y2="62" stroke="currentColor"/>
+    <!-- Cảnh 1: âm thoa + micrô + dao động kí (Hình 13.2 / 13.4) -->
+    <g id="sc1">
+      <g class="hit" data-k="fork">
+        <rect x="70" y="272" width="120" height="48" rx="3" fill="#d9a05b"/><rect x="70" y="272" width="120" height="10" fill="#e8b878"/>
+        <rect x="124" y="205" width="12" height="67" fill="#bbc3cc"/>
+        <g id="pL"><rect x="110" y="70" width="12" height="140" rx="4" fill="#c8d0d8"/></g>
+        <g id="pR"><rect x="138" y="70" width="12" height="140" rx="4" fill="#c8d0d8"/></g>
+        <path d="M122 205 Q130 222 138 205" fill="#bbc3cc"/>
+      </g>
+      <g class="hit" data-k="mic">
+        <rect x="262" y="120" width="12" height="190" fill="#3b57c4"/>
+        <rect x="222" y="308" width="92" height="12" rx="3" fill="#3b57c4"/>
+        <rect x="222" y="86" width="50" height="22" rx="10" fill="#222" transform="rotate(-8 247 97)"/>
+        <rect x="258" y="94" width="30" height="12" fill="#26a0d8"/>
+        <circle cx="232" cy="98" r="11" fill="#2d2d2d"/>
+      </g>
+      <path d="M290 100 Q340 100 345 180 Q350 245 430 240" fill="none" stroke="#222" stroke-width="2.5"/>
+      <g class="hit" data-k="scope">
+        <rect x="438" y="50" width="330" height="262" rx="18" fill="#f2c340" stroke="#d99d1c" stroke-width="3"/>
+        <rect x="462" y="78" width="248" height="200" rx="6" fill="#1d3f8f" stroke="#12306f" stroke-width="3"/>
+        <line x1="466" y1="178" x2="706" y2="178" stroke="#ffd83a" stroke-width="3"/>
+        <text x="474" y="256" fill="#fff" font-size="15">x</text><text x="684" y="256" fill="#fff" font-size="15">y</text>
+        <circle cx="735" cy="100" r="7" fill="#e5424f"/><circle cx="755" cy="100" r="7" fill="#e5424f"/><circle cx="740" cy="262" r="8" fill="#22b24c"/>
+        <rect x="470" y="312" width="52" height="10" rx="3" fill="#e8711a"/><rect x="690" y="312" width="52" height="10" rx="3" fill="#e8711a"/>
+      </g>
+      <path id="wv" class="hit" data-k="wave" d="" fill="none" stroke="#ffd83a" stroke-width="4" stroke-linejoin="round"/>
+    </g>
+    <!-- Cảnh 2: thước thép (Hình 13.1) -->
+    <g id="sc2" style="display:none">
+      <polygon points="90,150 330,150 330,190 90,190" fill="#7bc043"/><polygon points="90,150 330,150 300,120 60,120" fill="#8fd150"/>
+      <g class="hit" data-k="ruler">
+        <path id="rg1" d="" fill="none" stroke="#9aa" stroke-width="12" stroke-dasharray="6 5" opacity=".55"/>
+        <path id="rg2" d="" fill="none" stroke="#9aa" stroke-width="12" stroke-dasharray="6 5" opacity=".55"/>
+        <path id="rl" d="" fill="none" stroke="#4a4f57" stroke-width="12"/>
+        <rect x="236" y="150" width="50" height="90" fill="#d34a2a" rx="4"/><rect x="252" y="236" width="18" height="60" fill="#888"/><rect x="215" y="292" width="92" height="10" fill="#888"/>
+      </g>
+      <g id="ar"><line id="al" x1="650" x2="650" stroke="currentColor" stroke-width="2"/>
+      <text x="665" y="200" font-size="15" fill="currentColor">Biên độ dao động</text></g>
+      <text x="90" y="350" font-size="14" fill="currentColor">Hình 13.1: Thước thép đàn hồi dài khoảng 30 cm, một đầu cố định</text>
+    </g>
+    <text id="cap" x="400" y="372" text-anchor="middle" font-size="14" fill="currentColor"></text>
+  </svg>
+  <div class="info" id="info">Bấm vào âm thoa, micrô, dao động kí hoặc đường sóng để xem chi tiết.</div>
+  <div class="read"><span id="rA"></span><span id="rF"></span><span id="rL"></span><span id="rH"></span></div>
+  <div class="ctl">
+    <label>Biên độ <input type="range" id="amp" min="0" max="100" value="85"></label>
+    <label>Tần số <input type="range" id="fr" min="100" max="1000" value="200"></label>
+    <button id="snd">🔊 Phát âm</button>
+  </div>
+  <div class="row"><b>Thí nghiệm:</b>
+    <button data-p="s2">Hình 13.1 (thước)</button>
+    <button data-p="a">13.2a</button><button data-p="b">13.2b</button><button data-p="c">13.2c</button>
+    <button data-p="d">13.4a</button><button data-p="e">13.4b</button></div>
+  <div class="row"><b>Nốt nhạc:</b>
+    <button data-n="494">si</button><button data-n="523">đô</button><button data-n="587">rê</button><button data-n="629">mi</button><button data-n="698">fa</button><button data-n="784">son</button><button data-n="880">la</button></div>
+  <div class="foot">Produced of <b>LucianEdu</b></div>
+</section>
+
+<aside class="side">
+  <div class="tabs"><button class="on" data-t="t1">Nội dung</button><button data-t="t2">Ôn tập</button><button data-t="t3">Trắc nghiệm</button></div>
+  <div class="pane on" id="t1">
+    <h3>I – Độ to và biên độ của sóng âm</h3>
+    <div class="box"><b>Biên độ dao động</b> là khoảng cách từ vị trí ban đầu (cân bằng) đến vị trí xa nhất của vật dao động (đầu thước ở Hình 13.1).</div>
+    <p>Trên màn hình dao động kí, biên độ sóng âm là khoảng cách từ đường xy đến điểm cao nhất của đường biểu diễn.</p>
+    <p><b>Hình 13.2b, 13.2c:</b> nguồn âm dao động với biên độ lớn thì sóng âm có biên độ lớn, nghe âm <b>to</b>; biên độ nhỏ thì nghe âm <b>nhỏ</b>.</p>
+    <p>Muốn gảy đàn hoặc đánh trống phát ra âm to hơn: gảy mạnh, đánh mạnh hơn để nguồn dao động với biên độ lớn hơn.</p>
+    <h3>II – Độ cao và tần số của sóng âm</h3>
+    <div class="box"><b>Tần số</b> là số dao động vật thực hiện được trong một giây. Đơn vị: héc (Hz), theo tên nhà vật lí người Đức Heinrich Rudolf Hertz (1857–1894). Ví dụ: 1 s vật thực hiện 30 dao động thì tần số là 30 Hz.</div>
+    <p>Tai người nghe được âm có tần số khoảng từ 20 Hz đến 20 000 Hz.</p>
+    <p>Nốt nhạc: si 494 Hz; đô 523 Hz; rê 587 Hz; mi 629 Hz; fa 698 Hz; son 784 Hz; la 880 Hz.</p>
+    <p><b>Hình 13.4a, 13.4b:</b> đường biểu diễn thưa thì tần số nhỏ, âm <b>thấp (trầm)</b>; đường biểu diễn mau thì tần số lớn, âm <b>cao (bổng)</b>.</p>
+    <h3>Máy tính tần số</h3>
+    <div class="box">Số dao động <input type="number" id="cn" value="3300"> trong <input type="number" id="ct" value="10"> s<br>→ Tần số f = N : t = <b id="cr">330 Hz</b> <button id="cu">Dùng cho mô hình</button></div>
+    <p style="color:var(--mu)">Thanh trượt “Tần số” của mô hình có thể chỉnh trong khoảng 100–1000 Hz; số đường sóng trên màn hình = tần số : 100.</p>
+  </div>
+  <div class="pane" id="t2">
+    <h3>Em đã học</h3>
+    <div class="box">• Biên độ dao động là khoảng cách từ vị trí cân bằng đến vị trí xa nhất của dao động.<br>• Tần số là số dao động trong 1 giây. Đơn vị tần số là héc (Hz).<br>• Sóng âm có biên độ càng lớn thì nghe âm càng to (và ngược lại).<br>• Sóng âm có tần số càng lớn thì nghe âm càng cao (và ngược lại).</div>
+    <h3>Em có thể</h3>
+    <div class="box">• Giải thích tại sao âm phát ra từ mỗi dây đàn ghita có độ cao khác nhau (dây khác nhau dao động với tần số khác nhau).<br>• Trình bày mối liên hệ giữa độ to của âm và biên độ dao động của nguồn âm, như khi gõ mạnh thì tiếng trống to hơn khi gõ nhẹ.</div>
+    <h3>Bài tập vận dụng (bấm để xem đáp án)</h3>
+    <div id="ex"></div>
+    <h3>Em có biết?</h3>
+    <div class="box">Giọng nữ cao hơn giọng nam vì dây thanh quản của nữ dao động nhanh hơn. Khi hét to, kéo dài, dây thanh quản dao động với biên độ lớn trong thời gian dài dễ bị tổn thương nên ta bị đau họng, giọng khàn và nhỏ đi.</div>
+  </div>
+  <div class="pane" id="t3"><div id="quiz"></div></div>
+</aside>
+</div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const S={amp:.85,f:200,scene:1,on:false,t:0};
+/* Âm thanh */
+let ctx,osc,g;
+function ac(){if(!ctx){try{ctx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ctx&&ctx.state==="suspended")ctx.resume();return ctx}
+function beep(f,d,type,v,delay){const c=ac();if(!c)return;const o=c.createOscillator(),k=c.createGain(),t=c.currentTime+(delay||0);o.type=type||"sine";o.frequency.value=f;k.gain.setValueAtTime(v||.12,t);k.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(k).connect(c.destination);o.start(t);o.stop(t+d)}
+const click=()=>beep(900,.06,"square",.05),good=()=>{beep(660,.15,"sine",.15);beep(880,.25,"sine",.15,.14)},bad=()=>beep(150,.35,"sawtooth",.12);
+function tone(){const c=ac();if(!c)return;if(S.on){if(!osc){osc=c.createOscillator();g=c.createGain();g.gain.value=0;osc.connect(g).connect(c.destination);osc.start()}
+ osc.frequency.setTargetAtTime(S.f,c.currentTime,.03);g.gain.setTargetAtTime(.01+.28*S.amp*S.amp,c.currentTime,.03)}else if(g)g.gain.setTargetAtTime(0,c.currentTime,.03)}
+/* Cập nhật thông số */
+function upd(){
+ $("#amp").value=Math.round(S.amp*100);$("#fr").value=S.f;
+ $("#rA").textContent="Biên độ: "+Math.round(S.amp*100)+"%";
+ $("#rF").textContent="Tần số: "+S.f+" Hz ("+S.f+" dao động/giây)";
+ $("#rL").textContent="Độ to: "+(S.amp<.02?"không có âm":S.amp<.4?"nhỏ":S.amp<.7?"vừa":"to");
+ $("#rH").textContent="Độ cao: "+(S.f<350?"thấp (trầm)":S.f<650?"vừa":"cao (bổng)");
+ tone()}
+const P={a:[0,200,"Hình 13.2a: nguồn âm chưa hoạt động, không phát ra âm"],b:[.9,200,"Hình 13.2b: nguồn âm dao động với biên độ lớn"],c:[.4,200,"Hình 13.2c: nguồn âm dao động với biên độ nhỏ"],d:[.7,150,"Hình 13.4a: nguồn âm dao động với tần số nhỏ"],e:[.7,400,"Hình 13.4b: nguồn âm dao động với tần số lớn"]};
+function setScene(n){S.scene=n;$("#sc1").style.display=n==1?"":"none";$("#sc2").style.display=n==2?"":"none";$$("svg > text").forEach((e,i)=>{if(i<3)e.style.display=n==1?"":"none"});$("svg line").style.display=n==1?"":"none"}
+$$("[data-p]").forEach(b=>b.onclick=()=>{click();const p=b.dataset.p;$$("[data-p]").forEach(x=>x.classList.toggle("on",x==b));
+ if(p=="s2"){setScene(2);$("#cap").textContent="";S.amp=.8;S.f=Math.min(S.f,300);info("Thước thép: kéo đầu tự do xuống rồi buông ra, đầu thước dao động và phát ra âm. Biên độ dao động là khoảng cách từ vị trí cân bằng đến vị trí xa nhất của đầu thước.")}
+ else{setScene(1);S.amp=P[p][0];S.f=P[p][1];$("#cap").textContent=P[p][2]}upd()});
+$$("[data-n]").forEach(b=>b.onclick=()=>{click();S.f=+b.dataset.n;beep(S.f,.5,"sine",.15);upd();info("Nốt "+b.textContent+": tần số "+S.f+" Hz.")});
+$("#amp").oninput=e=>{S.amp=e.target.value/100;upd()};
+$("#fr").oninput=e=>{S.f=+e.target.value;upd()};
+$("#snd").onclick=e=>{S.on=!S.on;e.target.classList.toggle("on",S.on);e.target.textContent=S.on?"🔇 Tắt âm":"🔊 Phát âm";ac();tone();click()};
+function info(t){$("#info").textContent=t}
+const IN={fork:"Âm thoa: khi gõ vào, hai nhánh dao động và phát ra âm. Kéo thanh “Biên độ” để thấy nhánh dao động mạnh hay yếu.",mic:"Micrô: thu sóng âm từ âm thoa và chuyển thành tín hiệu điện nối với máy dao động kí.",scope:"Máy dao động kí: hiển thị đặc điểm sóng âm. Biên độ là khoảng cách từ đường xy đến điểm cao nhất của đường biểu diễn.",wave:"Đường sóng: biên độ lớn → âm to; số đường biểu diễn mau (tần số lớn) → âm cao (bổng); thưa (tần số nhỏ) → âm thấp (trầm).",ruler:"Thước thép: đầu cố định bằng kẹp, đầu tự do dao động và phát ra âm."};
+$$(".hit").forEach(e=>e.onclick=()=>{click();info(IN[e.dataset.k])});
+/* Hoạt hình */
+function frame(ts){S.t=ts/1000;const ph=S.t*2,cyc=S.f/100,A=S.amp*62;
+ if(S.scene==1){let d="M466 "+(178);for(let i=0;i<=240;i+=3){d+=" L"+(466+i)+" "+(178-A*Math.sin(2*Math.PI*cyc*i/240+ph)).toFixed(1)}
+  $("#wv").setAttribute("d",S.amp<.02?"M466 178 L706 178":d);
+  const m=S.amp*7*Math.sin(S.t*30);$("#pL").setAttribute("transform","translate("+m+" 0)");$("#pR").setAttribute("transform","translate("+(-m)+" 0)")}
+ else{const a=S.amp*50,d=a*Math.sin(S.t*Math.min(S.f,300)/12);
+  const pt=y=>"M286 195 Q480 195 640 "+(195+y);$("#rl").setAttribute("d",pt(d));$("#rg1").setAttribute("d",pt(a));$("#rg2").setAttribute("d",pt(-a));
+  $("#al").setAttribute("y1",195-a);$("#al").setAttribute("y2",195+a)}
+ requestAnimationFrame(frame)}
+/* Tab */
+$$(".tabs button").forEach(b=>b.onclick=()=>{click();$$(".tabs button").forEach(x=>x.classList.toggle("on",x==b));$$(".pane").forEach(p=>p.classList.toggle("on",p.id==b.dataset.t))});
+function calc(){const n=+$("#cn").value,t=+$("#ct").value;$("#cr").textContent=t>0?+(n/t).toFixed(2)+" Hz":"—"}
+$("#cn").oninput=$("#ct").oninput=calc;
+$("#cu").onclick=()=>{const f=Math.round(+$("#cn").value/+$("#ct").value);if(f>0){S.f=Math.max(100,Math.min(1000,f));upd();info("Đã đặt tần số "+S.f+" Hz cho mô hình (thanh trượt giới hạn 100–1000 Hz).")}click()};
+/* Bài tập */
+const EX=[["Dây đàn ghita dao động 880 lần mỗi giây. Tần số?","880 Hz."],["Mặt trống dao động 100 Hz. Bao nhiêu dao động trong 1 min?","100 × 60 = 6 000 dao động."],["Ong mật đập cánh 3 300 lần trong 10 s. Tần số?","3 300 : 10 = 330 Hz."],["Muỗi vỗ cánh 3 000 lần trong 5 s; ong 4 950 lần trong 15 s. Tần số? Con nào nhanh hơn, âm cao hơn?","Muỗi: 3 000 : 5 = 600 Hz. Ong: 4 950 : 15 = 330 Hz. Muỗi vỗ cánh nhanh hơn, âm của muỗi cao hơn."],["Vặn dây đàn ghita căng hơn thì âm thế nào?","Dây căng nhiều → dao động nhanh, tần số lớn → âm cao; dây chùng → tần số nhỏ → âm trầm."]];
+$("#ex").innerHTML=EX.map((e,i)=>"<div class='q'>"+(i+1)+". "+e[0]+"<br><button data-a='"+i+"'>Xem đáp án</button><div class='box' style='display:none'>"+e[1]+"</div></div>").join("");
+$$("[data-a]").forEach(b=>b.onclick=()=>{click();const d=b.nextElementSibling;d.style.display=d.style.display=="none"?"block":"none"});
+/* Trắc nghiệm */
+const Q=[["Biên độ dao động là gì?",["Số dao động trong 1 giây","Khoảng cách từ vị trí cân bằng đến vị trí xa nhất của vật dao động","Thời gian vật dao động","Tốc độ truyền âm"],1,"Đó là định nghĩa biên độ dao động."],
+["Nguồn âm dao động với biên độ lớn thì âm nghe được như thế nào?",["Nhỏ","Trầm","To","Bổng"],2,"Biên độ càng lớn, âm càng to."],
+["Đơn vị của tần số là gì?",["Mét (m)","Giây (s)","Héc (Hz)","Niutơn (N)"],2,"Héc (Hz), theo tên nhà vật lí Hertz."],
+["Dao động kí thấy đường sóng mau (nhiều đường) thì âm nghe được:",["Cao (bổng)","Thấp (trầm)","Nhỏ","Không đổi"],0,"Tần số lớn → âm cao (bổng)."],
+["Con ong mật vỗ cánh 4 950 lần trong 15 s. Tần số vỗ cánh là:",["33 Hz","330 Hz","495 Hz","74 250 Hz"],1,"4 950 : 15 = 330 Hz."]];
+let qi=0,sc=0;
+function rq(){const el=$("#quiz");if(qi>=Q.length){el.innerHTML="<h3>Hoàn thành!</h3><div class='box'>Điểm của em: <b>"+sc+"/"+Q.length+"</b></div><button id='rs'>Làm lại</button>";$("#rs").onclick=()=>{qi=0;sc=0;click();rq()};return}
+ const q=Q[qi];el.innerHTML="<h3>Câu "+(qi+1)+"/"+Q.length+"</h3><div class='q'><b>"+q[0]+"</b>"+q[1].map((o,i)=>"<button class='opt' data-o='"+i+"'>"+"ABCD"[i]+". "+o+"</button>").join("")+"<div id='fb'></div></div>";
+ $$(".opt").forEach(b=>b.onclick=()=>{const i=+b.dataset.o;if($("#fb").textContent)return;const ok=i==q[2];ok?(sc++,good()):bad();b.classList.add(ok?"ok":"no");$$(".opt")[q[2]].classList.add("ok");
+  $("#fb").innerHTML="<div class='box'>"+(ok?"Chính xác! ":"Chưa đúng. ")+q[3]+"</div><button id='nx'>"+(qi+1<Q.length?"Câu tiếp theo":"Xem kết quả")+"</button>";$("#nx").onclick=()=>{click();qi++;rq()}})}
+rq();upd();setScene(1);$("#cap").textContent="Hình 13.2 / 13.4: thí nghiệm về biên độ và tần số của sóng âm";requestAnimationFrame(frame);
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Chặn phím tắt: F12, Ctrl+U, Ctrl+Shift+I/J/C, Ctrl+S
+    document.addEventListener('keydown', function(e) {
+      const key = e.key.toLowerCase();
+
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) || 
+        (e.ctrlKey && (key === 'u' || key === 's'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 2. Chặn chuột phải (Context Menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  });
+</script>
+</body>
+</html>

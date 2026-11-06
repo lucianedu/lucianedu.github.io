@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trái Đất quanh Mặt Trời – Bốn mùa</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{--bg:#eaf6ff;--card:#fff;--tx:#1b2740;--mut:#5b6b88;--ac:#2a7bff;--bd:#d9e1ef;--ok:#1e9d5a;--bad:#d64545;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101a30;--card:#18253f;--tx:#e8eefb;--mut:#9bacc9;--ac:#6ea1ff;--bd:#2a3b5e;--ok:#4cd08a;--bad:#ff7777}}
+:root[data-theme="dark"]{--bg:#101a30;--card:#18253f;--tx:#e8eefb;--mut:#9bacc9;--ac:#6ea1ff;--bd:#2a3b5e;--ok:#4cd08a;--bad:#ff7777}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:grid;grid-template-columns:3fr 1fr;overflow:hidden}
+#stage{position:relative;background:radial-gradient(circle at 50% 40%,#3a54c8,#1a2a86 55%,#0c1448);min-width:0;min-height:0}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#hud{position:absolute;left:10px;top:48px;z-index:5;background:rgba(18,30,100,.85);color:#fff;border:1px solid #7fa2ff;border-radius:12px;padding:8px 14px;font-size:13px;line-height:1.5;min-width:230px;max-width:calc(100% - 20px);white-space:normal;overflow:visible}
+#hud b{color:#ffd76a}#hud .big{font-size:20px;font-weight:700;color:#fff}
+#leg{position:absolute;right:10px;top:48px;z-index:5;background:rgba(18,30,100,.85);color:#dfe8ff;border:1px solid #2d4170;border-radius:12px;padding:6px 10px;font-size:12px}
+#leg i{display:inline-block;width:18px;height:3px;margin-right:6px;vertical-align:middle}
+#ftr{position:absolute;left:0;right:0;bottom:0;height:24px;z-index:6;display:flex;align-items:center;justify-content:center;font-size:12px;letter-spacing:.3px;color:#dfe8ff;background:rgba(12,20,72,.92);pointer-events:none;user-select:none}#ftr b{color:#ff9f1c}
+#ctl{position:absolute;left:0;right:0;bottom:24px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;background:linear-gradient(transparent,rgba(2,3,10,.9))}
+button{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;padding:5px 10px}
+button:hover{border-color:var(--ac)}button.on{background:linear-gradient(135deg,#2a7bff,#8a4dff);color:#fff;border-color:transparent}
+#ctl button{background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.4);font-size:13px;font-weight:600}#ctl button.on{background:linear-gradient(135deg,#ffb02e,#ff5e62);border-color:transparent}#ctl [data-j="3"]{background:#2ecc71;border-color:transparent}#ctl [data-j="0"]{background:#ff9f1c;border-color:transparent}#ctl [data-j="1"]{background:#e8703a;border-color:transparent}#ctl [data-j="2"]{background:#35a7ff;border-color:transparent}
+#ctl input[type=range]{width:110px;accent-color:#6ea1ff}
+#panel{display:flex;flex-direction:column;min-width:0;min-height:0;border-left:1px solid var(--bd);background:var(--bg)}
+#top{padding:10px 12px 6px}#top h1{font-size:16px;margin:0 0 6px}
+.chips,.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs{padding:0 12px 8px;border-bottom:1px solid var(--bd)}.tabs button{flex:1;padding:6px 4px;font-weight:600}
+#scroll{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:12px;min-height:0}
+.pg{display:none}.pg.on{display:block}
+.rd{position:sticky;top:-12px;z-index:2;margin:-12px -12px 10px;padding:8px 12px;background:var(--bg);border-bottom:1px solid var(--bd)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.card h3{margin:0 0 4px;font-size:15px;color:#ff7a1a}.card p{margin:0}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{border:1px solid var(--bd);padding:4px 6px;text-align:left}th{background:var(--card)}
+.fc{cursor:pointer;user-select:none}.fc .a{display:none;color:var(--ok);margin-top:4px}.fc.f .a{display:block}
+.opt{display:block;width:100%;text-align:left;margin:6px 0;padding:8px 10px}
+.opt.ok{background:var(--ok);color:#fff;border-color:var(--ok)}.opt.no{background:var(--bad);color:#fff;border-color:var(--bad)}
+.bar{height:8px;background:var(--bd);border-radius:6px;overflow:hidden;margin:6px 0}.bar div{height:100%;background:var(--ac);width:0;transition:width .3s}
+@media (max-width:820px){body{grid-template-columns:1fr;grid-template-rows:62vh 1fr}#panel{border-left:0;border-top:1px solid var(--bd)}#leg{display:none}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="cv"></canvas>
+  <div id="hud"></div>
+  <div id="leg"><div><i style="background:#ff4d4d"></i>Xích đạo 0°</div><div><i style="background:#ffd34d"></i>Chí tuyến 23°27'</div><div><i style="background:#4de0ff"></i>Vòng cực 66°33'</div></div>
+  <div id="ftr">Produced of&nbsp;<b>LucianEdu</b></div>
+  <div id="ctl">
+    <button id="bPlay" class="on">⏸ Dừng</button>
+    <input id="spd" type="range" min="1" max="100" value="25" title="Tốc độ">
+    <button data-j="3">🌱 21/3</button><button data-j="0">☀️ 22/6</button><button data-j="1">🍂 23/9</button><button data-j="2">❄️ 22/12</button>
+    <button id="vSide">Nhìn nghiêng</button><button id="vTop">Nhìn từ trên</button><button id="bFol">🔍 Theo Trái Đất</button>
+    <button id="bLines" class="on">Vĩ tuyến</button><button id="bSpin" class="on">Tự quay</button>
+    <button id="bSnd" class="on">🔊 Âm thanh</button><button id="bAmb">🎵 Nhạc nền</button>
+  </div>
+</div>
+<div id="panel">
+  <div id="top"><h1>🌍 Trái Đất &amp; Bốn mùa</h1>
+    <div class="chips" id="lv"><button data-l="1" class="on">🧒 Tiểu học</button><button data-l="2">🧑 THCS</button><button data-l="3">🎓 THPT</button></div></div>
+  <div class="tabs" id="tabs"><button data-t="d" class="on">📖 Mô tả</button><button data-t="r">📝 Ôn tập</button><button data-t="q">🎮 Trò chơi</button></div>
+  <div id="scroll">
+    <div class="pg on" id="pd"></div>
+    <div class="pg" id="pr"></div>
+    <div class="pg" id="pq"></div>
+  </div>
+</div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+let level=1,sndOn=true;
+/* ---------- ÂM THANH ---------- */
+let AC=null,amb=null;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();return AC}
+function beep(f,d=.15,t='sine',v=.12,delay=0,slide=0){if(!sndOn)return;const c=ac();if(!c)return;const o=c.createOscillator(),g=c.createGain(),s=c.currentTime+delay;o.type=t;o.frequency.setValueAtTime(f,s);if(slide)o.frequency.exponentialRampToValueAtTime(f*slide,s+d);g.gain.setValueAtTime(v,s);g.gain.exponentialRampToValueAtTime(.0001,s+d);o.connect(g).connect(c.destination);o.start(s);o.stop(s+d+.02)}
+const sfx={click:()=>beep(660,.08,'triangle'),ok:()=>{beep(523,.14,'sine',.15);beep(659,.14,'sine',.15,.12);beep(784,.25,'sine',.15,.24)},bad:()=>{beep(180,.35,'sawtooth',.1,0,.6)},whoosh:()=>beep(200,.6,'sine',.08,0,4),win:()=>[523,659,784,1047,1319].forEach((f,i)=>beep(f,.22,'triangle',.14,i*.12)),season:()=>{beep(880,.2,'sine',.1);beep(1175,.3,'sine',.08,.12)}};
+function toggleAmb(){const c=ac();if(!c)return;if(amb){amb.forEach(n=>n.stop());amb=null;return false}
+ const g=c.createGain();g.gain.value=.05;g.connect(c.destination);const l=c.createOscillator(),lg=c.createGain();l.frequency.value=.15;lg.gain.value=.03;l.connect(lg).connect(g.gain);amb=[l];
+ [110,165,220.5].forEach(f=>{const o=c.createOscillator();o.type='sine';o.frequency.value=f;o.connect(g);o.start();amb.push(o)});l.start();return true}
+/* ---------- ĐỌC NỘI DUNG ---------- */
+let speaking=null;
+function stopSpeak(){speechSynthesis.cancel();if(speaking){speaking.textContent='🔊 Đọc nội dung';speaking=null}}
+function speak(text,btn){if(!('speechSynthesis' in window)){alert('Trình duyệt chưa hỗ trợ đọc.');return}
+ if(speaking===btn){stopSpeak();return}stopSpeak();const u=new SpeechSynthesisUtterance(text);u.lang='vi-VN';u.rate=.95;
+ const v=speechSynthesis.getVoices().find(v=>/vi/i.test(v.lang));if(v)u.voice=v;
+ btn.textContent='⏹ Dừng đọc';speaking=btn;u.onend=u.onerror=()=>{if(speaking===btn){btn.textContent='🔊 Đọc nội dung';speaking=null}};speechSynthesis.speak(u)}
+/* ---------- NỘI DUNG ---------- */
+const DESC_OLD={
+1:[["Trái Đất đi vòng quanh Mặt Trời","Trái Đất vừa tự quay quanh mình, vừa đi một vòng quanh Mặt Trời. Đi hết một vòng mất một năm, khoảng 365 ngày."],
+["Trái Đất bị nghiêng","Trái Đất giống một quả bóng có cái cọc xiên xuyên qua. Cái cọc ấy luôn nghiêng về cùng một phía, dù Trái Đất đi tới đâu."],
+["Vì sao có bốn mùa?","Khi Bắc bán cầu nghiêng về phía Mặt Trời thì nhận nhiều nắng, trời nóng, ngày dài: đó là mùa hè. Khi nghiêng ra xa thì trời lạnh, ngày ngắn: đó là mùa đông. Hai mùa ở giữa là xuân và thu."],
+["Bắc và Nam ngược nhau","Khi miền Bắc của Trái Đất đang mùa hè thì miền Nam đang mùa đông, và ngược lại."]],
+2:[["Chuyển động tịnh tiến","Trái Đất chuyển động quanh Mặt Trời theo quỹ đạo hình elip gần tròn, chu kì khoảng 365 ngày 6 giờ, hướng ngược chiều kim đồng hồ khi nhìn từ phía Bắc."],
+["Trục nghiêng không đổi","Trục Trái Đất nghiêng 66°33' so với mặt phẳng quỹ đạo, và luôn giữ nguyên hướng nghiêng trong suốt năm. Vì vậy, mỗi nửa cầu lần lượt hướng về Mặt Trời."],
+["Bốn ngày đặc biệt","21/3: xuân phân. 22/6: hạ chí. 23/9: thu phân. 22/12: đông chí. Vào hạ chí, tia nắng vuông góc với chí tuyến Bắc; vào đông chí, vuông góc với chí tuyến Nam; vào hai ngày phân, vuông góc với xích đạo."],
+["Hệ quả","Góc chiếu của tia nắng và thời gian chiếu sáng thay đổi nên có các mùa, và ngày đêm dài ngắn khác nhau theo mùa. Hai bán cầu có mùa trái ngược nhau."]],
+3:[["Cơ chế hình thành mùa","Do trục Trái Đất nghiêng một góc không đổi 23°27' so với pháp tuyến mặt phẳng hoàng đạo và chuyển động tịnh tiến, vĩ độ có tia sáng vuông góc (xích vĩ Mặt Trời) dao động giữa 23°27'B và 23°27'N."],
+["Phân bố nhiệt – ánh sáng","Góc nhập xạ lớn và thời gian chiếu sáng dài làm bán cầu hấp thụ nhiều bức xạ hơn. Chênh lệch ngày đêm tăng theo vĩ độ; từ vòng cực (66°33') về cực xuất hiện ngày hoặc đêm dài 24 giờ, tại cực kéo dài 6 tháng."],
+["Mùa thiên văn và mùa khí hậu","Mùa thiên văn bắt đầu từ các ngày phân, chí. Theo lịch cổ truyền châu Á, lập xuân, lập hạ, lập thu, lập đông đánh dấu mốc mùa sớm hơn khoảng 1,5 tháng, vì nhiệt đạt cực đại chậm sau thời điểm bức xạ cực đại."],
+["Lưu ý","Mùa không do khoảng cách tới Mặt Trời quyết định: Trái Đất gần Mặt Trời nhất (cận nhật) vào đầu tháng 1, lúc Bắc bán cầu đang mùa đông. Ở vùng nhiệt đới, mùa thể hiện rõ hơn qua lượng mưa."]]};
+const FC=[["Trái Đất đi một vòng quanh Mặt Trời mất bao lâu?","Khoảng 365 ngày 6 giờ (1 năm)."],["Trục Trái Đất nghiêng bao nhiêu?","66°33' so với mặt phẳng quỹ đạo (lệch 23°27' so với phương thẳng đứng)."],["Hạ chí là ngày nào ở Bắc bán cầu?","22/6, ngày dài nhất, đêm ngắn nhất."],["Đông chí là ngày nào ở Bắc bán cầu?","22/12, ngày ngắn nhất, đêm dài nhất."],["Hai ngày ngày và đêm dài bằng nhau?","21/3 (xuân phân) và 23/9 (thu phân)."],["Vì sao có mùa?","Trục nghiêng không đổi + Trái Đất quay quanh Mặt Trời."]];
+const BANK=[
+{l:1,q:"Trái Đất đi một vòng quanh Mặt Trời mất bao lâu?",o:["1 ngày","1 tháng","1 năm","1 tuần"],a:2,e:"Một vòng quanh Mặt Trời là một năm, khoảng 365 ngày."},
+{l:1,q:"Khi Bắc bán cầu nghiêng về phía Mặt Trời thì ở đó là mùa gì?",o:["Mùa hè","Mùa đông","Mùa thu","Mùa xuân"],a:0,e:"Nhận nhiều nắng hơn nên nóng, ngày dài: mùa hè."},
+{l:1,q:"Một năm có mấy mùa?",o:["2","3","4","5"],a:2,e:"Xuân, hạ, thu, đông."},
+{l:1,q:"Khi miền Bắc Trái Đất đang mùa hè thì miền Nam đang mùa gì?",o:["Mùa hè","Mùa đông","Mùa xuân","Không có mùa"],a:1,e:"Hai bán cầu có mùa ngược nhau."},
+{l:2,q:"Ngày 22/6 gọi là gì?",o:["Xuân phân","Hạ chí","Thu phân","Đông chí"],a:1,e:"22/6 là hạ chí ở Bắc bán cầu."},
+{l:2,q:"Ngày 23/9, tia nắng Mặt Trời vuông góc với mặt đất ở đâu?",o:["Chí tuyến Bắc","Chí tuyến Nam","Xích đạo","Cực Bắc"],a:2,e:"Hai ngày phân (21/3, 23/9) Mặt Trời ở thiên đỉnh tại xích đạo."},
+{l:2,q:"Trục Trái Đất trong khi chuyển động quanh Mặt Trời có đặc điểm gì?",o:["Luôn hướng về Mặt Trời","Giữ nguyên hướng nghiêng","Đổi hướng mỗi tháng","Thẳng đứng"],a:1,e:"Hướng trục không đổi nên mỗi nửa cầu lần lượt ngả về Mặt Trời."},
+{l:2,q:"Ngày 22/12 ở Bắc bán cầu có đặc điểm nào?",o:["Ngày dài nhất","Ngày đêm bằng nhau","Ngày ngắn nhất, đêm dài nhất","Không có đêm"],a:2,e:"Đông chí: Bắc bán cầu ngả xa Mặt Trời."},
+{l:3,q:"Xích vĩ Mặt Trời dao động trong khoảng nào?",o:["0° – 23°27'","23°27'B – 23°27'N","66°33'B – 66°33'N","90°B – 90°N"],a:1,e:"Giữa hai chí tuyến Bắc và Nam."},
+{l:3,q:"Nguyên nhân chủ yếu hình thành các mùa là gì?",o:["Khoảng cách tới Mặt Trời thay đổi","Trục nghiêng không đổi và chuyển động tịnh tiến","Tự quay quanh trục","Hoạt động của Mặt Trời"],a:1,e:"Khoảng cách chỉ thay đổi nhỏ; cận nhật vào tháng 1."},
+{l:3,q:"Tại cực vào các ngày chí, hiện tượng nào xảy ra?",o:["Ngày đêm 12 giờ","Ngày hoặc đêm kéo dài 24 giờ trở lên","Mặt Trời mọc đúng Đông","Không đổi"],a:1,e:"Từ vòng cực về cực có ngày hoặc đêm dài 24 giờ; tại cực kéo dài 6 tháng."},
+{l:3,q:"Theo lịch cổ truyền, 'Lập hạ' đánh dấu điều gì?",o:["Giữa mùa hè","Mốc bắt đầu mùa hạ, sớm hơn mùa thiên văn khoảng 1,5 tháng","Ngày dài nhất","Thu phân"],a:1,e:"Mốc mùa sớm hơn mùa thiên văn vì nhiệt đạt cực đại chậm hơn bức xạ."}];
+const INFO={1:{n:"🧒 Cấp Tiểu học (lớp 4–5)",g:"Em biết Trái Đất đi quanh Mặt Trời và vì sao có bốn mùa.",t:"Bấm nút 22/6 rồi 22/12. Em thấy nửa nào của Trái Đất ngả về phía Mặt Trời?"},2:{n:"🧑 Cấp THCS (lớp 6–9)",g:"Hiểu chuyển động tịnh tiến, trục nghiêng và vì sao nắng vuông góc thay đổi.",t:"Bật nút Vĩ tuyến, chọn từng ngày và quan sát vĩ tuyến nào được tia đỏ chiếu thẳng vào."},3:{n:"🎓 Cấp THPT (lớp 10–12)",g:"Giải thích mùa bằng góc nhập xạ, độ dài ngày và xích vĩ Mặt Trời.",t:"Dùng nút Theo Trái Đất, so sánh xích vĩ ở 4 ngày và giải thích vì sao 22/12 Bắc bán cầu lạnh dù Trái Đất gần Mặt Trời hơn."}};
+const DESC={
+1:[["☀️ Mặt Trời ở giữa","Mặt Trời là ngôi sao sáng và nóng. Trái Đất của chúng ta đi vòng quanh nó, giống như bạn nhỏ chạy quanh sân trường."],["🌍 Một vòng là một năm","Trái Đất đi hết một vòng quanh Mặt Trời mất 1 năm, tức khoảng 365 ngày. Trái Đất cũng tự quay quanh mình: quay một vòng là một ngày và một đêm."],["📏 Trái Đất bị nghiêng","Trục Trái Đất như cây tăm xiên qua quả bóng và nghiêng một chút. Cây tăm luôn chỉ về một hướng, dù Trái Đất đi tới đâu."],["🔥 Vì sao có mùa nóng, mùa lạnh?","Nửa nào ngả về phía Mặt Trời thì được chiếu nắng nhiều, trời nóng và ngày dài: đó là mùa hè. Nửa nào ngả ra xa thì trời lạnh và ngày ngắn: đó là mùa đông."],["🔄 Hai nửa ngược nhau","Khi nước ta có mùa hè thì nước Úc ở phía Nam có mùa đông. Em có biết? Người Úc đón Giáng Sinh vào mùa hè đấy!"]],
+2:[["🔁 Chuyển động quanh Mặt Trời","Trái Đất chuyển động tịnh tiến quanh Mặt Trời theo quỹ đạo gần tròn, ngược chiều kim đồng hồ khi nhìn từ phía Bắc. Chu kì là 365 ngày 6 giờ, nên cứ 4 năm có thêm 1 ngày (năm nhuận)."],["📐 Trục nghiêng không đổi","Trục Trái Đất nghiêng 66°33' so với mặt phẳng quỹ đạo và luôn giữ nguyên hướng. Vì vậy trong năm, lúc thì Bắc bán cầu, lúc thì Nam bán cầu ngả về phía Mặt Trời."],["📅 Bốn ngày đặc biệt","21/3 xuân phân, 22/6 hạ chí, 23/9 thu phân, 22/12 đông chí (theo Bắc bán cầu). Hạ chí: nắng vuông góc ở chí tuyến Bắc. Đông chí: ở chí tuyến Nam. Hai ngày phân: ở xích đạo, ngày dài bằng đêm."],["🌡️ Vì sao nóng – lạnh?","Nắng chiếu càng thẳng góc thì mỗi mét vuông nhận càng nhiều nhiệt và ánh sáng. Nửa cầu có mùa hè nhận nắng thẳng hơn và ngày dài hơn đêm."],["🌐 Hệ quả","Mùa ở hai bán cầu trái ngược nhau. Càng xa xích đạo, chênh lệch ngày đêm theo mùa càng lớn."]],
+3:[["⚙️ Cơ chế hình thành mùa","Trục Trái Đất nghiêng góc không đổi 23°27' so với pháp tuyến mặt phẳng quỹ đạo (hoàng đạo) và chuyển động tịnh tiến. Hệ quả là xích vĩ Mặt Trời δ biến thiên tuần hoàn giữa +23°27' (22/6) và −23°27' (22/12); gần đúng δ ≈ 23,44°·cos(góc quỹ đạo kể từ hạ chí)."],["📊 Góc nhập xạ và độ dài ngày","Tại vĩ độ φ, góc cao Mặt Trời lúc giữa trưa h = 90° − |φ − δ|. Góc h lớn và ngày dài làm lượng bức xạ nhận được lớn hơn. Từ vòng cực (66°33') về cực có ngày hoặc đêm dài 24 giờ, tại cực kéo dài khoảng 6 tháng."],["🗓️ Mùa thiên văn và mùa khí hậu","Mùa thiên văn tính từ các ngày phân, chí. Lịch cổ truyền châu Á (Lập xuân, Lập hạ, Lập thu, Lập đông) đặt mốc mùa sớm hơn khoảng 1,5 tháng vì nhiệt độ cực đại trễ hơn bức xạ cực đại do quán tính nhiệt của đất và nước."],["⚠️ Quan niệm sai thường gặp","Mùa không do khoảng cách tới Mặt Trời. Trái Đất ở cận nhật (khoảng 147 triệu km) vào đầu tháng 1, khi Bắc bán cầu đang mùa đông; viễn nhật (khoảng 152 triệu km) vào đầu tháng 7."],["🌴 Vùng nhiệt đới","Gần xích đạo (như Nam Bộ Việt Nam), nhiệt độ ít đổi nên mùa thường phân theo lượng mưa (mùa mưa – mùa khô), liên quan tới gió mùa và dải hội tụ nhiệt đới."]]};
+const REV={1:{h:["Ngày","Mùa","Thời tiết (Bắc bán cầu)"],r:[["21/3","🌱 Xuân","Ấm áp"],["22/6","☀️ Hè","Nóng, ngày dài"],["23/9","🍂 Thu","Mát mẻ"],["22/12","❄️ Đông","Lạnh, ngày ngắn"]],tip:"Nhớ nhé: nghiêng về phía Mặt Trời thì nóng, nghiêng ra xa thì lạnh.",fc:[["Trái Đất đi một vòng quanh Mặt Trời mất bao lâu?","1 năm (khoảng 365 ngày)."],["Một năm có mấy mùa? Kể tên.","4 mùa: xuân, hạ, thu, đông."],["Mùa nào nóng nhất, ngày dài nhất?","Mùa hè."],["Miền Bắc Trái Đất mùa hè thì miền Nam là mùa gì?","Mùa đông."],["Trục Trái Đất thẳng hay nghiêng?","Nghiêng, và luôn chỉ về một hướng."]]},
+2:{h:["Ngày","Tên","Nắng vuông góc"],r:[["21/3","Xuân phân","Xích đạo"],["22/6","Hạ chí","Chí tuyến Bắc"],["23/9","Thu phân","Xích đạo"],["22/12","Đông chí","Chí tuyến Nam"]],tip:"Chí = nắng vuông góc ở chí tuyến, ngày đêm chênh nhiều nhất. Phân = nắng vuông góc ở xích đạo, ngày đêm bằng nhau.",fc:[["Trục Trái Đất nghiêng bao nhiêu?","66°33' so với mặt phẳng quỹ đạo (lệch 23°27' so với phương vuông góc)."],["Hạ chí (Bắc bán cầu) là ngày nào?","22/6: ngày dài nhất, đêm ngắn nhất."],["Đông chí là ngày nào?","22/12: ngày ngắn nhất, đêm dài nhất."],["Ngày nào ngày bằng đêm trên toàn Trái Đất?","21/3 và 23/9."],["Vì sao có mùa?","Trục nghiêng không đổi cộng với chuyển động tịnh tiến."],["Chu kì chuyển động quanh Mặt Trời?","365 ngày 6 giờ."]]},
+3:{h:["Ngày","Xích vĩ δ","Ngày – đêm (Bắc)"],r:[["21/3","≈ 0°","Bằng nhau"],["22/6","+23°27'","Ngày dài nhất"],["23/9","≈ 0°","Bằng nhau"],["22/12","−23°27'","Ngày ngắn nhất"]],tip:"h = 90° − |φ − δ|. Mùa do trục nghiêng, không do khoảng cách tới Mặt Trời.",fc:[["Xích vĩ Mặt Trời biến thiên thế nào?","Giữa +23°27' và −23°27'."],["Công thức góc cao Mặt Trời giữa trưa?","h = 90° − |φ − δ|."],["Cận nhật vào thời điểm nào?","Đầu tháng 1 (khoảng 147 triệu km)."],["Vì sao nóng nhất không đúng ngày hạ chí?","Quán tính nhiệt: nhiệt cực đại trễ hơn bức xạ cực đại."],["Hiện tượng ở cực vào hạ chí (Bắc)?","Ngày địa cực: Mặt Trời không lặn 24 giờ."],["Vùng nhiệt đới mùa phân theo gì?","Chủ yếu theo lượng mưa."]]}};
+function renderRev(){const V=REV[level];$('#pr').innerHTML=readBtn('rdR')+`<div class="card"><h3>Bảng tóm tắt</h3><table><tr>${V.h.map(x=>`<th>${x}</th>`).join('')}</tr>${V.r.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table></div><div class="card"><h3>Mẹo nhớ</h3><p>${V.tip}</p></div><h3 style="margin:8px 0">Thẻ ghi nhớ (bấm để lật)</h3>`+V.fc.map(f=>`<div class="card fc"><b>❓ ${f[0]}</b><div class="a">✅ ${f[1]}</div></div>`).join('');
+ $$('.fc').forEach(c=>c.onclick=()=>{c.classList.toggle('f');sfx.click()});
+ $('#rdR').onclick=e=>speak('Bảng tóm tắt. '+V.r.map(r=>r.join(', ')).join('. ')+'. Mẹo nhớ: '+V.tip+' '+V.fc.map(f=>f[0]+' '+f[1]).join(' '),e.target)}
+BANK.push(
+{l:1,q:"Khi một nửa Trái Đất ngả về phía Mặt Trời thì nửa đó thế nào?",o:["Lạnh hơn","Nóng hơn, ngày dài","Không đổi","Tối hơn"],a:1,e:"Nhận nhiều nắng hơn nên nóng và ngày dài."},
+{l:1,q:"Trái Đất tự quay quanh mình một vòng mất bao lâu?",o:["1 ngày (một ngày đêm)","1 tháng","1 năm","1 giờ"],a:0,e:"Quay quanh mình một vòng tạo ra ngày và đêm."},
+{l:1,q:"Ở miền Bắc nước ta, mùa nào thường lạnh nhất?",o:["Mùa hè","Mùa xuân","Mùa đông","Mùa thu"],a:2,e:"Mùa đông trời lạnh và ngày ngắn."},
+{l:2,q:"Chu kì Trái Đất chuyển động quanh Mặt Trời là bao lâu?",o:["24 giờ","30 ngày","365 ngày 6 giờ","12 giờ"],a:2,e:"Vì vậy cứ 4 năm có một năm nhuận."},
+{l:2,q:"Ngày 22/6, ở Bắc bán cầu ngày như thế nào?",o:["Ngắn nhất","Dài nhất","Bằng đêm","Không có ngày"],a:1,e:"Hạ chí: ngày dài nhất, đêm ngắn nhất."},
+{l:2,q:"Nếu trục Trái Đất không nghiêng thì điều gì xảy ra?",o:["Vẫn có 4 mùa rõ rệt","Hầu như không có mùa vì góc chiếu ít thay đổi","Không có ngày đêm","Không có năm"],a:1,e:"Mùa hình thành do trục nghiêng."},
+{l:3,q:"Tại vĩ độ 21°B ngày 22/6 (δ = 23°27'), góc cao Mặt Trời giữa trưa xấp xỉ bao nhiêu?",o:["≈ 87,5°","≈ 66,5°","90°","≈ 45°"],a:0,e:"h = 90° − |21° − 23°27'| ≈ 87,5°."},
+{l:3,q:"Khi nào Trái Đất ở cận nhật?",o:["Đầu tháng 7","Đầu tháng 1","21/3","23/9"],a:1,e:"Đầu tháng 1, lúc Bắc bán cầu đang mùa đông."},
+{l:3,q:"Vì sao nhiệt độ cao nhất thường đến sau ngày hạ chí?",o:["Khoảng cách đổi","Quán tính nhiệt của đất và nước","Mặt Trời nóng lên","Trục đổi hướng"],a:1,e:"Nhiệt tích lũy nên cực đại trễ hơn bức xạ cực đại."});
+/* ---------- GIAO DIỆN TAB ---------- */
+const readBtn=(id)=>`<div class="rd"><button id="${id}">🔊 Đọc nội dung</button></div>`;
+function renderDesc(){const d=DESC[level],I=INFO[level];$('#pd').innerHTML=readBtn('rdD')+`<div class="card" style="border-color:#ff9f1c"><b>${I.n}</b><br>🎯 ${I.g}</div>`+d.map(x=>`<div class="card"><h3>${x[0]}</h3><p>${x[1]}</p></div>`).join('')+`<div class="card"><h3>💡 Thử ngay trên mô hình</h3><p>${I.t}</p></div>`;
+ $('#rdD').onclick=e=>speak(d.map(x=>x[0]+'. '+x[1]).join(' '),e.target)}
+function renderRevOld(){$('#pr').innerHTML=readBtn('rdR')+`<div class="card"><h3>Bảng tóm tắt (Bắc bán cầu)</h3><table><tr><th>Ngày</th><th>Tên</th><th>Mùa</th><th>Nắng vuông góc</th></tr><tr><td>21/3</td><td>Xuân phân</td><td>Bắt đầu xuân</td><td>Xích đạo</td></tr><tr><td>22/6</td><td>Hạ chí</td><td>Bắt đầu hạ</td><td>Chí tuyến Bắc</td></tr><tr><td>23/9</td><td>Thu phân</td><td>Bắt đầu thu</td><td>Xích đạo</td></tr><tr><td>22/12</td><td>Đông chí</td><td>Bắt đầu đông</td><td>Chí tuyến Nam</td></tr></table></div>
+ <div class="card"><h3>Mẹo nhớ</h3><p>Chí = nắng vuông góc ở chí tuyến, ngày đêm chênh nhau nhiều nhất. Phân = nắng vuông góc ở xích đạo, ngày đêm bằng nhau.</p></div>
+ <h3 style="margin:8px 0">Thẻ ghi nhớ (bấm để lật)</h3>`+FC.map(f=>`<div class="card fc"><b>❓ ${f[0]}</b><div class="a">✅ ${f[1]}</div></div>`).join('');
+ $$('.fc').forEach(c=>c.onclick=()=>{c.classList.toggle('f');sfx.click()});
+ $('#rdR').onclick=e=>speak('Bốn ngày đặc biệt. 21 tháng 3, xuân phân, nắng vuông góc ở xích đạo. 22 tháng 6, hạ chí, nắng vuông góc ở chí tuyến Bắc. 23 tháng 9, thu phân, nắng vuông góc ở xích đạo. 22 tháng 12, đông chí, nắng vuông góc ở chí tuyến Nam. '+FC.map(f=>f[0]+' '+f[1]).join(' '),e.target)}
+let qs=[],qi=0,sc=0,done=false;
+function shuf(a){return a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1])}
+function startQuiz(){qs=shuf(BANK.filter(q=>q.l===level));qi=0;sc=0;done=false;renderQ()}
+function renderQ(){const P=$('#pq');
+ if(qi>=qs.length){const st=sc===qs.length?3:sc>=qs.length*.6?2:1;if(st>1)sfx.win();
+  P.innerHTML=`<div class="card" style="text-align:center"><div style="font-size:40px">${'⭐'.repeat(st)}</div><h3>Hoàn thành!</h3><p>Bạn đúng ${sc}/${qs.length} câu.</p><br><button id="again" class="on">🔄 Chơi lại</button></div>`;$('#again').onclick=()=>{sfx.click();startQuiz()};return}
+ const q=qs[qi];P.innerHTML=readBtn('rdQ')+`<div>Câu ${qi+1}/${qs.length} · Điểm: <b>${sc}</b></div><div class="bar"><div style="width:${qi/qs.length*100}%"></div></div><div class="card"><b>${q.q}</b></div>`+q.o.map((o,i)=>`<button class="opt" data-i="${i}">${'ABCD'[i]}. ${o}</button>`).join('')+'<div id="fb"></div>';
+ done=false;$('#rdQ').onclick=e=>speak(q.q+'. '+q.o.map((o,i)=>'Đáp án '+'ABCD'[i]+': '+o).join('. '),e.target);
+ $$('.opt').forEach(b=>b.onclick=()=>{if(done)return;done=true;const i=+b.dataset.i,ok=i===q.a;b.classList.add(ok?'ok':'no');if(!ok)$$('.opt')[q.a].classList.add('ok');ok?(sc++,sfx.ok()):sfx.bad();
+  $('#fb').innerHTML=`<div class="card"><b>${ok?'🎉 Chính xác!':'😅 Chưa đúng.'}</b> ${q.e}</div><button id="nx" class="on">${qi+1<qs.length?'Câu tiếp ➜':'Xem kết quả'}</button>`;$('#nx').onclick=()=>{sfx.click();qi++;renderQ()};$('#scroll').scrollTop=$('#scroll').scrollHeight})}
+$$('#tabs button').forEach(b=>b.onclick=()=>{stopSpeak();sfx.click();$$('#tabs button').forEach(x=>x.classList.toggle('on',x===b));const m={d:'pd',r:'pr',q:'pq'};$$('.pg').forEach(p=>p.classList.toggle('on',p.id===m[b.dataset.t]));$('#scroll').scrollTop=0});
+$$('#lv button').forEach(b=>b.onclick=()=>{stopSpeak();sfx.click();level=+b.dataset.l;$$('#lv button').forEach(x=>x.classList.toggle('on',x===b));renderDesc();renderRev();startQuiz()});
+renderDesc();renderRev();startQuiz();
+/* ---------- MÔ HÌNH 3D ---------- */
+const cv=$('#cv'),R=5.5,TILT=23.44*Math.PI/180;
+const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(45,1,.1,500);
+scene.add(new THREE.AmbientLight(0x7a99dd,.6));
+const sunL=new THREE.PointLight(0xffffff,1.6,0,0);scene.add(sunL);
+const sun=new THREE.Mesh(new THREE.SphereGeometry(1.25,32,32),new THREE.MeshBasicMaterial({color:0xffd23a}));scene.add(sun);
+scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.9,32,32),new THREE.MeshBasicMaterial({color:0xff9d1a,transparent:true,opacity:.3})));
+{const p=[];for(let i=0;i<900;i++){const v=new THREE.Vector3().randomDirection?0:0;const a=Math.random()*6.283,b=Math.acos(2*Math.random()-1),r=90+Math.random()*60;p.push(r*Math.sin(b)*Math.cos(a),r*Math.cos(b),r*Math.sin(b)*Math.sin(a))}
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:.6,sizeAttenuation:true})))}
+function label(t,s=1){const c=document.createElement('canvas');c.width=256;c.height=64;const x=c.getContext('2d');x.font='bold 30px sans-serif';x.textAlign='center';x.fillStyle='#fff';x.shadowColor='#000';x.shadowBlur=6;x.fillText(t,128,42);const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false}));sp.scale.set(5*s,1.25*s,1);return sp}
+{const pts=[];for(let i=0;i<=200;i++){const a=i/200*6.2832;pts.push(new THREE.Vector3(R*Math.cos(a),0,-R*Math.sin(a)))}
+ scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x5ef0ff})));
+ const nm=['22/6 Hạ chí','23/9 Thu phân','22/12 Đông chí','21/3 Xuân phân'];
+ nm.forEach((n,i)=>{const a=i*Math.PI/2,d=document.createElement('div'),l=label(n,.7);l.position.set((R+2.2)*Math.cos(a),1.5,-(R+2.2)*Math.sin(a));scene.add(l);
+  const m=new THREE.Mesh(new THREE.SphereGeometry(.15,12,12),new THREE.MeshBasicMaterial({color:0xffd76a}));m.position.set(R*Math.cos(a),0,-R*Math.sin(a));scene.add(m)});
+ const ls=label('Mặt Trời',.8);ls.position.set(0,2.4,0);scene.add(ls)}
+const orb=new THREE.Group();scene.add(orb);
+const tilt=new THREE.Group();orb.add(tilt);
+const axisV=new THREE.Vector3(-Math.sin(TILT),Math.cos(TILT),0);tilt.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),axisV);
+function tex(){const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');x.fillStyle='#1fa2ff';x.fillRect(0,0,512,256);
+ let s=7;const rnd=()=>(s=(s*16807)%2147483647)/2147483647;x.fillStyle='#3ddc6a';
+ for(let k=0;k<26;k++){const cx=rnd()*512,cy=40+rnd()*176;for(let j=0;j<9;j++){x.beginPath();x.ellipse(cx+(rnd()-.5)*50,cy+(rnd()-.5)*30,8+rnd()*22,6+rnd()*14,rnd()*3,0,6.3);x.fill()}}
+ x.fillStyle='#f4f8ff';x.fillRect(0,0,512,14);x.fillRect(0,242,512,14);return new THREE.CanvasTexture(c)}
+const spin=new THREE.Mesh(new THREE.SphereGeometry(.95,48,48),new THREE.MeshPhongMaterial({map:tex(),shininess:12}));tilt.add(spin);
+const lines=new THREE.Group();tilt.add(lines);
+[[0,0xff4d4d],[23.44,0xffd34d],[-23.44,0xffd34d],[66.56,0x4de0ff],[-66.56,0x4de0ff]].forEach(([lat,col])=>{const r=.97*Math.cos(lat*Math.PI/180),y=.97*Math.sin(lat*Math.PI/180),p=[];for(let i=0;i<=64;i++){const a=i/64*6.2832;p.push(new THREE.Vector3(r*Math.cos(a),y,r*Math.sin(a)))}lines.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(p),new THREE.LineBasicMaterial({color:col})))});
+tilt.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-1.9,0),new THREE.Vector3(0,1.9,0)]),new THREE.LineBasicMaterial({color:0xffffff})));
+const nB=label('B',.5);nB.position.set(0,2.2,0);tilt.add(nB);
+const ray=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3()]),new THREE.LineBasicMaterial({color:0xff4040}));scene.add(ray);
+let theta=0,playing=true,spinOn=true,goal=null,speed=25,lastSeason=-1;
+const cs={r:17,p:1.15,t:.5},ct={r:17,p:1.15,t:.5};const tg=new THREE.Vector3();let follow=false;
+function setCam(){cam.position.set(tg.x+cs.r*Math.sin(cs.p)*Math.sin(cs.t),tg.y+cs.r*Math.cos(cs.p),tg.z+cs.r*Math.sin(cs.p)*Math.cos(cs.t));cam.lookAt(tg)}
+let drag=null;
+cv.onpointerdown=e=>{drag=[e.clientX,e.clientY];cv.setPointerCapture(e.pointerId);cv.style.cursor='grabbing';ac()};
+cv.onpointermove=e=>{if(!drag)return;ct.t-=(e.clientX-drag[0])*.007;ct.p=Math.min(3,Math.max(.1,ct.p-(e.clientY-drag[1])*.007));drag=[e.clientX,e.clientY]};
+cv.onpointerup=()=>{drag=null;cv.style.cursor='grab'};
+cv.onwheel=e=>{e.preventDefault();ct.r=Math.min(40,Math.max(2.5,ct.r+e.deltaY*.02))};
+function resize(){const s=$('#stage');renderer.setSize(s.clientWidth,s.clientHeight,false);cam.aspect=s.clientWidth/s.clientHeight;cam.updateProjectionMatrix()}
+new ResizeObserver(resize).observe($('#stage'));resize();
+const DS=[173,266,356,445,538];
+function dateOf(t){let u=((t%6.2832)+6.2832)%6.2832,i=Math.floor(u/(Math.PI/2)),f=u/(Math.PI/2)-i,d=Math.round(DS[i]+f*(DS[i+1]-DS[i]));const D=new Date(2026,0,d);return D.getDate()+'/'+(D.getMonth()+1)}
+const SN=['Mùa hạ','Mùa thu','Mùa đông','Mùa xuân'],ICON=['☀️','🍂','❄️','🌱'];
+function hud(){const u=((theta%6.2832)+6.2832)%6.2832,k=Math.floor(u/(Math.PI/2)),nk=k,sk=(k+2)%4,dec=Math.asin(Math.sin(TILT)*Math.cos(u))*180/Math.PI,ad=Math.abs(dec);
+ const dl=ad<1?'Ngày ≈ đêm (12 giờ)':(dec>0?'Ngày dài hơn đêm':'Ngày ngắn hơn đêm');const dec2=Math.floor(ad)+'°'+Math.round((ad%1)*60)+"'"+(ad<.5?'':dec>0?'B':'N');
+ $('#hud').innerHTML=`<div class="big">📅 ${dateOf(theta)}</div>Bắc bán cầu: <b>${ICON[nk]} ${SN[nk]}</b><br>Nam bán cầu: <b>${ICON[sk]} ${SN[sk]}</b><br>Nắng vuông góc tại vĩ độ: <b>${dec2}</b><br>Bắc bán cầu: ${dl}`;
+ if(k!==lastSeason){if(lastSeason>=0&&playing)sfx.season();lastSeason=k}}
+let prev=performance.now(),hc=0;
+function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-prev)/1000);prev=now;
+ if(goal!==null){let d=goal-theta;d=((d+3.1416)%6.2832+6.2832)%6.2832-3.1416;theta+=d*Math.min(1,dt*3);if(Math.abs(d)<.004){theta=goal;goal=null}}
+ else if(playing)theta+=dt*speed*Math.PI/180;
+ orb.position.set(R*Math.cos(theta),0,-R*Math.sin(theta));if(spinOn)spin.rotation.y+=dt*(playing?3+speed*.05:1.5);
+ ray.geometry.setFromPoints([orb.position.clone().multiplyScalar(.2),orb.position]);
+ tg.lerp(follow?orb.position:new THREE.Vector3(),Math.min(1,dt*4));for(const k of['r','p','t'])cs[k]+=(ct[k]-cs[k])*Math.min(1,dt*5);setCam();
+ if((hc+=dt)>.1){hc=0;hud()}renderer.render(scene,cam)}
+requestAnimationFrame(loop);
+/* ---------- ĐIỀU KHIỂN ---------- */
+$('#bPlay').onclick=e=>{playing=!playing;goal=null;e.target.textContent=playing?'⏸ Dừng':'▶ Chạy';e.target.classList.toggle('on',playing);sfx.click()};
+$('#spd').oninput=e=>speed=+e.target.value;
+$$('[data-j]').forEach(b=>b.onclick=()=>{goal=+b.dataset.j*Math.PI/2;if(+b.dataset.j===3)goal=-Math.PI/2;playing=false;$('#bPlay').textContent='▶ Chạy';$('#bPlay').classList.remove('on');sfx.whoosh()});
+$('#vSide').onclick=()=>{Object.assign(ct,{r:17,p:1.4});sfx.click()};$('#vTop').onclick=()=>{Object.assign(ct,{r:16,p:.15});sfx.click()};
+$('#bLines').onclick=e=>{lines.visible=!lines.visible;e.target.classList.toggle('on',lines.visible);sfx.click()};
+$('#bSpin').onclick=e=>{spinOn=!spinOn;e.target.classList.toggle('on',spinOn);sfx.click()};
+$('#bSnd').onclick=e=>{sndOn=!sndOn;e.target.classList.toggle('on',sndOn);e.target.textContent=sndOn?'🔊 Âm thanh':'🔇 Âm thanh';if(sndOn)sfx.click()};
+$('#bAmb').onclick=e=>{const r=toggleAmb();e.target.classList.toggle('on',!!r)};
+$('#bFol').onclick=e=>{follow=!follow;e.target.classList.toggle('on',follow);ct.r=follow?5:17;sfx.click()};
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Chặn phím tắt: F12, Ctrl+U, Ctrl+Shift+I/J/C, Ctrl+S
+    document.addEventListener('keydown', function(e) {
+      const key = e.key.toLowerCase();
+
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) || 
+        (e.ctrlKey && (key === 'u' || key === 's'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 2. Chặn chuột phải (Context Menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  });
+</script>
+</body>
+</html>

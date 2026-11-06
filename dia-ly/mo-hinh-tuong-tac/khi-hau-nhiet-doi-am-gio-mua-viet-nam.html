@@ -1,0 +1,1098 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Khí hậu gió mùa Việt Nam</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* Bố cục: mô hình tương tác chiếm 3/4 bên trái (bản đồ + bảng điều khiển); cột phải 1/4 là các tab nội dung, tự cuộn riêng */
+:root{
+  --bg:#e6eef2; --panel:#f8fbfc; --panel2:#eef4f7; --ink:#0f2a38; --muted:#4b6674; --line:#c8d8e0;
+  --sea1:#d3e8f2; --sea2:#9ec9de; --land:#dbe8c6; --land2:#b9d09b; --foreign:#e6e8e2; --coast:#5f8570; --cloud:#ffffff;
+  --sun:#f2a31b; --dong:#2563d0; --tin:#0b8f7e; --ha:#e0502a; --phon:#b0211b; --bao:#7a4bc4; --am:#2d86c4;
+  --accent:#e0502a; --accent-ink:#ffffff; --ok:#17803f; --bad:#c23636; --warn:#b36b00; --focus:#2563d0;
+  --font-display:'Bricolage Grotesque','Be Vietnam Pro',system-ui,sans-serif;
+  --font-body:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#08151d; --panel:#0e2230; --panel2:#12293a; --ink:#e3eef4; --muted:#9db6c4; --line:#223f50;
+    --sea1:#0f3550; --sea2:#0a2335; --land:#35553f; --land2:#456b4d; --foreign:#1b2f3a; --coast:#7fb392; --cloud:#d8e6ee;
+    --sun:#ffb938; --dong:#6aa2ff; --tin:#35d1bb; --ha:#ff7a52; --phon:#ff5a4d; --bao:#b794f4; --am:#5db4ee;
+    --accent:#ff7a52; --accent-ink:#1b0a04; --ok:#4fd48a; --bad:#ff7d7d; --warn:#ffc15a; --focus:#7db1ff;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#08151d; --panel:#0e2230; --panel2:#12293a; --ink:#e3eef4; --muted:#9db6c4; --line:#223f50;
+  --sea1:#0f3550; --sea2:#0a2335; --land:#35553f; --land2:#456b4d; --foreign:#1b2f3a; --coast:#7fb392; --cloud:#d8e6ee;
+  --sun:#ffb938; --dong:#6aa2ff; --tin:#35d1bb; --ha:#ff7a52; --phon:#ff5a4d; --bao:#b794f4; --am:#5db4ee;
+  --accent:#ff7a52; --accent-ink:#1b0a04; --ok:#4fd48a; --bad:#ff7d7d; --warn:#ffc15a; --focus:#7db1ff;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.6 var(--font-body);
+  padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+h1,h2,h3,h4{font-family:var(--font-display);margin:0;line-height:1.2;text-wrap:balance}
+p{margin:0}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+
+.app{height:100%;min-height:560px;display:grid;grid-template-columns:minmax(0,3fr) minmax(0,1fr);gap:12px}
+.stage,.side{min-width:0;min-height:0;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+
+/* ---------- Stage ---------- */
+.stage-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.stage-head h1{font-size:20px;font-weight:800;letter-spacing:-.01em;flex:1 1 220px;min-width:0}
+.stage-head h1 small{display:block;font-family:var(--font-body);font-weight:500;font-size:12px;color:var(--muted);letter-spacing:0;margin-top:2px}
+.modes{display:flex;gap:4px;background:var(--panel2);padding:4px;border-radius:12px;border:1px solid var(--line)}
+.modes button{border:0;background:transparent;padding:7px 14px;border-radius:9px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:7px}
+.modes button i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.modes button[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
+.snd{display:flex;align-items:center;gap:8px}
+.icon-btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel2);border-radius:10px;padding:6px 11px;font-weight:600}
+.icon-btn[aria-pressed="true"]{border-color:var(--accent)}
+.icon-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+input[type=range]{accent-color:var(--accent);width:100%;margin:0}
+.snd input[type=range]{width:84px}
+
+.stage-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(290px,.9fr)}
+.map-wrap{position:relative;min-height:0;min-width:0;background:linear-gradient(var(--sea1),var(--sea2));display:flex;align-items:center;justify-content:center}
+#map{width:100%;height:100%;display:block}
+.readout{min-height:0;min-width:0;overflow-y:auto;overscroll-behavior:contain;padding:14px;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:12px}
+
+.ctl{display:none;flex-direction:column;gap:12px}
+.stage[data-mode="nhiet"] .ctl-nhiet,.stage[data-mode="am"] .ctl-am,.stage[data-mode="gio"] .ctl-gio{display:flex;animation:rise .35s ease both}
+.ctl h2{font-size:18px;font-weight:800}
+.lede{color:var(--muted)}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:11px 13px;display:flex;flex-direction:column;gap:7px}
+.card .lab{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-weight:600}
+.card .lab b{font-family:var(--font-mono);font-size:15px;color:var(--accent)}
+.hint{font-size:12.5px;color:var(--muted)}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600;border:1px solid currentColor}
+.pill.ok{color:var(--ok)} .pill.warn{color:var(--warn)} .pill.dong{color:var(--dong)} .pill.ha{color:var(--ha)}
+.row{display:flex;gap:12px;align-items:center}
+.thermo{width:62px;flex:none;height:170px}
+.thermo .tube{fill:var(--panel);stroke:var(--line);stroke-width:2}
+.thermo text{font:600 10px var(--font-mono);fill:var(--muted)}
+.thermo .l20{stroke:var(--ink);stroke-width:1.5;stroke-dasharray:3 3}
+.tgl{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:6px 11px;font-weight:600;align-self:flex-start}
+.tgl[aria-pressed="true"]{background:var(--dong);color:#fff;border-color:var(--dong)}
+.rbar{position:relative;height:12px;border-radius:99px;background:var(--panel);border:1px solid var(--line);overflow:hidden}
+.rbar i{position:absolute;top:0;bottom:0;border-radius:99px;background:linear-gradient(90deg,var(--sun),var(--ha))}
+.rbar b{position:absolute;top:-2px;bottom:-2px;width:3px;background:var(--ink);animation:sweep 4s ease-in-out infinite alternate}
+.gauge{width:104px;height:104px;flex:none}
+.gauge .bg{fill:none;stroke:var(--line);stroke-width:10}
+.gauge .fg{fill:none;stroke:var(--am);stroke-width:10;stroke-linecap:round;transition:stroke-dasharray .25s}
+.gauge text{font:600 20px var(--font-mono);fill:var(--ink)}
+.gauge .tick{stroke:var(--ink);stroke-width:2}
+.rain-btn{border:0;background:var(--am);color:#fff;border-radius:10px;padding:9px 14px;font-weight:700}
+.rain-btn:hover{filter:brightness(1.08)}
+
+.chips{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.chips button{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 0;font:600 13px var(--font-mono)}
+.chips button.d{border-bottom:3px solid var(--dong)} .chips button.h{border-bottom:3px solid var(--ha)}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.chiplab{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;font-size:12.5px}
+.legend span{display:flex;align-items:center;gap:7px;min-width:0}
+.legend i{width:22px;height:0;border-top:4px solid;flex:none;border-radius:3px}
+.legend i.dash{border-top-style:dashed}
+.info h3{font-size:16px}
+.info .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.reg{display:flex;gap:10px;align-items:flex-start}
+.reg svg{width:38px;height:38px;flex:none;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.reg b{display:block}
+
+/* ---------- Map styling ---------- */
+.grid line{stroke:var(--ink);stroke-opacity:.08;stroke-width:1}
+.foreign{fill:var(--foreign);stroke:var(--line);stroke-width:1}
+.vn{fill:var(--land);stroke:var(--coast);stroke-width:2;stroke-linejoin:round}
+.vn-fog{fill:#fff;opacity:0;pointer-events:none;transition:opacity .3s}
+.heat{fill:url(#gHeat);pointer-events:none}
+.ridge path{fill:var(--land2);stroke:var(--coast);stroke-width:1}
+.mlab{font:600 11px var(--font-body);fill:var(--muted);letter-spacing:.08em}
+.slab{font:italic 500 11px var(--font-body);fill:var(--muted)}
+.tiny{font:500 9.5px var(--font-body);fill:var(--muted)}
+.hlab{font:700 11px var(--font-body);fill:var(--ink);paint-order:stroke;stroke:var(--panel);stroke-width:3.5px;stroke-linejoin:round}
+.lyr{display:none}
+#map[data-mode="nhiet"] .lyr-nhiet,#map[data-mode="am"] .lyr-am,#map[data-mode="gio"] .lyr-gio{display:inline;animation:fade .5s ease both}
+#map[data-season="ha"] .only-dong,#map[data-season="dong"] .only-ha,#map:not([data-phase="ha2"]) .only-ha2,#map:not([data-phase="ha1"]) .only-ha1{display:none}
+.sun-core{fill:var(--sun)}
+.rays line{stroke:var(--sun);stroke-width:3.5;stroke-linecap:round}
+.rays{animation:spin 30s linear infinite;transform-box:fill-box;transform-origin:center}
+.sun-scale{transition:transform .25s;transform-box:fill-box;transform-origin:center}
+.beam{fill:none;stroke:var(--sun);stroke-width:2.4;stroke-linecap:round;stroke-dasharray:3 10;animation:flow 1.1s linear infinite}
+.mk-circle{fill:var(--panel);stroke:var(--ha);stroke-width:3.5}
+.cloud{fill:var(--cloud);stroke:var(--am);stroke-width:1.2;opacity:.95}
+.drift{animation:drift 9s ease-in-out infinite alternate}
+.drop{stroke:var(--am);stroke-width:1.6;stroke-linecap:round;animation:fall 1s linear infinite}
+.evap{fill:none;stroke:var(--am);stroke-width:2.2;stroke-linecap:round;animation:evap 2.6s ease-in infinite}
+.wind{fill:none;stroke-width:5;stroke-linecap:round;stroke-dasharray:14 10;animation:flow .9s linear infinite}
+.w-dong{stroke:var(--dong)} .w-tin{stroke:var(--tin)} .w-ha{stroke:var(--ha)} .w-am{stroke:var(--am)}
+.w-phon{stroke:var(--phon);stroke-dasharray:4 7}
+.mk-dong{fill:var(--dong)} .mk-tin{fill:var(--tin)} .mk-ha{fill:var(--ha)} .mk-phon{fill:var(--phon)} .mk-am{fill:var(--am)}
+.lab-dong{fill:var(--dong)} .lab-tin{fill:var(--tin)} .lab-ha{fill:var(--ha)} .lab-phon{fill:var(--phon)} .lab-bao{fill:var(--bao)} .lab-am{fill:var(--am)}
+.bachma{stroke:var(--ink);stroke-width:1.6;stroke-dasharray:6 5;opacity:.7}
+.itcz{fill:none;stroke:var(--bao);stroke-width:5;stroke-dasharray:2 9;stroke-linecap:round;animation:flow 2s linear infinite}
+.storm-move{animation:storm 14s ease-in-out infinite alternate}
+.storm-spin{animation:spin 3s linear infinite;transform-box:fill-box;transform-origin:center}
+.storm-spin path{fill:none;stroke:var(--bao);stroke-width:3.2;stroke-linecap:round}
+.hs{cursor:pointer}
+.hs .ring{fill:var(--panel);stroke:var(--ink);stroke-width:1.8;opacity:.95}
+.hs:hover .ring,.hs.on .ring{stroke:var(--accent);stroke-width:3.5}
+.hs.on .ring{animation:pulse 1.6s ease-in-out infinite}
+.hs text{font:700 10.5px var(--font-body);fill:var(--ink);paint-order:stroke;stroke:var(--panel);stroke-width:3px;pointer-events:none}
+
+@keyframes flow{to{stroke-dashoffset:-24}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fall{from{transform:translate(0,-30px);opacity:0}15%{opacity:1}to{transform:translate(-8px,34px);opacity:0}}
+@keyframes evap{0%{opacity:0;transform:translateY(8px)}40%{opacity:.9}100%{opacity:0;transform:translateY(-26px)}}
+@keyframes drift{from{transform:translateX(-10px)}to{transform:translateX(12px)}}
+@keyframes storm{from{transform:translate(440px,290px)}to{transform:translate(255px,170px)}}
+@keyframes sweep{from{left:calc(70/120*100% - 1px)}to{left:calc(100/120*100% - 1px)}}
+@keyframes pulse{50%{stroke-width:5.5}}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+/* ---------- Side ---------- */
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:6px;border-bottom:1px solid var(--line);background:var(--panel2)}
+.tabs button{border:0;background:transparent;border-radius:9px;padding:8px 4px;font-weight:700;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--panel)}
+.pane{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:14px 14px 22px;scroll-behavior:smooth}
+.pane[hidden]{display:none!important}
+.pane::-webkit-scrollbar,.readout::-webkit-scrollbar{width:8px}
+.pane::-webkit-scrollbar-thumb,.readout::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+.prose{display:flex;flex-direction:column;gap:12px}
+.prose h3{font-size:17px;font-weight:800;margin-top:6px;scroll-margin-top:8px}
+.prose h4{font-size:14.5px;font-weight:700}
+.prose ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px}
+.toc{display:flex;flex-wrap:wrap;gap:6px}
+.toc button{border:1px solid var(--line);background:var(--panel2);border-radius:99px;padding:4px 11px;font-size:12.5px;font-weight:600}
+.fact{display:flex;gap:10px;align-items:baseline;border-left:4px solid var(--accent);background:var(--panel2);padding:8px 12px;border-radius:0 10px 10px 0}
+.fact b{font:600 17px var(--font-mono);color:var(--accent);white-space:nowrap}
+.fact.blue{border-color:var(--am)} .fact.blue b{color:var(--am)}
+.go{border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:9px;padding:5px 12px;font-weight:700;align-self:flex-start}
+.go:hover{background:var(--accent);color:var(--accent-ink)}
+.box{border:1px solid var(--line);border-radius:12px;padding:11px 13px;background:var(--panel2)}
+.box.dong{border-left:5px solid var(--dong)} .box.ha{border-left:5px solid var(--ha)}
+details{border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--panel2)}
+summary{cursor:pointer;font-weight:600}
+details p{margin-top:6px;color:var(--muted)}
+.sec{display:flex;flex-direction:column;gap:9px;margin-bottom:18px}
+.sec>h3{font-size:16px;font-weight:800}
+
+.tree{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.tree>li{border-left:4px solid var(--c,var(--accent));padding:2px 0 2px 11px;font-weight:700}
+.tree ul{list-style:none;margin:3px 0 0;padding:0;font-weight:400;color:var(--muted)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+.tbl table{border-collapse:collapse;width:100%;min-width:430px;font-size:12.5px}
+.tbl th,.tbl td{padding:7px 9px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.tbl th{background:var(--panel2)}
+.tbl th.d{color:var(--dong)} .tbl th.h{color:var(--ha)}
+.tbl tr:last-child td{border-bottom:0}
+.flash{perspective:900px}
+.fc{position:relative;height:150px;cursor:pointer;transform-style:preserve-3d;transition:transform .5s;border:0;background:none;width:100%;padding:0}
+.fc.flip{transform:rotateY(180deg)}
+.fc>div{position:absolute;inset:0;backface-visibility:hidden;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px;text-align:center}
+.fc .f{background:var(--ink);color:var(--panel);font:800 18px/1.25 var(--font-display)}
+.fc .b{background:var(--panel2);border:2px solid var(--accent);transform:rotateY(180deg);font-weight:600}
+.fc small{font-weight:500;opacity:.7;font-size:11.5px}
+.fcnav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px}
+.fcnav button{border:1px solid var(--line);background:var(--panel2);border-radius:9px;padding:6px 12px;font-weight:600}
+
+/* ---------- Quiz ---------- */
+.qz{display:flex;flex-direction:column;gap:12px}
+.qhead{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between;font-size:12.5px;font-weight:600;color:var(--muted)}
+.qhead b{font-family:var(--font-mono);color:var(--ink)}
+.tbar{height:8px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);overflow:hidden}
+.tbar i{display:block;height:100%;width:100%;background:var(--ok);transform-origin:left;transition:background .3s}
+.qtext{font:700 16px/1.4 var(--font-display)}
+.opts{display:flex;flex-direction:column;gap:7px}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;border:2px solid var(--line);background:var(--panel2);border-radius:11px;padding:9px 11px;font-weight:500}
+.opt kbd{font:600 12px var(--font-mono);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:1px 7px;flex:none;margin-top:1px}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 16%,var(--panel))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,var(--panel));animation:shake .35s}
+.opt:disabled{cursor:default}
+.explain{border-radius:11px;padding:10px 12px;border:1px solid var(--line);background:var(--panel2);display:flex;flex-direction:column;gap:8px}
+.explain.ok{border-left:5px solid var(--ok)} .explain.no{border-left:5px solid var(--bad)}
+.btn{border:0;background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:9px 16px;font-weight:700}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.big{font:800 40px/1 var(--font-display);color:var(--accent)}
+.seg{display:flex;gap:5px}
+.seg button{flex:1;border:1px solid var(--line);background:var(--panel2);border-radius:9px;padding:6px 0;font-weight:700}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.rev{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.rev li{margin-left:16px}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1000px){
+  html,body{height:auto}
+  .app{height:auto;grid-template-columns:minmax(0,1fr)}
+  .stage-body{grid-template-columns:minmax(0,1fr)}
+  .map-wrap{height:min(74vh,640px)}
+  .readout{border-left:0;border-top:1px solid var(--line);overflow:visible}
+  .side{height:88vh;min-height:460px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+</style>
+
+<div class="app">
+  <main class="stage" id="stage" data-mode="nhiet">
+    <header class="stage-head">
+      <h1>Khí hậu nhiệt đới ẩm gió mùa<small>Mô hình tương tác về khí hậu Việt Nam</small></h1>
+      <div class="modes" role="group" aria-label="Chọn nội dung mô hình">
+        <button type="button" data-mode="nhiet" aria-pressed="true"><i style="background:var(--sun)"></i>Nhiệt đới</button>
+        <button type="button" data-mode="am" aria-pressed="false"><i style="background:var(--am)"></i>Ẩm</button>
+        <button type="button" data-mode="gio" aria-pressed="false"><i style="background:var(--ha)"></i>Gió mùa</button>
+      </div>
+      <div class="snd">
+        <button type="button" class="icon-btn" id="sndBtn" aria-pressed="true" data-nosnd title="Bật hoặc tắt âm thanh">
+          <svg viewBox="0 0 24 24" id="sndIco"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+          <span id="sndTxt">Âm thanh</span>
+        </button>
+        <input type="range" id="vol" min="0" max="100" value="60" aria-label="Âm lượng">
+      </div>
+    </header>
+
+    <div class="stage-body">
+      <div class="map-wrap">
+        <svg id="map" viewBox="0 0 520 640" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Sơ đồ mô phỏng Việt Nam và Biển Đông" data-mode="nhiet" data-season="dong" data-phase="dong1">
+          <defs>
+            <linearGradient id="gSea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sea1)"/><stop offset="1" style="stop-color:var(--sea2)"/></linearGradient>
+            <linearGradient id="gHeat" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sun);stop-opacity:.15"/><stop offset="1" style="stop-color:var(--ha);stop-opacity:.6"/></linearGradient>
+            <clipPath id="clipVN"><path class="vn-d"/></clipPath>
+            <marker id="m-dong" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="3.4" markerHeight="3.4" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="mk-dong"/></marker>
+            <marker id="m-tin" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="3.4" markerHeight="3.4" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="mk-tin"/></marker>
+            <marker id="m-ha" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="3.4" markerHeight="3.4" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="mk-ha"/></marker>
+            <marker id="m-phon" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="3.4" markerHeight="3.4" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="mk-phon"/></marker>
+            <marker id="m-am" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="3.4" markerHeight="3.4" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="mk-am"/></marker>
+          </defs>
+          <rect width="520" height="640" fill="url(#gSea)"/>
+          <g class="grid" id="grid"></g>
+          <ellipse cx="337" cy="190" rx="40" ry="30" class="foreign"/>
+          <text x="337" y="193" text-anchor="middle" class="tiny">Đảo Hải Nam</text>
+          <path class="foreign" id="neigh"/>
+          <path class="vn vn-d"/>
+          <path class="vn-fog vn-d" id="fog"/>
+          <path class="vn" id="pq"/>
+          <g class="ridge" id="ridge"></g>
+          <text class="mlab" x="200" y="22">TRUNG QUỐC</text>
+          <text class="mlab" x="60" y="250">LÀO</text>
+          <text class="mlab" x="46" y="486">CAM-PU-CHIA</text>
+          <text class="slab" x="232" y="214">Vịnh Bắc Bộ</text>
+          <text class="slab" x="14" y="590">Vịnh Thái Lan</text>
+          <text class="mlab" transform="translate(470 450) rotate(-80)" style="font-size:15px;letter-spacing:.35em">BIỂN ĐÔNG</text>
+          <text class="slab" transform="translate(168 300) rotate(-78)">Trường Sơn</text>
+          <g id="islands"></g>
+
+          <!-- Lớp 1: Nhiệt đới -->
+          <g class="lyr lyr-nhiet">
+            <path class="heat vn-d"/>
+            <g id="beams"></g>
+            <g transform="translate(455 62)"><g class="sun-scale" id="sunScale"><g class="rays" id="rays"></g><circle r="26" class="sun-core"/></g></g>
+            <g id="marker" transform="translate(183 115)"><circle r="8" class="mk-circle"/><text x="14" y="4" class="hlab" id="mkTxt">Hà Nội</text></g>
+          </g>
+
+          <!-- Lớp 2: Ẩm -->
+          <g class="lyr lyr-am">
+            <g id="evap"></g>
+            <g id="inflow"></g>
+            <g id="clouds"></g>
+            <g clip-path="url(#clipVN)"><g id="rain"></g></g>
+            <text class="hlab lab-am" x="335" y="548">Hơi nước bốc lên từ biển</text>
+            <text class="hlab lab-am" x="340" y="340">Không khí ẩm từ biển vào</text>
+          </g>
+
+          <!-- Lớp 3: Gió mùa -->
+          <g class="lyr lyr-gio">
+            <g class="only-dong"><line class="bachma" x1="222" y1="308" x2="300" y2="308"/><text class="hlab" x="304" y="312">Dãy Bạch Mã</text></g>
+            <g class="only-ha2"><path class="itcz" d="M15,235 C90,215 160,262 240,240 S400,215 505,243"/><text class="hlab lab-bao" x="330" y="214">Dải hội tụ nhiệt đới</text></g>
+            <g id="arrows"></g>
+            <g id="wlabels"></g>
+            <g class="only-ha2"><g class="storm-move"><g class="storm-spin"><path d="M0,0 m-2,0 a2,2 0 1,1 4,0 a5,5 0 1,1 -10,0 a9,9 0 1,1 18,0 a13,13 0 1,1 -26,0"/></g><text class="hlab lab-bao" x="-9" y="30">Bão</text></g></g>
+            <g id="hot"></g>
+          </g>
+        </svg>
+      </div>
+
+      <aside class="readout" aria-live="polite">
+        <!-- Nhiệt đới -->
+        <section class="ctl ctl-nhiet">
+          <h2>Tính chất nhiệt đới</h2>
+          <p class="lede">Kéo thanh trượt để quan sát nhiệt độ, số giờ nắng và bức xạ Mặt Trời.</p>
+          <div class="card">
+            <div class="lab"><span>Vị trí từ bắc vào nam</span><b id="locName">Hà Nội</b></div>
+            <input type="range" id="lat" min="0" max="100" value="0" aria-label="Vị trí từ bắc vào nam">
+            <div class="row">
+              <svg class="thermo" viewBox="0 0 70 190" aria-hidden="true">
+                <defs><clipPath id="tubeClip"><rect x="22" y="8" width="26" height="150" rx="13"/></clipPath></defs>
+                <rect x="22" y="8" width="26" height="150" rx="13" class="tube"/>
+                <g clip-path="url(#tubeClip)"><rect id="thFill" x="22" y="100" width="26" height="60"/></g>
+                <circle id="thBulb" cx="35" cy="168" r="15"/>
+                <line class="l20" x1="14" x2="56" y1="113" y2="113"/>
+                <text x="2" y="108">20°C</text>
+              </svg>
+              <div style="display:flex;flex-direction:column;gap:7px;min-width:0">
+                <span class="pill ok" id="tState">Cao hơn mốc 20°C</span>
+                <p class="hint" id="tHint">Nhiệt độ trung bình năm trên cả nước lớn hơn 20°C và tăng dần từ bắc vào nam.</p>
+              </div>
+            </div>
+            <button type="button" class="tgl" id="mtn" aria-pressed="false">Xem vùng núi cao</button>
+          </div>
+          <div class="card">
+            <div class="lab"><span>Số giờ nắng</span><b id="sunVal">2 200 giờ/năm</b></div>
+            <input type="range" id="sunH" min="1400" max="3000" step="50" value="2200" aria-label="Số giờ nắng trong năm">
+            <p class="hint">Nước ta nhận 1 400 – 3 000 giờ nắng mỗi năm. Kéo để thấy Mặt Trời và các tia nắng mạnh lên hay yếu đi.</p>
+          </div>
+          <div class="card">
+            <div class="lab"><span>Cán cân bức xạ</span><b>70 – 100</b></div>
+            <div class="rbar" aria-hidden="true"><i style="left:calc(70/120*100%);width:calc(30/120*100%)"></i><b></b></div>
+            <p class="hint">Đơn vị kcal/cm²/năm. Vạch đen chạy trong khoảng giá trị của nước ta.</p>
+          </div>
+        </section>
+
+        <!-- Ẩm -->
+        <section class="ctl ctl-am">
+          <h2>Tính chất ẩm</h2>
+          <p class="lede">Biển Đông cung cấp hơi nước, nên không khí ẩm và mưa nhiều.</p>
+          <div class="card">
+            <div class="row">
+              <svg class="gauge" viewBox="0 0 110 110" aria-hidden="true">
+                <g transform="rotate(-90 55 55)"><circle class="bg" cx="55" cy="55" r="44"/><circle class="fg" id="gFg" cx="55" cy="55" r="44" stroke-dasharray="230 276.46"/>
+                <line class="tick" x1="99" y1="55" x2="89" y2="55" transform="rotate(288 55 55)"/></g>
+                <text x="55" y="62" text-anchor="middle" id="gTxt">83%</text>
+              </svg>
+              <div style="display:flex;flex-direction:column;gap:7px;min-width:0">
+                <b>Độ ẩm không khí</b>
+                <span class="pill ok" id="hState">Ẩm cao</span>
+                <p class="hint" id="hHint">Vạch đen trên vòng tròn là mốc 80%.</p>
+              </div>
+            </div>
+            <input type="range" id="hum" min="50" max="100" value="83" aria-label="Độ ẩm không khí">
+          </div>
+          <div class="card">
+            <div class="lab"><span>Lượng mưa trung bình năm</span><b id="rainVal">1 750 mm</b></div>
+            <input type="range" id="rainR" min="500" max="3000" step="50" value="1750" aria-label="Lượng mưa trung bình năm">
+            <span class="pill ok" id="rState" style="align-self:flex-start">Đúng với nước ta</span>
+            <p class="hint">Nước ta có mưa lớn, trung bình khoảng 1 500 – 2 000 mm/năm.</p>
+          </div>
+          <button type="button" class="rain-btn" id="callRain">Gọi mưa lớn</button>
+        </section>
+
+        <!-- Gió mùa -->
+        <section class="ctl ctl-gio">
+          <h2>Tính chất gió mùa</h2>
+          <div>
+            <div class="chiplab">Mùa đông (tháng 11 – tháng 4)</div>
+            <div class="chips" id="chipsD"></div>
+            <div class="chiplab" style="margin-top:8px">Mùa hạ (tháng 5 – tháng 10)</div>
+            <div class="chips" id="chipsH"></div>
+          </div>
+          <div class="btns">
+            <button type="button" class="icon-btn" id="auto" aria-pressed="false">
+              <svg viewBox="0 0 24 24"><path id="autoIco" d="M7 4v16l13-8z"/></svg><span id="autoTxt">Tự chạy theo tháng</span>
+            </button>
+          </div>
+          <div class="card info">
+            <div class="meta"><span class="pill" id="gSeason">Mùa đông</span><span class="hint mono" id="gRange"></span></div>
+            <h3 id="gWind">Gió mùa Đông Bắc</h3>
+            <p id="gDesc"></p>
+          </div>
+          <div class="card">
+            <div class="chiplab" style="margin:0">Nhấn vào một vùng trên bản đồ</div>
+            <div class="reg"><svg viewBox="-20 -20 40 40" id="gRegIco" aria-hidden="true"></svg><div><b id="gRegName"></b><span id="gRegText"></span></div></div>
+          </div>
+          <div class="legend" aria-label="Chú giải">
+            <span><i style="border-color:var(--dong)"></i>Gió mùa Đông Bắc</span>
+            <span><i style="border-color:var(--tin)"></i>Tín phong bán cầu Bắc</span>
+            <span><i style="border-color:var(--ha)"></i>Gió mùa Tây Nam</span>
+            <span><i class="dash" style="border-color:var(--phon)"></i>Gió Tây khô nóng</span>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <aside class="side">
+    <div class="tabs" role="tablist" aria-label="Nội dung bài học">
+      <button type="button" role="tab" id="tabMota" aria-selected="true" aria-controls="paneMota" data-tab="Mota">Mô tả</button>
+      <button type="button" role="tab" id="tabOntap" aria-selected="false" aria-controls="paneOntap" data-tab="Ontap">Ôn tập</button>
+      <button type="button" role="tab" id="tabTn" aria-selected="false" aria-controls="paneTn" data-tab="Tn">Trắc nghiệm</button>
+    </div>
+
+    <!-- Tab Mô tả -->
+    <section class="pane" id="paneMota" role="tabpanel" aria-labelledby="tabMota">
+      <article class="prose">
+        <p>Khí hậu Việt Nam mang tính chất <b>nhiệt đới ẩm gió mùa</b> và có sự phân hoá đa dạng. Hãy dùng mô hình bên trái để xem từng tính chất biểu hiện như thế nào, rồi liên hệ với khí hậu ở địa phương em.</p>
+        <div class="toc">
+          <button type="button" data-goto="sA">a) Nhiệt đới</button>
+          <button type="button" data-goto="sB">b) Ẩm</button>
+          <button type="button" data-goto="sC">c) Gió mùa</button>
+          <button type="button" data-goto="sQ">Thảo luận</button>
+        </div>
+
+        <h3 id="sA">a) Tính chất nhiệt đới</h3>
+        <p>Tính nhiệt đới của khí hậu Việt Nam được thể hiện qua nhiệt độ, số giờ nắng và bức xạ Mặt Trời.</p>
+        <div class="fact"><b>&gt; 20°C</b><span>Nhiệt độ không khí trung bình năm trên cả nước đều lớn hơn 20°C (trừ vùng núi cao) và tăng dần từ bắc vào nam.</span></div>
+        <div class="fact"><b>1 400 – 3 000</b><span>Số giờ nắng đạt từ 1 400 đến 3 000 giờ/năm.</span></div>
+        <div class="fact"><b>70 – 100</b><span>Cán cân bức xạ đạt từ 70 đến 100 kcal/cm²/năm.</span></div>
+        <button type="button" class="go" data-view="nhiet">Xem trên mô hình</button>
+
+        <h3 id="sB">b) Tính chất ẩm</h3>
+        <p>Nước ta tiếp giáp Biển Đông nên nguồn hơi nước rất dồi dào.</p>
+        <div class="fact blue"><b>&gt; 80%</b><span>Độ ẩm không khí cao, trung bình trên 80%.</span></div>
+        <div class="fact blue"><b>1 500 – 2 000</b><span>Lượng mưa lớn, trung bình khoảng 1 500 – 2 000 mm/năm.</span></div>
+        <button type="button" class="go" data-view="am">Xem trên mô hình</button>
+
+        <h3 id="sC">c) Tính chất gió mùa</h3>
+        <p>Nước ta nằm trong vùng gió mùa châu Á nên chịu ảnh hưởng mạnh mẽ của các khối khí hoạt động theo mùa.</p>
+        <div class="box dong">
+          <h4>Gió mùa đông</h4>
+          <p class="hint" style="margin:2px 0 6px">Từ tháng 11 đến tháng 4 năm sau, có hướng đông bắc nên gọi là gió mùa Đông Bắc.</p>
+          <ul>
+            <li><b>Miền Bắc</b> chịu ảnh hưởng của khối khí lạnh từ phía bắc di chuyển xuống nước ta, tạo nên một mùa đông lạnh. Nửa đầu mùa đông có thời tiết lạnh, khô. Nửa cuối mùa đông có thời tiết lạnh, ẩm.</li>
+            <li><b>Từ nam dãy Bạch Mã trở vào</b>, Tín phong bán cầu Bắc có hướng đông bắc chiếm ưu thế, gây mưa cho vùng ven biển Nam Trung Bộ.</li>
+            <li><b>Tây Nguyên và Nam Bộ</b> có thời tiết nóng, khô.</li>
+          </ul>
+        </div>
+        <button type="button" class="go" data-view="gio" data-month="12">Xem gió mùa đông</button>
+        <div class="box ha">
+          <h4>Gió mùa hạ</h4>
+          <p class="hint" style="margin:2px 0 6px">Từ tháng 5 đến tháng 10, chủ yếu có hướng tây nam nên gọi là gió mùa Tây Nam.</p>
+          <ul>
+            <li><b>Đầu mùa hạ</b>, gió Tây Nam thổi từ Bắc Ấn Độ Dương gây mưa lớn cho đồng bằng Nam Bộ và Tây Nguyên.</li>
+            <li>Khi vượt qua dãy Trường Sơn và các dãy núi chạy dọc biên giới Việt – Lào, tính chất của gió thay đổi do <b>hiệu ứng phơn</b>. Phía đông dãy Trường Sơn và phía nam khu vực Tây Bắc có thời tiết khô nóng (gió Tây khô nóng).</li>
+            <li><b>Giữa và cuối mùa hạ</b>, gió mùa Tây Nam xuất phát từ bán cầu Nam di chuyển lên, kết hợp với ảnh hưởng của dải hội tụ nhiệt đới tạo nên thời tiết nóng ẩm, mưa nhiều phổ biến trên cả nước.</li>
+            <li>Hiện tượng thời tiết cực đoan trong mùa này là <b>bão kèm theo mưa lớn</b>.</li>
+          </ul>
+        </div>
+        <div class="btns">
+          <button type="button" class="go" data-view="gio" data-month="5">Đầu mùa hạ</button>
+          <button type="button" class="go" data-view="gio" data-month="8">Giữa, cuối mùa hạ</button>
+        </div>
+
+        <h3 id="sQ">Câu hỏi thảo luận</h3>
+        <details><summary>Trình bày tính chất nhiệt đới của khí hậu Việt Nam.</summary><p>Nhiệt độ trung bình năm lớn hơn 20°C (trừ vùng núi cao) và tăng dần từ bắc vào nam; số giờ nắng 1 400 – 3 000 giờ/năm; cán cân bức xạ 70 – 100 kcal/cm²/năm.</p></details>
+        <details><summary>Nêu tính chất ẩm của khí hậu nước ta.</summary><p>Độ ẩm không khí cao, trung bình trên 80%; lượng mưa lớn, trung bình 1 500 – 2 000 mm/năm.</p></details>
+        <details><summary>Trình bày tính chất gió mùa của khí hậu Việt Nam.</summary><p>Có hai mùa gió chính: gió mùa đông (tháng 11 – tháng 4, hướng đông bắc) và gió mùa hạ (tháng 5 – tháng 10, hướng tây nam). Mỗi mùa gió làm thời tiết khác nhau giữa các vùng.</p></details>
+        <details><summary>Liên hệ với khí hậu ở địa phương em.</summary><p>Gợi ý: em hãy nêu thời điểm trong năm địa phương có mưa nhiều, nắng nóng hoặc lạnh, rồi đối chiếu với mùa gió trên mô hình.</p></details>
+      </article>
+    </section>
+
+    <!-- Tab Ôn tập -->
+    <section class="pane" id="paneOntap" role="tabpanel" aria-labelledby="tabOntap" hidden>
+      <div class="sec">
+        <h3>Sơ đồ tóm tắt</h3>
+        <ul class="tree">
+          <li style="--c:var(--sun)">Tính nhiệt đới
+            <ul><li>Nhiệt độ trung bình năm &gt; 20°C, tăng dần từ bắc vào nam</li><li>Giờ nắng 1 400 – 3 000 giờ/năm</li><li>Cán cân bức xạ 70 – 100 kcal/cm²/năm</li></ul></li>
+          <li style="--c:var(--am)">Tính ẩm
+            <ul><li>Độ ẩm không khí trung bình &gt; 80%</li><li>Mưa trung bình 1 500 – 2 000 mm/năm</li></ul></li>
+          <li style="--c:var(--dong)">Gió mùa đông (tháng 11 – tháng 4)
+            <ul><li>Hướng đông bắc; Bắc: lạnh, nửa đầu khô, nửa cuối ẩm</li><li>Nam Bạch Mã: Tín phong, mưa ven biển Nam Trung Bộ</li><li>Tây Nguyên, Nam Bộ: nóng, khô</li></ul></li>
+          <li style="--c:var(--ha)">Gió mùa hạ (tháng 5 – tháng 10)
+            <ul><li>Hướng tây nam; đầu mùa mưa lớn ở Nam Bộ, Tây Nguyên</li><li>Hiệu ứng phơn: khô nóng ở đông Trường Sơn, nam Tây Bắc</li><li>Giữa, cuối mùa: nóng ẩm, mưa nhiều; bão kèm mưa lớn</li></ul></li>
+        </ul>
+      </div>
+
+      <div class="sec">
+        <h3>Thẻ ghi nhớ</h3>
+        <div class="flash">
+          <button type="button" class="fc" id="fc" aria-label="Lật thẻ"><div class="f"><small id="fcN">1/12</small><span id="fcQ"></span><small>Nhấn để lật</small></div><div class="b"><span id="fcA"></span></div></button>
+        </div>
+        <div class="fcnav"><button type="button" id="fcPrev">Trước</button><button type="button" id="fcShuf">Xáo thẻ</button><button type="button" id="fcNext">Sau</button></div>
+      </div>
+
+      <div class="sec">
+        <h3>So sánh hai mùa gió</h3>
+        <div class="tbl"><table>
+          <thead><tr><th></th><th class="d">Gió mùa đông</th><th class="h">Gió mùa hạ</th></tr></thead>
+          <tbody>
+            <tr><td><b>Thời gian</b></td><td>Tháng 11 – tháng 4 năm sau</td><td>Tháng 5 – tháng 10</td></tr>
+            <tr><td><b>Hướng gió</b></td><td>Đông bắc</td><td>Tây nam</td></tr>
+            <tr><td><b>Nguồn gốc</b></td><td>Khối khí lạnh từ phía bắc</td><td>Bắc Ấn Độ Dương (đầu mùa); bán cầu Nam (giữa, cuối mùa)</td></tr>
+            <tr><td><b>Miền Bắc</b></td><td>Lạnh; nửa đầu khô, nửa cuối ẩm</td><td>Nam Tây Bắc khô nóng (đầu mùa); nóng ẩm, mưa nhiều (giữa, cuối mùa)</td></tr>
+            <tr><td><b>Phía nam</b></td><td>Tín phong gây mưa ven biển Nam Trung Bộ; Tây Nguyên, Nam Bộ nóng, khô</td><td>Mưa lớn ở Nam Bộ, Tây Nguyên (đầu mùa); đông Trường Sơn khô nóng</td></tr>
+            <tr><td><b>Đặc trưng</b></td><td>Mùa đông lạnh ở miền Bắc</td><td>Bão kèm mưa lớn</td></tr>
+          </tbody></table></div>
+      </div>
+
+      <div class="sec">
+        <h3>Mẹo ghi nhớ</h3>
+        <div class="box"><ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px">
+          <li><b>Đông</b> đi với <b>Đông Bắc</b>; <b>hạ</b> đi với <b>Tây Nam</b>.</li>
+          <li>Đông: 11 → 4. Hạ: 5 → 10. Mỗi mùa kéo dài 6 tháng.</li>
+          <li>Ba con số nhiệt đới: <b>20°C</b>, <b>1 400 – 3 000</b> giờ, <b>70 – 100</b> kcal.</li>
+          <li>Hai con số ẩm: <b>80%</b> và <b>1 500 – 2 000</b> mm.</li>
+        </ul></div>
+      </div>
+
+      <div class="sec">
+        <h3>Gợi ý hoạt động trên lớp</h3>
+        <div class="box"><ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px">
+          <li>Chiếu mô hình, cho học sinh đoán thời tiết từng vùng rồi nhấn vào vùng để kiểm tra.</li>
+          <li>Bật chế độ tự chạy theo tháng, yêu cầu học sinh nêu hướng gió khi mô hình chuyển mùa.</li>
+          <li>Chia nhóm chơi trắc nghiệm, mỗi nhóm một lượt, so điểm cuối.</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <!-- Tab Trắc nghiệm -->
+    <section class="pane" id="paneTn" role="tabpanel" aria-labelledby="tabTn" hidden>
+      <div class="qz" id="qz"></div>
+    </section>
+  </aside>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent){var e=document.createElementNS(NS,tag);for(var k in attrs){e.setAttribute(k,attrs[k]);}if(parent)parent.appendChild(e);return e;}
+function fmt(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' ');}
+function rnd(a,b){return a+Math.random()*(b-a);}
+
+/* ================= ÂM THANH (Web Audio, tạo âm tại chỗ) ================= */
+var Snd=(function(){
+  var ctx=null,master=null,on=true,vol=.6,amb=null,want=null,nb=null;
+  function init(){
+    if(ctx)return true;
+    try{var C=window.AudioContext||window.webkitAudioContext;if(!C)return false;
+      ctx=new C();master=ctx.createGain();master.gain.value=on?vol:0;master.connect(ctx.destination);}catch(e){ctx=null;return false;}
+    return true;
+  }
+  function noise(){
+    if(nb)return nb;var len=ctx.sampleRate*2,b=ctx.createBuffer(1,len,ctx.sampleRate),d=b.getChannelData(0);
+    for(var i=0;i<len;i++)d[i]=Math.random()*2-1;nb=b;return b;
+  }
+  function tone(f,dur,type,g,delay,endF){
+    if(!ctx||!on)return;var t=ctx.currentTime+(delay||0),o=ctx.createOscillator(),a=ctx.createGain();
+    o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(endF)o.frequency.exponentialRampToValueAtTime(endF,t+dur);
+    a.gain.setValueAtTime(.0001,t);a.gain.exponentialRampToValueAtTime(g||.15,t+.012);a.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(a);a.connect(master);o.start(t);o.stop(t+dur+.05);
+  }
+  function swish(dur,f0,f1,g,type){
+    if(!ctx||!on)return;var t=ctx.currentTime,s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),a=ctx.createGain();
+    s.buffer=noise();f.type=type||'bandpass';f.Q.value=1.3;f.frequency.setValueAtTime(f0,t);f.frequency.exponentialRampToValueAtTime(f1,t+dur);
+    a.gain.setValueAtTime(.0001,t);a.gain.exponentialRampToValueAtTime(g||.2,t+dur*.35);a.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    s.connect(f);f.connect(a);a.connect(master);s.start(t);s.stop(t+dur+.05);
+  }
+  function stopAmb(){
+    if(!amb||!ctx)return;var a=amb;amb=null;
+    try{a.out.gain.setTargetAtTime(0,ctx.currentTime,.2);}catch(e){}
+    setTimeout(function(){a.nodes.forEach(function(n){try{if(n.stop)n.stop();}catch(e){}try{n.disconnect();}catch(e){}});},900);
+  }
+  function startAmb(kind,p){
+    if(!ctx||!on)return;stopAmb();
+    var out=ctx.createGain();out.gain.value=0;out.connect(master);
+    var nodes=[out],src=ctx.createBufferSource();src.buffer=noise();src.loop=true;nodes.push(src);var setP=function(){};
+    if(kind==='nhiet'){
+      var bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=5200;bp.Q.value=9;
+      var am=ctx.createGain();am.gain.value=.5;
+      var lfo=ctx.createOscillator();lfo.frequency.value=11;var lg=ctx.createGain();lg.gain.value=.5;lfo.connect(lg);lg.connect(am.gain);
+      src.connect(bp);bp.connect(am);am.connect(out);lfo.start();nodes.push(bp,am,lfo,lg);
+      [196,247].forEach(function(f){var o=ctx.createOscillator();o.type='sine';o.frequency.value=f;var g=ctx.createGain();g.gain.value=.05;o.connect(g);g.connect(out);o.start();nodes.push(o,g);});
+      setP=function(q){out.gain.setTargetAtTime(.12+.3*(q.sun==null?.5:q.sun),ctx.currentTime,.3);};
+    }else if(kind==='am'){
+      var hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=900;
+      var lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=7500;
+      src.connect(hp);hp.connect(lp);lp.connect(out);nodes.push(hp,lp);
+      setP=function(q){out.gain.setTargetAtTime(.03+.3*(q.rain==null?.5:q.rain),ctx.currentTime,.3);};
+    }else{
+      var bf=ctx.createBiquadFilter();bf.type='bandpass';bf.frequency.value=700;bf.Q.value=1.2;
+      var gust=ctx.createGain();gust.gain.value=.65;
+      var l2=ctx.createOscillator();l2.frequency.value=.18;var lg2=ctx.createGain();lg2.gain.value=.35;l2.connect(lg2);lg2.connect(gust.gain);
+      src.connect(bf);bf.connect(gust);gust.connect(out);l2.start();nodes.push(bf,gust,l2,lg2);
+      setP=function(q){var w=q.season==='dong';bf.frequency.setTargetAtTime(w?950:420,ctx.currentTime,.4);bf.Q.setTargetAtTime(w?1.6:.9,ctx.currentTime,.4);out.gain.setTargetAtTime(w?.2:.17,ctx.currentTime,.4);};
+    }
+    src.start();amb={kind:kind,nodes:nodes,out:out,setP:setP};setP(p||{});
+  }
+  var api={
+    unlock:function(){if(!init())return;if(ctx.state==='suspended')ctx.resume().catch(function(){});if(want&&!amb&&on)startAmb(want.kind,want.p);},
+    ambient:function(kind,p){want={kind:kind,p:p||{}};if(!ctx||!on)return;if(amb&&amb.kind===kind)amb.setP(want.p);else startAmb(kind,want.p);},
+    param:function(p){if(!want)return;for(var k in p)want.p[k]=p[k];if(amb)amb.setP(want.p);},
+    setOn:function(v){on=v;if(!init())return;master.gain.setTargetAtTime(v?vol:0,ctx.currentTime,.05);if(v){if(ctx.state==='suspended')ctx.resume().catch(function(){});if(want)startAmb(want.kind,want.p);}else stopAmb();},
+    setVol:function(v){vol=v;if(ctx&&on)master.gain.setTargetAtTime(v,ctx.currentTime,.05);},
+    click:function(){tone(660,.06,'triangle',.07);},
+    tab:function(){tone(520,.05,'sine',.07);tone(780,.07,'sine',.05,.04);},
+    flip:function(){swish(.2,600,2600,.1);},
+    month:function(){swish(.4,260,1300,.16);},
+    sun:function(){tone(880,.5,'sine',.07);tone(1320,.6,'sine',.04,.06);},
+    correct:function(){[523,659,784].forEach(function(f,i){tone(f,.22,'triangle',.13,i*.09);});},
+    wrong:function(){tone(240,.4,'sawtooth',.09,0,110);},
+    tick:function(){tone(900,.04,'square',.04);},
+    win:function(){[523,659,784,1047,784,1047].forEach(function(f,i){tone(f,.25,'triangle',.12,i*.11);});},
+    thunder:function(){swish(1.8,220,60,.5,'lowpass');},
+    isOn:function(){return on;}
+  };
+  return api;
+})();
+['pointerdown','keydown','touchstart'].forEach(function(ev){window.addEventListener(ev,Snd.unlock,{passive:true});});
+
+/* ================= DỮ LIỆU HÌNH HỌC (sơ đồ giản lược) ================= */
+var VN='M162.3,23.0 L157.9,24.3 L154.2,26.0 L151.3,28.1 L149.3,30.6 L148.0,33.4 L146.3,35.9 L144.1,38.2 L141.4,40.2 L138.3,41.9 L135.4,43.0 L132.7,43.4 L130.3,43.1 L128.1,42.1 L125.9,42.0 L123.7,42.6 L121.5,44.1 L119.3,46.3 L117.4,48.0 L115.9,49.3 L114.7,50.0 L113.9,50.2 L112.9,50.0 L111.7,49.3 L110.4,48.3 L108.9,46.8 L107.2,45.8 L105.4,45.5 L103.4,45.6 L101.3,46.4 L99.3,46.7 L97.4,46.7 L95.6,46.4 L94.0,45.7 L92.1,46.1 L90.1,47.6 L87.9,50.3 L85.5,54.0 L83.5,56.8 L81.8,58.8 L80.5,59.9 L79.5,60.2 L78.4,60.2 L77.2,59.9 L75.9,59.4 L74.5,58.7 L72.7,58.4 L70.7,58.5 L68.3,59.1 L65.7,60.2 L63.0,61.6 L60.4,63.5 L57.8,65.9 L55.2,68.7 L53.2,70.9 L52.0,72.7 L51.3,73.9 L51.3,74.6 L52.3,75.9 L54.1,77.6 L57.0,79.9 L60.7,82.8 L63.5,85.2 L65.4,87.2 L66.4,88.7 L66.4,89.7 L66.8,90.5 L67.7,90.9 L69.0,91.0 L70.7,90.8 L72.2,90.9 L73.7,91.3 L74.9,92.0 L76.0,93.0 L76.6,94.8 L76.7,97.3 L76.3,100.6 L75.4,104.7 L75.1,108.5 L75.4,111.9 L76.2,114.9 L77.6,117.6 L79.0,119.8 L80.3,121.6 L81.4,122.9 L82.6,123.7 L84.7,124.6 L87.8,125.5 L91.9,126.4 L97.0,127.3 L101.2,127.5 L104.4,127.1 L106.6,125.9 L107.9,124.0 L109.6,122.4 L111.8,120.9 L114.3,119.5 L117.3,118.4 L120.4,118.1 L123.7,118.7 L127.2,120.2 L130.8,122.6 L133.6,124.5 L135.5,126.0 L136.6,127.1 L136.7,127.8 L136.5,128.6 L135.9,129.6 L134.9,130.6 L133.6,131.8 L132.6,133.0 L131.9,134.2 L131.6,135.4 L131.5,136.7 L131.9,137.6 L132.5,138.3 L133.5,138.7 L134.9,138.8 L136.0,139.3 L136.9,140.1 L137.6,141.3 L138.1,142.8 L139.1,144.1 L140.7,145.3 L142.9,146.3 L145.6,147.0 L147.7,147.9 L149.3,148.9 L150.3,150.0 L150.8,151.1 L150.3,153.1 L148.8,155.7 L146.2,159.2 L142.6,163.3 L139.2,166.3 L135.9,168.0 L132.8,168.5 L129.8,167.7 L127.1,167.4 L124.7,167.5 L122.4,167.9 L120.5,168.8 L119.0,169.7 L118.0,170.6 L117.5,171.6 L117.5,172.7 L117.1,173.9 L116.3,175.5 L115.1,177.2 L113.5,179.2 L112.3,181.0 L111.6,182.6 L111.3,184.0 L111.5,185.2 L112.0,186.1 L113.0,186.7 L114.3,187.1 L116.1,187.1 L119.0,188.3 L122.9,190.5 L127.8,193.7 L133.8,198.0 L138.9,201.2 L142.9,203.3 L145.9,204.3 L147.9,204.2 L149.8,204.4 L151.5,204.7 L153.2,205.3 L154.7,206.2 L155.9,207.1 L157.0,208.1 L157.9,209.1 L158.6,210.3 L158.9,211.4 L158.9,212.5 L158.5,213.7 L157.8,214.8 L157.4,216.2 L157.4,217.7 L157.7,219.5 L158.4,221.5 L159.9,223.8 L162.2,226.3 L165.4,229.0 L169.4,232.0 L172.4,234.5 L174.4,236.7 L175.4,238.3 L175.4,239.5 L175.9,241.1 L177.1,242.9 L178.8,245.1 L181.2,247.7 L183.0,249.7 L184.1,251.3 L184.7,252.5 L184.7,253.2 L185.0,253.9 L185.7,254.7 L186.7,255.6 L188.1,256.5 L189.1,257.3 L189.7,258.1 L190.1,258.8 L190.1,259.5 L190.8,260.6 L192.3,261.9 L194.7,263.5 L197.7,265.5 L200.2,267.4 L202.0,269.3 L203.1,271.2 L203.5,273.1 L204.4,274.8 L205.7,276.5 L207.4,278.2 L209.4,279.7 L211.0,281.5 L212.1,283.6 L212.7,285.9 L212.8,288.5 L213.0,290.7 L213.4,292.6 L213.9,294.1 L214.6,295.3 L215.4,296.3 L216.5,297.2 L217.7,297.9 L219.1,298.5 L220.3,299.2 L221.3,300.1 L222.2,301.1 L222.9,302.2 L223.9,303.5 L225.4,304.7 L227.3,306.1 L229.6,307.5 L231.4,308.9 L232.8,310.4 L233.7,311.8 L234.2,313.4 L235.1,314.9 L236.5,316.3 L238.4,317.8 L240.7,319.2 L241.9,320.7 L242.1,322.2 L241.3,323.8 L239.4,325.4 L238.0,326.9 L237.0,328.3 L236.5,329.5 L236.5,330.5 L236.8,332.0 L237.6,333.9 L238.7,336.3 L240.2,339.1 L241.9,341.6 L243.7,343.6 L245.7,345.3 L247.8,346.5 L249.4,347.8 L250.4,348.9 L250.9,350.0 L250.9,351.0 L250.5,352.3 L249.8,353.7 L248.8,355.4 L247.4,357.4 L246.5,360.1 L246.0,363.5 L245.9,367.8 L246.2,372.8 L246.2,376.8 L246.0,379.8 L245.5,381.7 L244.8,382.5 L244.0,384.2 L243.2,386.7 L242.3,390.1 L241.4,394.2 L241.1,397.6 L241.3,400.3 L242.2,402.2 L243.5,403.3 L244.6,404.5 L245.2,405.9 L245.5,407.3 L245.4,408.7 L245.6,410.1 L246.1,411.5 L246.9,412.7 L247.9,413.8 L248.7,415.1 L249.4,416.4 L249.9,417.8 L250.2,419.3 L250.2,421.1 L249.9,423.2 L249.3,425.6 L248.5,428.4 L247.9,432.5 L247.5,437.8 L247.2,444.4 L247.2,452.3 L247.1,458.4 L246.7,462.6 L246.2,465.1 L245.4,465.7 L244.3,466.2 L242.7,466.5 L240.7,466.7 L238.2,466.8 L235.9,467.3 L233.7,468.3 L231.6,469.7 L229.6,471.5 L226.7,473.2 L222.9,474.8 L218.2,476.3 L212.6,477.6 L208.4,479.0 L205.6,480.3 L204.1,481.7 L204.1,483.1 L203.9,484.3 L203.5,485.5 L203.0,486.5 L202.3,487.4 L200.9,488.0 L198.8,488.2 L195.9,488.2 L192.3,487.9 L189.2,487.9 L186.6,488.1 L184.5,488.7 L182.8,489.5 L181.7,490.4 L181.1,491.4 L181.1,492.4 L181.5,493.5 L181.8,495.0 L181.9,497.1 L181.8,499.8 L181.6,502.9 L182.1,505.8 L183.4,508.6 L185.5,511.2 L188.3,513.6 L190.3,515.9 L191.5,517.9 L191.8,519.9 L191.3,521.6 L190.4,522.8 L189.1,523.5 L187.6,523.6 L185.7,523.2 L184.0,522.5 L182.5,521.6 L181.2,520.4 L180.1,519.0 L179.0,517.9 L178.0,517.1 L177.1,516.6 L176.1,516.4 L174.1,516.6 L171.2,517.3 L167.2,518.4 L162.1,520.0 L158.1,521.2 L154.9,521.9 L152.8,522.2 L151.5,522.2 L150.7,522.3 L150.1,522.8 L149.9,523.6 L150.0,524.6 L149.5,525.8 L148.2,527.3 L146.1,529.0 L143.4,531.0 L140.7,532.4 L138.0,533.3 L135.5,533.6 L132.9,533.4 L130.7,533.5 L128.8,533.9 L127.1,534.6 L125.8,535.7 L124.8,536.6 L124.1,537.6 L123.8,538.5 L123.8,539.3 L124.1,540.4 L124.8,541.7 L125.7,543.3 L127.1,545.1 L128.4,546.4 L129.9,547.3 L131.5,547.8 L133.1,547.8 L134.5,547.9 L135.6,548.3 L136.4,548.9 L137.0,549.6 L137.9,550.4 L139.1,551.0 L140.6,551.7 L142.4,552.2 L143.8,552.9 L145.0,553.6 L145.9,554.5 L146.5,555.4 L146.4,556.5 L145.7,557.8 L144.2,559.4 L142.1,561.1 L140.3,564.9 L138.8,570.7 L137.7,578.5 L136.8,588.4 L136.4,595.9 L136.4,601.2 L136.9,604.3 L137.7,605.1 L138.2,605.9 L138.3,606.7 L137.9,607.6 L137.2,608.4 L136.7,609.2 L136.5,610.0 L136.5,610.8 L136.8,611.5 L137.7,611.9 L139.3,612.0 L141.4,611.9 L144.2,611.4 L147.0,610.5 L149.7,609.2 L152.3,607.5 L154.9,605.3 L157.1,603.3 L158.9,601.3 L160.4,599.4 L161.5,597.6 L163.5,595.7 L166.5,593.9 L170.4,592.1 L175.2,590.2 L179.2,588.8 L182.4,587.8 L184.8,587.3 L186.4,587.2 L187.8,586.9 L188.9,586.3 L190.0,585.6 L190.8,584.7 L191.4,583.6 L191.8,582.3 L192.1,580.8 L192.1,579.1 L192.3,577.7 L192.6,576.6 L192.9,575.9 L193.4,575.5 L194.1,575.4 L195.1,575.6 L196.3,576.0 L197.7,576.7 L199.3,577.2 L200.9,577.5 L202.8,577.5 L204.7,577.2 L206.4,576.4 L207.9,574.9 L209.2,572.9 L210.3,570.2 L211.0,567.9 L211.4,566.0 L211.5,564.4 L211.2,563.2 L211.4,562.0 L212.0,560.8 L213.0,559.6 L214.6,558.4 L215.6,557.1 L216.0,555.6 L216.0,554.1 L215.4,552.4 L215.2,550.7 L215.4,549.1 L216.0,547.5 L217.1,546.0 L218.2,544.6 L219.4,543.5 L220.7,542.7 L222.1,542.0 L223.5,541.8 L225.1,541.9 L226.8,542.4 L228.6,543.3 L230.4,544.0 L232.1,544.4 L233.7,544.6 L235.2,544.6 L237.7,543.8 L241.1,542.4 L245.5,540.3 L250.8,537.5 L255.2,535.3 L258.8,533.8 L261.4,533.0 L263.2,532.8 L264.8,532.2 L266.3,531.2 L267.6,529.8 L268.8,528.1 L270.2,526.6 L271.7,525.6 L273.5,524.9 L275.5,524.5 L277.6,523.7 L279.9,522.5 L282.2,520.9 L284.7,518.8 L287.6,516.9 L290.9,515.0 L294.7,513.2 L298.9,511.5 L302.0,509.8 L304.2,508.1 L305.3,506.3 L305.4,504.6 L306.0,502.9 L306.9,501.3 L308.3,499.8 L310.1,498.5 L311.3,496.4 L312.1,493.6 L312.3,490.2 L312.0,486.1 L311.9,482.4 L312.1,479.0 L312.4,476.0 L312.9,473.4 L313.6,471.3 L314.2,469.7 L315.0,468.7 L315.8,468.2 L316.4,467.6 L316.8,466.9 L317.1,466.0 L317.1,465.0 L316.9,464.0 L316.4,462.9 L315.6,461.7 L314.6,460.5 L314.1,459.2 L314.2,457.8 L314.8,456.3 L316.1,454.6 L317.1,452.7 L317.8,450.4 L318.3,447.9 L318.5,445.0 L318.3,442.0 L317.9,438.9 L317.1,435.6 L315.9,432.2 L315.1,428.0 L314.4,422.9 L314.0,417.1 L313.9,410.4 L313.5,404.4 L313.0,399.1 L312.3,394.4 L311.4,390.5 L310.5,387.2 L309.6,384.6 L308.7,382.7 L307.8,381.5 L307.1,380.2 L306.7,378.9 L306.6,377.4 L306.7,375.8 L306.4,373.9 L305.6,371.5 L304.5,368.8 L302.9,365.7 L301.7,362.8 L300.8,360.0 L300.2,357.4 L300.0,355.0 L299.1,352.6 L297.5,350.3 L295.2,348.1 L292.3,345.9 L289.7,343.4 L287.6,340.6 L285.8,337.5 L284.5,334.1 L283.1,331.2 L281.7,328.8 L280.3,326.9 L278.9,325.6 L277.4,323.9 L276.0,321.9 L274.6,319.5 L273.3,316.7 L271.5,314.4 L269.5,312.4 L267.1,310.8 L264.3,309.6 L262.3,308.4 L260.9,307.4 L260.3,306.4 L260.3,305.5 L259.7,304.5 L258.6,303.2 L256.9,301.8 L254.5,300.2 L251.7,298.0 L248.5,295.2 L244.9,291.7 L240.9,287.7 L237.6,284.1 L235.2,281.0 L233.6,278.5 L232.7,276.5 L230.9,273.8 L228.0,270.6 L224.2,266.7 L219.3,262.3 L215.6,258.7 L213.2,256.0 L212.0,254.2 L212.0,253.4 L211.9,252.6 L211.5,251.9 L211.0,251.4 L210.3,250.9 L209.8,249.6 L209.5,247.5 L209.4,244.6 L209.6,240.9 L208.5,237.2 L206.2,233.5 L202.7,229.8 L198.0,226.1 L194.0,222.7 L190.5,219.5 L187.7,216.7 L185.5,214.2 L183.9,211.9 L182.8,209.9 L182.2,208.2 L182.3,206.8 L182.0,205.4 L181.3,204.1 L180.3,202.8 L178.9,201.6 L177.9,200.3 L177.2,199.1 L176.9,197.8 L176.9,196.6 L177.5,195.0 L178.6,193.0 L180.2,190.7 L182.4,188.1 L183.9,185.4 L184.8,182.8 L185.2,180.1 L184.9,177.5 L185.0,174.8 L185.5,172.2 L186.4,169.6 L187.7,167.0 L189.4,164.7 L191.5,162.6 L194.0,160.8 L196.9,159.2 L199.4,157.7 L201.4,156.3 L202.9,154.9 L204.1,153.6 L205.4,152.4 L207.0,151.4 L208.8,150.6 L210.8,149.9 L212.3,148.9 L213.4,147.8 L213.9,146.5 L214.0,145.0 L214.5,143.1 L215.5,140.8 L217.0,138.0 L218.9,134.8 L221.3,132.2 L224.2,129.9 L227.6,128.2 L231.4,126.9 L234.6,125.5 L237.4,124.0 L239.7,122.2 L241.5,120.4 L243.5,119.0 L245.8,118.0 L248.3,117.4 L251.0,117.3 L253.1,116.5 L254.6,114.9 L255.5,112.7 L255.8,109.7 L256.6,107.1 L257.9,104.9 L259.6,103.1 L261.8,101.7 L263.5,100.4 L264.6,99.3 L265.2,98.4 L265.2,97.6 L265.0,96.8 L264.6,96.0 L263.9,95.2 L262.9,94.4 L261.3,93.9 L259.0,93.7 L255.9,93.7 L252.2,94.1 L247.8,93.1 L242.7,90.8 L236.9,87.3 L230.4,82.4 L225.3,77.8 L221.5,73.6 L219.1,69.8 L218.1,66.3 L217.2,63.6 L216.3,61.6 L215.5,60.5 L214.7,60.0 L214.3,59.4 L214.1,58.6 L214.3,57.5 L214.7,56.2 L215.3,54.9 L216.2,53.7 L217.3,52.4 L218.7,51.1 L219.7,49.9 L220.4,48.7 L220.8,47.6 L220.8,46.6 L220.5,45.6 L219.9,44.4 L218.9,43.2 L217.7,41.9 L216.2,41.0 L214.5,40.4 L212.6,40.2 L210.6,40.3 L208.5,40.0 L206.3,39.3 L204.2,38.3 L202.0,36.8 L199.7,35.9 L197.3,35.5 L194.8,35.6 L192.2,36.3 L189.0,35.7 L185.3,34.0 L181.1,31.1 L176.3,27.1 L171.5,24.4 L166.9,23.0 Z';
+var PQ='M100.5,540.1 L100.4,541.1 L100.5,542.0 L100.8,542.9 L101.4,543.8 L102.3,544.7 L103.1,545.4 L104.0,545.9 L104.8,546.2 L105.7,546.3 L106.4,545.9 L106.9,545.0 L107.2,543.7 L107.3,541.9 L107.0,540.5 L106.2,539.6 L105.0,539.0 L103.3,538.9 L102.0,539.0 L101.0,539.4 Z';
+function G(lon,lat){return [(lon-101.2)*38.6,(23.9-lat)*40];}
+function GP(list){return 'M'+list.map(function(p){var q=G(p[0],p[1]);return q[0].toFixed(1)+','+q[1].toFixed(1);}).join(' L')+' Z';}
+var NEIGH=GP([[101.2,25.6],[112,25.6],[112,22.2],[111.0,21.5],[110.4,20.4],[110.2,21.1],[109.7,21.5],[108.2,21.6],[106.5,21.2],[105.5,19.8],[105.5,18.5],[106.5,17.5],[107.2,16.5],[108.0,15.8],[108.3,14.5],[108.0,12.5],[107.5,11.0],[106.5,10.5],[105.5,10.1],[104.6,10.2],[104.5,10.45],[103.6,10.6],[102.8,11.6],[102.0,12.4],[101.2,12.8]]);
+$$('.vn-d').forEach(function(p){p.setAttribute('d',VN);});
+$('#neigh').setAttribute('d',NEIGH);
+$('#pq').setAttribute('d',PQ);
+
+var grid=$('#grid');
+for(var gx=40;gx<520;gx+=80)el('line',{x1:gx,y1:0,x2:gx,y2:640},grid);
+for(var gy=40;gy<640;gy+=80)el('line',{x1:0,y1:gy,x2:520,y2:gy},grid);
+
+var ridge=$('#ridge');
+[[104.0,21.2],[104.6,20.5],[105.0,19.8],[105.3,19.0],[105.6,18.2],[106.2,17.3],[106.9,16.3],[107.4,15.2],[107.55,14.0],[107.6,12.8],[107.3,11.8]].forEach(function(g){
+  var p=G(g[0],g[1]);
+  el('path',{d:'M'+(p[0]-5)+','+(p[1]+4)+' L'+p[0]+','+(p[1]-5)+' L'+(p[0]+5)+','+(p[1]+4)+' z'},ridge);
+});
+var isl=$('#islands');
+function dots(cx,cy,n){for(var i=0;i<n;i++)el('circle',{cx:cx+rnd(-14,14),cy:cy+rnd(-8,8),r:1.9,style:'fill:var(--coast)'},isl);}
+dots(417,298,6);dots(428,566,8);
+var t1=el('text',{x:385,y:318,class:'tiny'},isl);t1.textContent='QĐ. Hoàng Sa (TP Đà Nẵng)';
+var t2=el('text',{x:388,y:586,class:'tiny'},isl);t2.textContent='QĐ. Trường Sa (Khánh Hòa)';
+
+/* ================= TRẠNG THÁI CHUNG ================= */
+var stage=$('#stage'),map=$('#map');
+var S={mode:'nhiet',month:12,phase:'dong1',region:'bac-bo',auto:null,sunk:.5,rainK:.5};
+var HEADS={nhiet:'nhiet',am:'am',gio:'gio'};
+
+function setMode(m,silent){
+  S.mode=m;stage.dataset.mode=m;map.dataset.mode=m;
+  $$('.modes button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.mode===m));});
+  if(m!=='gio')stopAuto();
+  updateAmbient();
+  if(!silent){if(m==='nhiet')Snd.sun();else if(m==='am')Snd.flip();else Snd.month();}
+}
+function updateAmbient(){
+  var p={sun:S.sunk,rain:S.rainK,season:S.phase.indexOf('dong')===0?'dong':'ha'};
+  Snd.ambient(S.mode,p);
+}
+$$('.modes button').forEach(function(b){b.addEventListener('click',function(){setMode(b.dataset.mode);});});
+
+/* ================= CHẾ ĐỘ 1: NHIỆT ĐỚI ================= */
+var WAY=[[183,115,'Hà Nội'],[180,164,'Thanh Hóa'],[177,209,'Vinh'],[208,256,'Đồng Hới'],[247,298,'Huế'],[268,318,'Đà Nẵng'],[300,405,'Quy Nhơn'],[303,466,'Nha Trang'],[216,525,'TP. Hồ Chí Minh'],[142,598,'Cà Mau']];
+/* [x, y, tên, độ cao (m), nhiệt độ ước lượng = nhiệt độ vùng thấp - 0,6°C/100 m] */
+var MWAY=[[100,64,'Phan Xi Păng',3143,4.1],[222,82,'Mẫu Sơn',1541,14.3],[139,168,'Pù Hoạt',2452,9.8],[257,308,'Bạch Mã',1450,16.8],[262,353,'Ngọc Linh',2598,10.4],[280,474,'Lang Biang',2167,14.0],[203,507,'Núi Bà Đen',986,21.1]];
+var rays=$('#rays');
+for(var i=0;i<14;i++){var a=i/14*Math.PI*2;el('line',{x1:Math.cos(a)*34,y1:Math.sin(a)*34,x2:Math.cos(a)*(i%2?44:50),y2:Math.sin(a)*(i%2?44:50)},rays);}
+var beams=$('#beams'),beamEls=[];
+[[185,125],[205,250],[285,370],[215,520],[142,598]].forEach(function(t,i){
+  var b=el('path',{d:'M435,80 L'+t[0]+','+t[1],class:'beam'},beams);b.style.animationDelay=(-i*.2)+'s';beamEls.push(b);
+});
+function setLat(){
+  var v=+$('#lat').value/100,mtn=$('#mtn').getAttribute('aria-pressed')==='true';
+  var P=mtn?MWAY:WAY;
+  var seg=(P.length-1)*v,i=Math.min(P.length-2,Math.floor(seg)),f=seg-i;
+  var x=P[i][0]+(P[i+1][0]-P[i][0])*f,y=P[i][1]+(P[i+1][1]-P[i][1])*f;
+  var near=P[Math.round(seg)],name=near[2],frac=.4+.5*v,hue=52-42*v,mt=null;
+  if(mtn){
+    mt=near[4];
+    frac=Math.max(.06,Math.min(.95,.3+(mt-20)*.0667));
+    hue=Math.max(10,Math.min(205,205-(mt-4)/23*195));
+  }
+  $('#marker').setAttribute('transform','translate('+x+' '+y+')');
+  $('#mkTxt').textContent=mtn?name+' ('+fmt(near[3])+' m)':name;$('#locName').textContent=name;
+  var h=frac*150;
+  var th=$('#thFill');th.setAttribute('y',158-h);th.setAttribute('height',h+10);
+  var col='hsl('+hue+',85%,52%)';th.style.fill=col;$('#thBulb').style.fill=col;
+  var st=$('#tState'),hint=$('#tHint');
+  if(mtn){
+    var low=mt<20;
+    st.className='pill '+(low?'warn':'ok');
+    st.textContent=low?'Khoảng '+Math.round(mt)+'°C, thấp hơn 20°C':'Khoảng '+Math.round(mt)+'°C, vẫn cao hơn 20°C';
+    hint.textContent=name+' cao '+fmt(near[3])+' m. Nhiệt độ giảm khoảng 0,6°C mỗi 100 m độ cao, nên '+(low?'vùng núi cao là ngoại lệ của mốc 20°C.':'ở độ cao này nhiệt độ vẫn trên 20°C.')+' Giá trị ước lượng để minh hoạ.';
+  }
+  else{st.className='pill ok';st.textContent='Cao hơn mốc 20°C';hint.textContent='Nhiệt độ trung bình năm lớn hơn 20°C và tăng dần từ bắc vào nam. Kéo thanh trượt để thấy cột nhiệt tăng.';}
+}
+function setSun(){
+  var h=+$('#sunH').value;$('#sunVal').textContent=fmt(h)+' giờ/năm';
+  var k=(h-1400)/1600;S.sunk=k;
+  $('#sunScale').style.transform='scale('+(0.8+0.5*k)+')';
+  beamEls.forEach(function(b){b.style.opacity=.25+.7*k;b.style.strokeWidth=1.6+2.2*k;});
+  Snd.param({sun:k});
+}
+$('#lat').addEventListener('input',setLat);
+$('#sunH').addEventListener('input',setSun);
+$('#mtn').addEventListener('click',function(){var b=this;b.setAttribute('aria-pressed',String(b.getAttribute('aria-pressed')!=='true'));b.textContent=b.getAttribute('aria-pressed')==='true'?'Quay lại vùng thấp (Hà Nội – Cà Mau)':'Xem vùng núi cao';setLat();});
+
+/* ================= CHẾ ĐỘ 2: ẨM ================= */
+var rainG=$('#rain'),drops=[];
+for(var d=0;d<110;d++){
+  var x=rnd(40,320),y=rnd(10,615),dr=el('line',{x1:x,y1:y,x2:x-3,y2:y+11,class:'drop'},rainG);
+  dr.style.animationDuration=rnd(.7,1.3)+'s';dr.style.animationDelay=(-rnd(0,1.3))+'s';drops.push(dr);
+}
+var clouds=$('#clouds');
+[[170,150,3.4,-1],[272,360,4,-4],[335,470,4.2,-2]].forEach(function(c){
+  var g=el('g',{class:'drift'},clouds);g.style.animationDelay=c[3]+'s';
+  el('path',{class:'cloud',d:'M-9,3 a4.5,4.5 0 0 1 1.5,-8.5 a6.5,6.5 0 0 1 12,-1 a4.5,4.5 0 0 1 0.5,9.5 z',transform:'translate('+c[0]+' '+c[1]+') scale('+c[2]+')'},g);
+});
+var ev=$('#evap');
+for(var e=0;e<6;e++){
+  var ex=345+e*18,ey=545-(e%3)*28,p=el('path',{d:'M'+ex+','+ey+' c6,-9 -6,-18 0,-27 c6,-9 -6,-18 0,-27',class:'evap'},ev);p.style.animationDelay=(-e*.45)+'s';
+}
+['M450,340 C410,346 345,358 280,372','M450,470 C405,476 350,482 290,480'].forEach(function(d,i){
+  var p=el('path',{d:d,class:'wind w-am','marker-end':'url(#m-am)'},$('#inflow'));p.style.animationDelay=(-i*.4)+'s';
+});
+function setHum(){
+  var h=+$('#hum').value,c=276.46;
+  $('#gFg').setAttribute('stroke-dasharray',((h-0)/100*c).toFixed(1)+' '+c);
+  $('#gTxt').textContent=h+'%';
+  $('#fog').style.opacity=(h-50)/50*.35;
+  var st=$('#hState'),ht=$('#hHint');
+  if(h>80){st.className='pill ok';st.textContent='Ẩm cao, trên 80%';ht.textContent='Đúng với khí hậu nước ta: độ ẩm trung bình trên 80%.';}
+  else if(h===80){st.className='pill warn';st.textContent='Đúng mốc 80%';ht.textContent='Nước ta có độ ẩm trung bình trên mốc này.';}
+  else{st.className='pill warn';st.textContent='Thấp hơn 80%';ht.textContent='Thấp hơn mức trung bình của nước ta. Hãy kéo lên trên vạch đen.';}
+}
+function setRain(){
+  var r=+$('#rainR').value;$('#rainVal').textContent=fmt(r)+' mm';
+  var k=Math.min(1,Math.max(0,(r-500)/2500));S.rainK=k;
+  var n=Math.round(10+100*k);drops.forEach(function(d,i){d.style.display=i<n?'':'none';});
+  var st=$('#rState');
+  if(r>=1500&&r<=2000){st.className='pill ok';st.textContent='Đúng với nước ta';}
+  else if(r>2000){st.className='pill warn';st.textContent='Mưa nhiều hơn mức trung bình';}
+  else{st.className='pill warn';st.textContent='Mưa ít hơn mức trung bình';}
+  Snd.param({rain:k});
+}
+$('#hum').addEventListener('input',setHum);
+$('#rainR').addEventListener('input',setRain);
+$('#callRain').addEventListener('click',function(){
+  var r=$('#rainR');r.value=2000;setRain();Snd.thunder();
+  map.animate([{filter:'brightness(1)'},{filter:'brightness(1.5)'},{filter:'brightness(1)'}],{duration:420});
+});
+
+/* ================= CHẾ ĐỘ 3: GIÓ MÙA ================= */
+var ARROWS={
+  dong:[['M365,40 C325,55 280,80 232,106','dong'],['M300,25 C265,45 240,60 218,84','dong'],['M90,8 C100,30 106,50 112,72','dong'],
+        ['M390,150 C350,172 300,200 218,236','dong'],['M380,230 C345,250 305,268 262,288','dong'],
+        ['M485,350 C440,360 390,375 332,392','tin'],['M485,430 C440,438 395,448 335,460','tin'],['M485,505 C440,510 390,512 300,514','tin']],
+  ha1:[['M10,600 C50,592 90,575 138,548','ha'],['M60,540 C110,515 165,490 232,455','ha'],['M30,505 C70,490 110,470 150,445','ha'],
+       ['M20,115 C45,112 70,108 96,104','phon'],['M95,212 C125,214 150,216 172,220','phon'],['M150,272 C180,278 210,286 245,298','phon'],['M170,345 C205,350 235,355 270,365','phon']],
+  ha2:[['M70,640 C110,590 150,540 195,500','ha'],['M180,640 C215,590 240,540 262,500','ha'],['M250,630 C285,590 300,540 300,500','ha'],
+       ['M330,470 C345,420 335,370 312,335','ha'],['M285,265 C275,225 260,195 238,165','ha']]
+};
+var WLAB={
+  dong:[['Gió mùa Đông Bắc',372,36,'dong'],['Tín phong bán cầu Bắc',350,338,'tin']],
+  ha1:[['Gió mùa Tây Nam',14,626,'ha'],['Gió Tây khô nóng (phơn)',10,262,'phon']],
+  ha2:[['Gió mùa Tây Nam từ bán cầu Nam',300,622,'ha']]
+};
+var PH={
+  dong1:{season:'Mùa đông',cls:'dong',range:'Tháng 11 – tháng 1',wind:'Gió mùa Đông Bắc',
+    desc:'Khối khí lạnh từ phía bắc di chuyển xuống nước ta. Nửa đầu mùa đông, miền Bắc có thời tiết lạnh, khô. Từ nam dãy Bạch Mã trở vào, Tín phong bán cầu Bắc hướng đông bắc chiếm ưu thế.'},
+  dong2:{season:'Mùa đông',cls:'dong',range:'Tháng 2 – tháng 4',wind:'Gió mùa Đông Bắc',
+    desc:'Gió mùa Đông Bắc vẫn hoạt động. Nửa cuối mùa đông, miền Bắc có thời tiết lạnh, ẩm. Phía nam dãy Bạch Mã, Tín phong gây mưa cho vùng ven biển Nam Trung Bộ.'},
+  ha1:{season:'Mùa hạ',cls:'ha',range:'Tháng 5 – tháng 6 (đầu mùa hạ)',wind:'Gió mùa Tây Nam',
+    desc:'Gió Tây Nam thổi từ Bắc Ấn Độ Dương gây mưa lớn cho Nam Bộ và Tây Nguyên. Vượt dãy Trường Sơn, gió bị biến tính do hiệu ứng phơn nên phía đông Trường Sơn và nam Tây Bắc khô nóng.'},
+  ha2:{season:'Mùa hạ',cls:'ha',range:'Tháng 7 – tháng 10 (giữa và cuối mùa hạ)',wind:'Gió mùa Tây Nam từ bán cầu Nam',
+    desc:'Gió mùa Tây Nam xuất phát từ bán cầu Nam di chuyển lên, kết hợp dải hội tụ nhiệt đới tạo thời tiết nóng ẩm, mưa nhiều trên cả nước. Hiện tượng cực đoan là bão kèm mưa lớn.'}
+};
+var REG=[
+  {id:'tay-bac',name:'Tây Bắc',x:93,y:90},
+  {id:'bac-bo',name:'Bắc Bộ',x:205,y:122},
+  {id:'bac-trung',name:'Bắc Trung Bộ',x:168,y:200},
+  {id:'nam-trung',name:'Nam Trung Bộ',x:284,y:356},
+  {id:'tay-nguyen',name:'Tây Nguyên',x:262,y:446},
+  {id:'nam-bo',name:'Nam Bộ',x:192,y:540}
+];
+function cw(){return [
+  'Khối khí lạnh từ phía bắc tràn xuống tạo nên mùa đông lạnh.',
+  'Gió Tây khô nóng do hiệu ứng phơn.',
+  'Gió Tây Nam từ bán cầu Nam kết hợp dải hội tụ nhiệt đới gây nóng ẩm, mưa nhiều, có bão kèm mưa lớn.'];}
+var RI={
+ 'tay-bac':{dong1:['cold','Lạnh, khô','Chịu ảnh hưởng của khối khí lạnh từ phía bắc. Nửa đầu mùa đông lạnh và khô.'],
+   dong2:['coldwet','Lạnh, ẩm','Nửa cuối mùa đông vẫn lạnh nhưng ẩm hơn.'],
+   ha1:['phon','Khô nóng','Gió vượt dãy núi dọc biên giới Việt – Lào, hiệu ứng phơn làm phía nam khu vực Tây Bắc khô nóng (gió Tây khô nóng).'],
+   ha2:['hotwet','Nóng ẩm, mưa nhiều','Gió mùa Tây Nam từ bán cầu Nam kết hợp dải hội tụ nhiệt đới. Có thể có bão kèm mưa lớn.']},
+ 'bac-bo':{dong1:['cold','Lạnh, khô','Miền Bắc có mùa đông lạnh. Nửa đầu mùa đông lạnh và khô.'],
+   dong2:['coldwet','Lạnh, ẩm','Nửa cuối mùa đông có thời tiết lạnh và ẩm.'],
+   ha1:['hot','Bước vào mùa hạ','Gió mùa hạ bắt đầu hoạt động, nhiệt độ tăng dần. Mưa nhiều hơn vào giữa và cuối mùa hạ.'],
+   ha2:['hotwet','Nóng ẩm, mưa nhiều','Gió mùa Tây Nam và dải hội tụ nhiệt đới gây mưa nhiều. Bão kèm mưa lớn là hiện tượng cực đoan.']},
+ 'bac-trung':{dong1:['cold','Lạnh, khô','Nằm ở phía bắc dãy Bạch Mã nên còn chịu ảnh hưởng của khối khí lạnh từ phía bắc.'],
+   dong2:['coldwet','Lạnh, ẩm','Phần cuối mùa đông có thời tiết lạnh và ẩm hơn.'],
+   ha1:['phon','Khô nóng','Phía đông dãy Trường Sơn chịu hiệu ứng phơn nên có gió Tây khô nóng.'],
+   ha2:['hotwet','Nóng ẩm, mưa nhiều','Gió mùa Tây Nam từ bán cầu Nam di chuyển lên, thời tiết nóng ẩm, mưa nhiều. Thường có bão.']},
+ 'nam-trung':{dong1:['rain','Mưa ven biển','Từ nam dãy Bạch Mã trở vào, Tín phong bán cầu Bắc hướng đông bắc chiếm ưu thế, gây mưa cho vùng ven biển.'],
+   dong2:['rain','Mưa ven biển','Tín phong bán cầu Bắc vẫn gây mưa cho vùng ven biển Nam Trung Bộ.'],
+   ha1:['phon','Khô nóng','Phía đông dãy Trường Sơn chịu hiệu ứng phơn nên khô nóng.'],
+   ha2:['hotwet','Nóng ẩm, mưa nhiều','Gió mùa Tây Nam từ bán cầu Nam gây thời tiết nóng ẩm, mưa nhiều. Thường có bão.']},
+ 'tay-nguyen':{dong1:['hot','Nóng, khô','Tây Nguyên có thời tiết nóng, khô trong mùa đông.'],
+   dong2:['hot','Nóng, khô','Tây Nguyên có thời tiết nóng, khô trong mùa đông.'],
+   ha1:['heavy','Mưa lớn','Đầu mùa hạ, gió Tây Nam từ Bắc Ấn Độ Dương gây mưa lớn cho Tây Nguyên.'],
+   ha2:['hotwet','Nóng ẩm, mưa nhiều','Gió mùa Tây Nam từ bán cầu Nam kết hợp dải hội tụ nhiệt đới gây mưa nhiều.']},
+ 'nam-bo':{dong1:['hot','Nóng, khô','Nam Bộ có thời tiết nóng, khô trong mùa đông.'],
+   dong2:['hot','Nóng, khô','Nam Bộ có thời tiết nóng, khô trong mùa đông.'],
+   ha1:['heavy','Mưa lớn','Đầu mùa hạ, gió Tây Nam từ Bắc Ấn Độ Dương gây mưa lớn cho đồng bằng Nam Bộ.'],
+   ha2:['hotwet','Nóng ẩm, mưa nhiều','Gió mùa Tây Nam từ bán cầu Nam kết hợp dải hội tụ nhiệt đới gây mưa nhiều. Bão kèm mưa lớn.']}
+};
+var CL='<path d="M-9,3 a4.5,4.5 0 0 1 1.5,-8.5 a6.5,6.5 0 0 1 12,-1 a4.5,4.5 0 0 1 0.5,9.5 z" style="fill:var(--cloud);stroke:var(--am);stroke-width:1.5"/>';
+function sunSvg(c,cx,cy,r){
+  var s='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" style="fill:'+c+'"/>';
+  for(var i=0;i<8;i++){var a=i/8*Math.PI*2;s+='<line x1="'+(cx+Math.cos(a)*(r+2))+'" y1="'+(cy+Math.sin(a)*(r+2))+'" x2="'+(cx+Math.cos(a)*(r+5))+'" y2="'+(cy+Math.sin(a)*(r+5))+'" style="stroke:'+c+';stroke-width:1.6;stroke-linecap:round"/>';}
+  return s;
+}
+function iconSvg(t){
+  var drops3='<path d="M-5,7l-1.5,4M0,7l-1.5,4M5,7l-1.5,4" style="stroke:var(--am)" stroke-width="1.8" stroke-linecap="round" fill="none"/>';
+  var flake='<g style="stroke:var(--dong)" stroke-width="2" stroke-linecap="round" fill="none"><path d="M0,-10V10M-9,-5L9,5M-9,5L9,-5"/></g>';
+  if(t==='cold')return flake;
+  if(t==='coldwet')return '<g transform="translate(0,-3)">'+CL+'</g>'+drops3.replace('var(--am)','var(--dong)');
+  if(t==='rain')return '<g transform="translate(0,-3)">'+CL+'</g>'+drops3;
+  if(t==='heavy')return '<g transform="translate(0,-4)">'+CL+'</g><path d="M-6,5l-1.5,5M-1,5l-1.5,5M4,5l-1.5,5M9,5l-1.5,5" style="stroke:var(--am)" stroke-width="1.8" stroke-linecap="round" fill="none"/><path d="M-1,4 L-5,11 L-2,11 L-4,15 L2,8 L-1,8z" style="fill:var(--sun)"/>';
+  if(t==='hot')return sunSvg('var(--ha)',0,0,5.5);
+  if(t==='phon')return sunSvg('var(--phon)',0,-2,5)+'<path d="M-8,9q2,-3 4,0t4,0t4,0t4,0" style="stroke:var(--phon)" stroke-width="1.7" fill="none" stroke-linecap="round"/>';
+  if(t==='hotwet')return sunSvg('var(--sun)',-4,-5,3.6)+'<g transform="translate(2,0)">'+CL+'</g>'+drops3.replace('M-5','M-3').replace('M0','M2').replace('M5','M7');
+  return '';
+}
+function phaseOf(m){return (m>=11||m===1)?'dong1':(m>=2&&m<=4)?'dong2':(m===5||m===6)?'ha1':'ha2';}
+
+function renderArrows(){
+  var g=$('#arrows'),lg=$('#wlabels'),key=S.phase.indexOf('dong')===0?'dong':S.phase;
+  g.textContent='';lg.textContent='';
+  (ARROWS[key]||[]).forEach(function(a,i){
+    var p=el('path',{d:a[0],class:'wind w-'+a[1],'marker-end':'url(#m-'+a[1]+')'},g);p.style.animationDelay=(-i*.55)+'s';
+  });
+  (WLAB[key]||[]).forEach(function(l){var t=el('text',{x:l[1],y:l[2],class:'hlab lab-'+l[3]},lg);t.textContent=l[0];});
+}
+function renderHot(){
+  var g=$('#hot');g.textContent='';
+  REG.forEach(function(r){
+    var info=RI[r.id][S.phase];
+    var h=el('g',{class:'hs'+(r.id===S.region?' on':''),tabindex:'0',role:'button','aria-label':r.name+': '+info[1],transform:'translate('+r.x+' '+r.y+')'},g);
+    el('circle',{r:18,class:'ring'},h);
+    var ic=el('g',{},h);ic.innerHTML=iconSvg(info[0]);
+    var t=el('text',{x:0,y:32,'text-anchor':'middle'},h);t.textContent=r.name;
+    var pick=function(){S.region=r.id;renderHot();renderInfo();Snd.click();};
+    h.addEventListener('click',pick);
+    h.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();pick();}});
+  });
+}
+function renderInfo(){
+  var P=PH[S.phase],r=REG.filter(function(x){return x.id===S.region;})[0],info=RI[r.id][S.phase];
+  var pill=$('#gSeason');pill.textContent=P.season;pill.className='pill '+P.cls;
+  $('#gRange').textContent=P.range;$('#gWind').textContent=P.wind;$('#gDesc').textContent=P.desc;
+  $('#gRegName').textContent=r.name+': '+info[1];$('#gRegText').textContent=info[2];
+  $('#gRegIco').innerHTML=iconSvg(info[0]);
+}
+function setMonth(m,quiet){
+  S.month=m;S.phase=phaseOf(m);
+  map.dataset.phase=S.phase;map.dataset.season=S.phase.indexOf('dong')===0?'dong':'ha';
+  $$('.chips button').forEach(function(b){b.setAttribute('aria-pressed',String(+b.dataset.m===m));});
+  renderArrows();renderHot();renderInfo();updateAmbient();
+  if(!quiet)Snd.month();
+}
+function mkChips(id,list,cls){
+  var c=$(id);
+  list.forEach(function(m){
+    var b=document.createElement('button');b.type='button';b.className=cls;b.dataset.m=m;b.textContent='T'+m;b.setAttribute('aria-pressed','false');b.setAttribute('aria-label','Tháng '+m);
+    b.setAttribute('data-nosnd','');
+    b.addEventListener('click',function(){stopAuto();setMonth(m);});c.appendChild(b);
+  });
+}
+mkChips('#chipsD',[11,12,1,2,3,4],'d');mkChips('#chipsH',[5,6,7,8,9,10],'h');
+
+function stopAuto(){
+  if(S.auto){clearInterval(S.auto);S.auto=null;}
+  var b=$('#auto');b.setAttribute('aria-pressed','false');$('#autoTxt').textContent='Tự chạy theo tháng';$('#autoIco').setAttribute('d','M7 4v16l13-8z');
+}
+$('#auto').addEventListener('click',function(){
+  if(S.auto){stopAuto();return;}
+  this.setAttribute('aria-pressed','true');$('#autoTxt').textContent='Dừng';$('#autoIco').setAttribute('d','M6 4h4v16H6zM14 4h4v16h-4z');
+  S.auto=setInterval(function(){setMonth(S.month%12+1);},2600);
+});
+
+/* ================= ÂM THANH: điều khiển ================= */
+$('#sndBtn').addEventListener('click',function(){
+  var on=this.getAttribute('aria-pressed')!=='true';this.setAttribute('aria-pressed',String(on));
+  $('#sndTxt').textContent=on?'Âm thanh':'Đã tắt';
+  $('#sndIco').innerHTML=on?'<path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>':'<path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M16 9l5 6M21 9l-5 6"/>';
+  Snd.unlock();Snd.setOn(on);if(on){updateAmbient();Snd.click();}
+});
+$('#vol').addEventListener('input',function(){Snd.setVol(+this.value/100);});
+document.addEventListener('click',function(e){
+  var b=e.target.closest&&e.target.closest('button');
+  if(b&&!b.hasAttribute('data-nosnd')&&!b.closest('.tabs'))Snd.click();
+});
+
+/* ================= TAB ================= */
+var panes={Mota:$('#paneMota'),Ontap:$('#paneOntap'),Tn:$('#paneTn')};
+function showTab(t){
+  $$('.tabs button').forEach(function(b){b.setAttribute('aria-selected',String(b.dataset.tab===t));});
+  Object.keys(panes).forEach(function(k){panes[k].hidden=(k!==t);});
+  Snd.tab();
+}
+$$('.tabs button').forEach(function(b){b.addEventListener('click',function(){showTab(b.dataset.tab);});});
+$$('.tabs button').forEach(function(b,i,all){b.addEventListener('keydown',function(e){
+  var n=e.key==='ArrowRight'?i+1:e.key==='ArrowLeft'?i-1:-1;if(n<0)return;n=(n+all.length)%all.length;all[n].focus();showTab(all[n].dataset.tab);
+});});
+$$('[data-goto]').forEach(function(b){b.addEventListener('click',function(){
+  var t=document.getElementById(b.dataset.goto),p=panes.Mota;
+  p.scrollTo({top:t.getBoundingClientRect().top-p.getBoundingClientRect().top+p.scrollTop-8});
+});});
+$$('[data-view]').forEach(function(b){b.addEventListener('click',function(){
+  setMode(b.dataset.view,true);if(b.dataset.month){stopAuto();setMonth(+b.dataset.month,true);}
+  Snd.sun();
+  if(window.innerWidth<=1000)stage.scrollIntoView({behavior:'smooth',block:'start'});
+});});
+
+/* ================= ÔN TẬP: thẻ ghi nhớ ================= */
+var CARDS=[
+ ['Nhiệt độ trung bình năm','Lớn hơn 20°C (trừ vùng núi cao), tăng dần từ bắc vào nam.'],
+ ['Số giờ nắng','1 400 – 3 000 giờ/năm.'],
+ ['Cán cân bức xạ','70 – 100 kcal/cm²/năm.'],
+ ['Độ ẩm không khí trung bình','Trên 80%.'],
+ ['Lượng mưa trung bình năm','Khoảng 1 500 – 2 000 mm/năm.'],
+ ['Gió mùa đông','Tháng 11 đến tháng 4 năm sau, hướng đông bắc (gió mùa Đông Bắc).'],
+ ['Gió mùa hạ','Tháng 5 đến tháng 10, chủ yếu hướng tây nam (gió mùa Tây Nam).'],
+ ['Mùa đông ở miền Bắc','Lạnh. Nửa đầu lạnh, khô. Nửa cuối lạnh, ẩm.'],
+ ['Tín phong bán cầu Bắc','Hướng đông bắc, chiếm ưu thế từ nam dãy Bạch Mã trở vào, gây mưa vùng ven biển Nam Trung Bộ.'],
+ ['Mùa đông ở Tây Nguyên và Nam Bộ','Thời tiết nóng, khô.'],
+ ['Hiệu ứng phơn','Gió vượt Trường Sơn đổi tính chất, gây gió Tây khô nóng ở đông Trường Sơn và nam Tây Bắc.'],
+ ['Giữa và cuối mùa hạ','Gió Tây Nam từ bán cầu Nam + dải hội tụ nhiệt đới: nóng ẩm, mưa nhiều. Bão kèm mưa lớn.']
+];
+var fcOrder=CARDS.map(function(_,i){return i;}),fcI=0;
+function drawCard(){
+  var c=CARDS[fcOrder[fcI]];$('#fcQ').textContent=c[0];$('#fcA').textContent=c[1];$('#fcN').textContent=(fcI+1)+'/'+CARDS.length;$('#fc').classList.remove('flip');
+}
+$('#fc').addEventListener('click',function(){this.classList.toggle('flip');Snd.flip();});
+$('#fcPrev').addEventListener('click',function(){fcI=(fcI+CARDS.length-1)%CARDS.length;drawCard();});
+$('#fcNext').addEventListener('click',function(){fcI=(fcI+1)%CARDS.length;drawCard();});
+$('#fcShuf').addEventListener('click',function(){
+  for(var i=fcOrder.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=fcOrder[i];fcOrder[i]=fcOrder[j];fcOrder[j]=t;}
+  fcI=0;drawCard();Snd.month();
+});
+drawCard();
+
+/* ================= TRẮC NGHIỆM ================= */
+var QS=[
+ {q:'Nhiệt độ không khí trung bình năm trên cả nước đều lớn hơn bao nhiêu (trừ vùng núi cao)?',o:['10°C','15°C','20°C','25°C'],a:2,e:'Nhiệt độ trung bình năm trên cả nước đều lớn hơn 20°C, trừ vùng núi cao.',m:'nhiet'},
+ {q:'Nhiệt độ trung bình năm của nước ta thay đổi thế nào theo hướng bắc – nam?',o:['Giảm dần từ bắc vào nam','Tăng dần từ bắc vào nam','Không thay đổi','Cao nhất ở miền Trung'],a:1,e:'Nhiệt độ tăng dần từ bắc vào nam.',m:'nhiet'},
+ {q:'Số giờ nắng của nước ta đạt khoảng bao nhiêu?',o:['500 – 1 000 giờ/năm','1 400 – 3 000 giờ/năm','3 500 – 4 500 giờ/năm','Dưới 800 giờ/năm'],a:1,e:'Số giờ nắng đạt từ 1 400 đến 3 000 giờ/năm.',m:'nhiet'},
+ {q:'Cán cân bức xạ của nước ta đạt khoảng bao nhiêu?',o:['20 – 40 kcal/cm²/năm','40 – 60 kcal/cm²/năm','70 – 100 kcal/cm²/năm','120 – 150 kcal/cm²/năm'],a:2,e:'Cán cân bức xạ đạt từ 70 đến 100 kcal/cm²/năm.',m:'nhiet'},
+ {q:'Độ ẩm không khí trung bình của nước ta là bao nhiêu?',o:['Dưới 50%','Khoảng 60%','Trên 80%','Luôn bằng 100%'],a:2,e:'Nước ta có độ ẩm không khí cao, trung bình trên 80%.',m:'am'},
+ {q:'Lượng mưa trung bình năm của nước ta nằm trong khoảng nào?',o:['500 – 1 000 mm','1 500 – 2 000 mm','2 500 – 3 500 mm','Trên 4 000 mm'],a:1,e:'Lượng mưa lớn, trung bình khoảng 1 500 – 2 000 mm/năm.',m:'am'},
+ {q:'Vì sao khí hậu nước ta chịu ảnh hưởng mạnh của các khối khí hoạt động theo mùa?',o:['Nằm trong vùng gió mùa châu Á','Nằm ở vùng cực','Không tiếp giáp biển','Nằm giữa sa mạc'],a:0,e:'Nước ta nằm trong vùng gió mùa châu Á.',m:'gio',mo:12},
+ {q:'Gió mùa đông hoạt động trong thời gian nào và có hướng gì?',o:['Tháng 5 – tháng 10, hướng tây nam','Tháng 11 – tháng 4 năm sau, hướng đông bắc','Tháng 1 – tháng 6, hướng đông','Quanh năm, hướng nam'],a:1,e:'Gió mùa đông từ tháng 11 đến tháng 4 năm sau, có hướng đông bắc nên gọi là gió mùa Đông Bắc.',m:'gio',mo:12},
+ {q:'Gió mùa hạ hoạt động trong thời gian nào và chủ yếu có hướng gì?',o:['Tháng 11 – tháng 4, hướng đông bắc','Tháng 5 – tháng 10, hướng tây nam','Tháng 2 – tháng 7, hướng bắc','Tháng 8 – tháng 12, hướng đông'],a:1,e:'Gió mùa hạ từ tháng 5 đến tháng 10, chủ yếu hướng tây nam nên gọi là gió mùa Tây Nam.',m:'gio',mo:7},
+ {q:'Nửa đầu mùa đông ở miền Bắc có thời tiết như thế nào?',o:['Nóng, ẩm','Lạnh, khô','Mưa lớn','Nắng nóng gay gắt'],a:1,e:'Nửa đầu mùa đông có thời tiết lạnh, khô.',m:'gio',mo:12},
+ {q:'Nửa cuối mùa đông ở miền Bắc có thời tiết như thế nào?',o:['Lạnh, ẩm','Nóng, khô','Khô nóng do phơn','Nóng ẩm, mưa nhiều'],a:0,e:'Nửa cuối mùa đông có thời tiết lạnh, ẩm.',m:'gio',mo:3},
+ {q:'Từ nam dãy Bạch Mã trở vào, gió nào chiếm ưu thế trong mùa đông?',o:['Gió mùa Tây Nam','Tín phong bán cầu Bắc hướng đông bắc','Gió Tây khô nóng','Gió mùa Đông Bắc mạnh nhất'],a:1,e:'Từ nam dãy Bạch Mã trở vào, Tín phong bán cầu Bắc hướng đông bắc chiếm ưu thế.',m:'gio',mo:1},
+ {q:'Tín phong bán cầu Bắc gây mưa cho vùng nào trong mùa đông?',o:['Đồng bằng Bắc Bộ','Vùng ven biển Nam Trung Bộ','Tây Bắc','Đồng bằng sông Cửu Long'],a:1,e:'Tín phong gây mưa cho vùng ven biển Nam Trung Bộ.',m:'gio',mo:1},
+ {q:'Trong mùa đông, Tây Nguyên và Nam Bộ có thời tiết như thế nào?',o:['Lạnh, ẩm','Mưa lớn','Nóng, khô','Rét đậm'],a:2,e:'Tây Nguyên và Nam Bộ có thời tiết nóng, khô trong mùa đông.',m:'gio',mo:2},
+ {q:'Đầu mùa hạ, gió Tây Nam từ Bắc Ấn Độ Dương gây mưa lớn cho vùng nào?',o:['Đồng bằng Bắc Bộ','Nam Bộ và Tây Nguyên','Duyên hải Bắc Trung Bộ','Vùng núi Đông Bắc'],a:1,e:'Đầu mùa hạ, gió Tây Nam gây mưa lớn cho đồng bằng Nam Bộ và Tây Nguyên.',m:'gio',mo:5},
+ {q:'Gió Tây khô nóng hình thành do nguyên nhân nào?',o:['Bão','Hiệu ứng phơn khi gió vượt dãy Trường Sơn','Dải hội tụ nhiệt đới','Tín phong bán cầu Bắc'],a:1,e:'Khi vượt Trường Sơn và các dãy núi biên giới Việt – Lào, tính chất gió thay đổi do hiệu ứng phơn.',m:'gio',mo:6},
+ {q:'Giữa và cuối mùa hạ, nguyên nhân nào tạo thời tiết nóng ẩm, mưa nhiều trên cả nước?',o:['Gió mùa Tây Nam từ bán cầu Nam kết hợp dải hội tụ nhiệt đới','Gió mùa Đông Bắc','Tín phong bán cầu Bắc','Gió Tây khô nóng'],a:0,e:'Gió mùa Tây Nam xuất phát từ bán cầu Nam di chuyển lên, kết hợp dải hội tụ nhiệt đới.',m:'gio',mo:8},
+ {q:'Hiện tượng thời tiết cực đoan trong mùa hạ là gì?',o:['Rét đậm kéo dài','Bão kèm theo mưa lớn','Sương muối','Tuyết rơi'],a:1,e:'Hiện tượng thời tiết cực đoan trong mùa hạ là bão kèm theo mưa lớn.',m:'gio',mo:9}
+];
+var G={n:10,list:[],i:0,score:0,streak:0,right:0,wrong:[],t0:0,tl:20,timer:null,locked:false,order:[]};
+var qz=$('#qz');
+function best(){try{return +localStorage.getItem('khv_best')||0;}catch(e){return 0;}}
+function saveBest(v){try{localStorage.setItem('khv_best',String(v));}catch(e){}}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function h(html){qz.innerHTML=html;}
+function startScreen(){
+  stopTimer();
+  h('<div class="qz"><h3>Thử thách khí hậu gió mùa</h3>'+
+    '<p class="lede">Trả lời nhanh để được thêm điểm thưởng. Mỗi câu có 20 giây. Có thể bấm phím 1, 2, 3, 4 để chọn đáp án.</p>'+
+    '<div class="card"><div class="lab"><span>Điểm cao nhất</span><b>'+best()+'</b></div></div>'+
+    '<div class="chiplab">Số câu hỏi</div><div class="seg" id="nSeg">'+[5,10,18].map(function(n){return '<button type="button" data-n="'+n+'" aria-pressed="'+(n===G.n)+'">'+n+' câu</button>';}).join('')+'</div>'+
+    '<div class="btns"><button type="button" class="btn" id="go">Bắt đầu</button></div></div>');
+  $$('#nSeg button').forEach(function(b){b.addEventListener('click',function(){G.n=+b.dataset.n;$$('#nSeg button').forEach(function(x){x.setAttribute('aria-pressed',String(x===b));});});});
+  $('#go').addEventListener('click',function(){begin(shuffle(QS).slice(0,G.n));});
+}
+function begin(list){G.list=list;G.i=0;G.score=0;G.streak=0;G.right=0;G.wrong=[];ask();}
+function stopTimer(){if(G.timer){clearInterval(G.timer);G.timer=null;}}
+function ask(){
+  stopTimer();var Q=G.list[G.i];G.locked=false;
+  G.order=shuffle([0,1,2,3]);
+  var letters=['1','2','3','4'];
+  h('<div class="qz"><div class="qhead"><span>Câu <b>'+(G.i+1)+'/'+G.list.length+'</b></span><span>Điểm <b id="sc">'+G.score+'</b></span><span>Chuỗi <b>x'+G.streak+'</b></span></div>'+
+    '<div class="tbar" aria-hidden="true"><i id="tb"></i></div>'+
+    '<p class="qtext">'+Q.q+'</p><div class="opts" id="opts">'+
+    G.order.map(function(oi,k){return '<button type="button" class="opt" data-k="'+k+'" data-nosnd><kbd>'+letters[k]+'</kbd><span>'+Q.o[oi]+'</span></button>';}).join('')+
+    '</div><div id="fb"></div></div>');
+  $$('.opt').forEach(function(b){b.addEventListener('click',function(){answer(+b.dataset.k);});});
+  G.t0=Date.now();var last=-1;
+  G.timer=setInterval(function(){
+    var left=G.tl-(Date.now()-G.t0)/1000,bar=$('#tb');if(!bar){stopTimer();return;}
+    bar.style.transform='scaleX('+Math.max(0,left/G.tl)+')';
+    bar.style.background=left<6?'var(--bad)':left<12?'var(--warn)':'var(--ok)';
+    var s=Math.ceil(left);if(left<=5&&s!==last&&left>0){Snd.tick();last=s;}
+    if(left<=0){answer(-1);}
+  },100);
+}
+function answer(k){
+  if(G.locked)return;G.locked=true;stopTimer();
+  var Q=G.list[G.i],correctK=G.order.indexOf(Q.a),ok=(k===correctK),el_=((Date.now()-G.t0)/1000);
+  var gain=0;
+  if(ok){G.streak++;G.right++;gain=100+Math.round(Math.max(0,(G.tl-el_)/G.tl)*50)+Math.min(50,(G.streak-1)*10);G.score+=gain;Snd.correct();}
+  else{G.streak=0;G.wrong.push(Q);Snd.wrong();}
+  $$('.opt').forEach(function(b,i){b.disabled=true;if(i===correctK)b.classList.add('right');else if(i===k)b.classList.add('wrong');});
+  var last=G.i===G.list.length-1;
+  $('#fb').innerHTML='<div class="explain '+(ok?'ok':'no')+'"><b>'+(k===-1?'Hết giờ.':ok?'Chính xác! +'+gain+' điểm':'Chưa đúng.')+'</b><span>'+Q.e+'</span>'+
+    '<div class="btns"><button type="button" class="btn" id="nx" data-nosnd>'+(last?'Xem kết quả':'Câu tiếp')+'</button><button type="button" class="btn ghost" id="vw" data-nosnd>Xem trên mô hình</button></div></div>';
+  $('#sc').textContent=G.score;
+  $('#nx').addEventListener('click',next);$('#nx').focus({preventScroll:true});
+  $('#vw').addEventListener('click',function(){setMode(Q.m);if(Q.mo){stopAuto();setMonth(Q.mo,true);}if(window.innerWidth<=1000)stage.scrollIntoView({behavior:'smooth',block:'start'});});
+}
+function next(){G.i++;if(G.i>=G.list.length)finish();else ask();}
+function finish(){
+  stopTimer();var acc=Math.round(G.right/G.list.length*100),isBest=G.score>best();if(isBest)saveBest(G.score);
+  var rank=acc>=90?'Chuyên gia gió mùa':acc>=70?'Nhà khí hậu nhỏ':acc>=40?'Học trò chăm chỉ':'Cần ôn thêm';
+  Snd.win();
+  h('<div class="qz"><div><div class="chiplab">Kết quả</div><div class="big">'+G.score+'</div></div>'+
+    '<div class="card"><div class="lab"><span>Danh hiệu</span><b>'+rank+'</b></div><div class="lab"><span>Đúng</span><b>'+G.right+'/'+G.list.length+' ('+acc+'%)</b></div>'+
+    (isBest?'<span class="pill ok" style="align-self:flex-start">Kỷ lục mới</span>':'<div class="lab"><span>Điểm cao nhất</span><b>'+best()+'</b></div>')+'</div>'+
+    (G.wrong.length?'<div><div class="chiplab">Các câu cần ôn lại</div><ul class="rev" style="margin:0;padding:0">'+G.wrong.map(function(q){return '<li><b>'+q.q+'</b><br><span class="hint">'+q.e+'</span></li>';}).join('')+'</ul></div>':'<p>Bạn trả lời đúng tất cả các câu.</p>')+
+    '<div class="btns"><button type="button" class="btn" id="again">Chơi lại</button>'+(G.wrong.length?'<button type="button" class="btn ghost" id="redo">Làm lại câu sai</button>':'')+'<button type="button" class="btn ghost" id="home">Đổi số câu</button></div></div>');
+  $('#again').addEventListener('click',function(){begin(shuffle(QS).slice(0,G.n));});
+  var rd=$('#redo');if(rd)rd.addEventListener('click',function(){begin(shuffle(G.wrong));});
+  $('#home').addEventListener('click',startScreen);
+}
+document.addEventListener('keydown',function(e){
+  if(panes.Tn.hidden||G.locked||!G.list.length)return;if(!$('#opts'))return;
+  var k=['1','2','3','4'].indexOf(e.key);if(k>-1)answer(k);
+});
+startScreen();
+
+/* ================= KHỞI TẠO ================= */
+setLat();setSun();setHum();setRain();
+setMonth(12,true);
+setMode('nhiet',true);
+})();
+</script>
+ <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Chặn phím tắt: F12, Ctrl+U, Ctrl+Shift+I/J/C, Ctrl+S
+    document.addEventListener('keydown', function(e) {
+      const key = e.key.toLowerCase();
+
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) || 
+        (e.ctrlKey && (key === 'u' || key === 's'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 2. Chặn chuột phải (Context Menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  });
+</script>
+</body>
+</html>

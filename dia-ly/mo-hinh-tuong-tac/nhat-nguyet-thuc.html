@@ -1,0 +1,262 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Mô hình 3D Nhật thực và Nguyệt thực</title>
+<style>
+:root{--bg:#eef1f8;--pn:#fff;--tx:#1b2440;--mu:#5b6685;--ac:#3b6cf6;--bd:#d5dbec;--ok:#1f9d55;--no:#d64545;--ch:#f1f4fc;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1020;--pn:#131a33;--tx:#e8ecff;--mu:#9aa6cf;--ac:#7aa2ff;--bd:#27315a;--ch:#1a2344}}
+:root[data-theme="dark"]{--bg:#0b1020;--pn:#131a33;--tx:#e8ecff;--mu:#9aa6cf;--ac:#7aa2ff;--bd:#27315a;--ch:#1a2344}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{height:100%;margin:0}body{background:var(--bg);color:var(--tx);font:15px/1.6 system-ui,"Segoe UI",Roboto,sans-serif}
+#app{height:100%;display:grid;grid-template-columns:minmax(0,3fr) minmax(300px,1fr)}
+#stage{position:relative;background:#04060f;overflow:hidden;min-height:0}
+#stage canvas{position:absolute;inset:0;touch-action:none;cursor:grab}
+#hud{position:absolute;top:10px;left:10px;max-width:calc(100% - 20px);display:flex;flex-direction:column;gap:6px;align-items:flex-start;pointer-events:none;z-index:2}#chip{color:#fff;background:#000b;border:1px solid #fff3;border-radius:12px;padding:6px 12px;font-weight:600;font-size:15px;line-height:1.35;text-shadow:0 1px 2px #000}
+#legend{display:flex;flex-wrap:wrap;gap:4px 14px;color:#fff;font-size:13px;line-height:1.35;background:#000b;border:1px solid #fff3;padding:5px 12px;border-radius:10px;text-shadow:0 1px 2px #000}#legend span{white-space:nowrap}
+#legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+#ft{position:absolute;left:0;right:0;bottom:0;height:26px;display:flex;align-items:center;justify-content:center;background:#04060f;border-top:1px solid #fff2;color:#cfd8ff;font-size:13px;z-index:3;pointer-events:none}#ft b{color:#ff9800;margin-left:5px}
+#bar{position:absolute;left:8px;right:8px;bottom:34px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:#0b1226cc;border:1px solid #fff2;border-radius:14px;padding:8px;color:#fff;font-size:13px}
+#bar button,#bar select{background:#24305c;color:#fff;border:1px solid #fff3;border-radius:9px;padding:6px 10px;font:inherit;cursor:pointer}
+#bar button:hover{background:#34448a}#bar label{display:flex;gap:4px;align-items:center;cursor:pointer}
+#sl{flex:1;min-width:110px;accent-color:#7aa2ff}
+#side{display:flex;flex-direction:column;background:var(--pn);border-left:1px solid var(--bd);min-height:0}
+#side h1{font-size:16px;margin:0;padding:10px 12px 4px}
+.tabs{display:flex;gap:4px;padding:4px 8px}.tabs button{flex:1;border:1px solid var(--bd);background:var(--ch);color:var(--tx);border-radius:9px;padding:7px 2px;font:inherit;font-size:13px;cursor:pointer}
+.tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+#lvs{display:flex;gap:4px;padding:2px 8px 6px}#lvs button{flex:1;border:1px solid var(--bd);background:var(--pn);color:var(--tx);border-radius:9px;padding:6px 2px;font:inherit;font-size:13px;cursor:pointer}#lvs button.on{background:#ff9800;color:#fff;border-color:#ff9800;font-weight:600}
+.tool{display:flex;gap:6px;padding:4px 8px 8px;border-bottom:1px solid var(--bd)}
+.tool button,.tool select{border:1px solid var(--bd);background:var(--pn);color:var(--tx);border-radius:9px;padding:6px 8px;font:inherit;font-size:13px;cursor:pointer}
+#content{flex:1;overflow-y:auto;padding:10px 14px 24px;min-height:0;overscroll-behavior:contain}
+h3{margin:14px 0 4px;font-size:15px;color:var(--ac)}h4{margin:10px 0 6px;font-size:15px}p{margin:4px 0 8px}
+.note{background:var(--ch);border-left:4px solid var(--ac);padding:6px 10px;border-radius:8px;margin:8px 0}
+.warn{border-color:var(--no)}.muted{color:var(--mu);font-size:13px}
+table{border-collapse:collapse;width:100%;font-size:13px}td,th{border:1px solid var(--bd);padding:5px;vertical-align:top}th{background:var(--ch)}
+.fc{border:1px solid var(--bd);background:var(--ch);border-radius:10px;padding:8px 10px;margin:6px 0;cursor:pointer}.fc b{display:block}.fc span{display:none;color:var(--mu)}.fc.open span{display:block;margin-top:4px}
+.btn,.opt{display:block;width:100%;text-align:left;border:1px solid var(--bd);background:var(--ch);color:var(--tx);border-radius:10px;padding:9px 11px;margin:6px 0;font:inherit;cursor:pointer}
+.btn{background:var(--ac);color:#fff;text-align:center;border:0}.opt:hover:not(:disabled){border-color:var(--ac)}
+.opt.ok{background:var(--ok);color:#fff}.opt.no{background:var(--no);color:#fff}
+.pb{height:8px;background:var(--bd);border-radius:6px;overflow:hidden;margin:6px 0}.pb i{display:block;height:100%;background:var(--ac)}
+@media (max-width:820px){#app{grid-template-columns:1fr;grid-template-rows:62% 38%}#side{border-left:0;border-top:1px solid var(--bd)}#side h1{display:none}#legend{font-size:12px}#chip{font-size:14px}}
+</style></head><body>
+<div id="app">
+<div id="stage">
+<div id="hud"><div id="chip">Đang tải mô hình…</div>
+<div id="legend"><span><i style="background:#9b59ff"></i>Bóng tối</span><span><i style="background:#4aa3ff"></i>Bóng nửa tối</span></div></div>
+<div id="bar">
+<button id="bNhat">🌑 Nhật thực</button><button id="bNguyet">🌕 Nguyệt thực</button><button id="bPlay">⏸</button>
+<input id="sl" type="range" min="0" max="359" value="0" title="Vị trí Mặt Trăng trên quỹ đạo">
+<select id="spd"><option value=".4">Chậm</option><option value="1" selected>Vừa</option><option value="2.5">Nhanh</option></select>
+<select id="view"><option value="wide">Toàn cảnh</option><option value="near">Cận cảnh</option><option value="side">Nhìn ngang</option></select>
+<label><input type="checkbox" id="cTilt">Quỹ đạo nghiêng</label><label><input type="checkbox" id="cSh" checked>Bóng</label>
+<button id="bSnd">🔊</button><button id="bMus">🎵</button>
+</div><div id="ft">Produced of <b>LucianEdu</b></div></div>
+<div id="side">
+<h1>🌗 Nhật thực và Nguyệt thực</h1>
+<div class="tabs"><button class="on" data-t="mt">📖 Mô tả</button><button data-t="on">📝 Ôn tập</button><button data-t="tc">🎮 Trò chơi</button></div>
+<div id="lvs"><button data-l="1">🌱 Tiểu học</button><button data-l="2">📘 THCS</button><button data-l="3">🎓 THPT</button></div><div class="tool"><button id="bRead">🔊 Đọc nội dung</button></div>
+<div id="content">
+<div id="mt" class="pane"></div>
+<div id="on" class="pane" hidden></div>
+<div id="tc" class="pane" hidden><div id="quiz"></div></div>
+</div></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+/* ===== Âm thanh ===== */
+let AC,snd=true,mus=null;
+function tone(f,d=.15,ty='sine',v=.15,t0=0){if(!snd)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.resume();const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime+t0;o.type=ty;o.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d)}catch(e){}}
+const sfx={click:()=>tone(660,.08,'triangle'),ok:()=>[523,659,784,1046].forEach((f,i)=>tone(f,.2,'triangle',.15,i*.09)),no:()=>{tone(180,.3,'sawtooth',.1);tone(140,.35,'sawtooth',.1,.12)},eclipse:()=>[392,330,262,196].forEach((f,i)=>tone(f,.5,'sine',.13,i*.15)),win:()=>[523,659,784,659,784,1046].forEach((f,i)=>tone(f,.25,'square',.07,i*.12))};
+$('#bSnd').onclick=e=>{snd=!snd;e.target.textContent=snd?'🔊':'🔇';sfx.click()};
+$('#bMus').onclick=e=>{if(mus){clearInterval(mus);mus=null;e.target.textContent='🎵';return}e.target.textContent='⏹';const n=[261,293,329,392,440,523];mus=setInterval(()=>{tone(n[Math.random()*6|0],2.2,'sine',.05);if(Math.random()<.5)tone(n[Math.random()*6|0]/2,2.6,'sine',.04,.4)},1400);sfx.click()};
+/* ===== Đọc nội dung ===== */
+let reading=false;
+function stopRead(){speechSynthesis.cancel();reading=false;$('#bRead').textContent='🔊 Đọc nội dung'}
+$('#bRead').onclick=()=>{if(!('speechSynthesis' in window)){alert('Trình duyệt chưa hỗ trợ đọc văn bản.');return}if(reading){stopRead();return}
+ const p=$$('.pane').find(x=>!x.hidden);let t=(p.id==='on'?p.textContent:p.innerText).replace(/\s+/g,' ');
+ const parts=t.match(/[^.!?:]+[.!?:]?/g)||[t],v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.toLowerCase().startsWith('vi'));
+ reading=true;$('#bRead').textContent='⏹ Dừng đọc';
+ parts.forEach((s,i)=>{if(!s.trim())return;const u=new SpeechSynthesisUtterance(s.trim());u.lang='vi-VN';if(v)u.voice=v;u.rate=.95;if(i===parts.length-1)u.onend=()=>stopRead();speechSynthesis.speak(u)})};
+/* ===== Tab, cấp độ ===== */
+$$('.tabs button').forEach(b=>b.onclick=()=>{stopRead();sfx.click();$$('.tabs button').forEach(x=>x.classList.toggle('on',x===b));$$('.pane').forEach(p=>p.hidden=p.id!==b.dataset.t);$('#content').scrollTop=0});
+let lv=2;
+const DESC={
+1:`<h3>🌟 Ba người bạn trên bầu trời</h3>
+<p>☀️ <b>Mặt Trời</b> giống một chiếc đèn pin khổng lồ, tự phát sáng.<br>🌍 <b>Trái Đất</b> là ngôi nhà của chúng ta.<br>🌙 <b>Mặt Trăng</b> như quả bóng bay vòng quanh Trái Đất. Mặt Trăng không tự sáng, chỉ mượn ánh sáng của Mặt Trời.</p>
+<h3>🔦 Bóng tối từ đâu ra?</h3>
+<p>Em đưa bàn tay chắn trước đèn pin, phía sau bàn tay sẽ có cái bóng. Vật nào chắn ánh sáng thì tạo ra bóng.</p>
+<p>Trong mô hình, vùng màu <b>tím</b> là bóng tối (rất tối). Vùng màu <b>xanh</b> là bóng nửa tối (hơi tối).</p>
+<h3>🌑 Nhật thực: ban ngày bỗng tối!</h3>
+<p>Mặt Trăng đi vào giữa Mặt Trời và Trái Đất, che mất Mặt Trời nên trời tối đi. Em nhớ: <b>Mặt Trăng che Mặt Trời</b>.</p>
+<div class="note warn">⚠️ Không được nhìn thẳng vào Mặt Trời nhé! Phải có người lớn và kính lọc đặc biệt.</div>
+<h3>🌕 Nguyệt thực: trăng bị tối đi</h3>
+<p>Vào đêm trăng tròn, Trái Đất đứng giữa Mặt Trời và Mặt Trăng. Bóng của Trái Đất phủ lên Mặt Trăng. Em nhớ: <b>Trái Đất che Mặt Trăng</b>. Lúc đó trăng có thể đỏ như quả cam. Em nhìn bằng mắt thường được, rất an toàn.</p>
+<h3>🤔 Vì sao không có thực mỗi tháng?</h3>
+<p>Mặt Trăng thường đi hơi cao hoặc hơi thấp nên bóng không trúng. Em thử bật ô "Quỹ đạo nghiêng" xem!</p>
+<h3>🎮 Em thử nhé</h3>
+<p>Bấm nút 🌑 hoặc 🌕, rồi chọn "Cận cảnh". Kéo chuột để xoay mô hình và tìm chấm tối trên Trái Đất.</p>`,
+2:`<h3>1. Ánh sáng và bóng</h3>
+<p>Ánh sáng truyền theo đường thẳng nên khi bị vật chắn sẽ tạo ra vùng tối phía sau. Với nguồn sáng rộng như Mặt Trời có hai vùng: <b>bóng tối</b> (bị che hoàn toàn nguồn sáng) và <b>bóng nửa tối</b> (chỉ bị che một phần).</p>
+<h3>2. Nhật thực 🌑</h3>
+<p>Khi Mặt Trời, Mặt Trăng, Trái Đất gần thẳng hàng theo thứ tự đó (lúc trăng mới), bóng Mặt Trăng đổ xuống Trái Đất.</p>
+<div class="note">Vùng bóng tối: <b>nhật thực toàn phần</b>. Vùng nửa tối: <b>nhật thực một phần</b>. Nếu Mặt Trăng ở xa Trái Đất, bóng tối không chạm tới mặt đất, ta thấy <b>nhật thực hình khuyên</b>.</div>
+<div class="note warn">⚠️ Chỉ quan sát bằng kính lọc chuyên dụng.</div>
+<h3>3. Nguyệt thực 🌕</h3>
+<p>Thứ tự Mặt Trời, Trái Đất, Mặt Trăng (lúc trăng tròn): Mặt Trăng đi vào bóng Trái Đất. Mọi nơi đang là đêm và thấy Mặt Trăng đều quan sát được, bằng mắt thường.</p>
+<p>Khi toàn phần, Mặt Trăng có màu đỏ đồng vì khí quyển Trái Đất bẻ cong ánh sáng đỏ vào vùng bóng tối.</p>
+<h3>4. Vì sao không có thực mỗi tháng?</h3>
+<p>Mặt Trăng quay quanh Trái Đất một vòng khoảng 29,5 ngày (một chu kì các pha trăng). Quỹ đạo của nó nghiêng khoảng 5° so với quỹ đạo Trái Đất nên phần lớn các tháng ba vật không thẳng hàng. Hãy bật "Quỹ đạo nghiêng" (đã phóng đại) để so sánh.</p>
+<h3>5. Cách dùng mô hình</h3>
+<p>Dùng 🌑 / 🌕 để đặt Mặt Trăng vào vị trí thực. Quan sát vùng tối in trên Trái Đất (nhật thực) hoặc trên Mặt Trăng (nguyệt thực) và dòng trạng thái ở góc trên.</p>
+<p class="muted">Mô hình không đúng tỉ lệ để dễ quan sát.</p>`,
+3:`<h3>1. Hình học bóng</h3>
+<p>Do Mặt Trời là nguồn sáng có kích thước, mỗi thiên thể sinh ra <b>nón bóng tối</b> (umbra) và <b>nón nửa tối</b> (penumbra). Có thêm vùng <b>antumbra</b> nằm sau đỉnh nón bóng tối, nơi quan sát thấy nhật thực hình khuyên.</p>
+<h3>2. Vì sao che vừa khít?</h3>
+<p>Mặt Trời có đường kính lớn hơn Mặt Trăng khoảng 400 lần và cũng xa hơn khoảng 400 lần, nên cả hai có đường kính góc xấp xỉ 0,5°. Quỹ đạo Mặt Trăng hình elip nên đường kính góc thay đổi: gần điểm cận địa thì che hết Mặt Trời (toàn phần), gần điểm viễn địa thì chỉ che phần giữa (hình khuyên).</p>
+<h3>3. Điều kiện xảy ra thực</h3>
+<p>Quỹ đạo Mặt Trăng nghiêng khoảng 5,1° so với mặt phẳng hoàng đạo, hai mặt phẳng cắt nhau tại hai <b>nút quỹ đạo</b>. Thực chỉ xảy ra khi sóc (trăng mới) hoặc vọng (trăng tròn) trùng gần một nút. Chu kì giao hội 29,53 ngày; "mùa thực" lặp lại khoảng 173 ngày một lần. Mỗi năm có 4 đến 7 lần thực.</p>
+<div class="note">Chu kì Saros: khoảng 6585,3 ngày (18 năm 11 ngày 8 giờ), sau đó các thực lặp lại với hình học gần như cũ.</div>
+<h3>4. Số liệu so sánh</h3>
+<p>Nhật thực toàn phần kéo dài tối đa khoảng 7 phút 32 giây, bóng tối quét thành dải rộng nhất khoảng 270 km. Nguyệt thực toàn phần có thể kéo dài gần 1 giờ 47 phút vì bóng Trái Đất ở khoảng cách Mặt Trăng rộng gấp khoảng 2,7 lần đường kính Mặt Trăng.</p>
+<h3>5. Màu đỏ của trăng</h3>
+<p>Khí quyển Trái Đất tán xạ mạnh ánh sáng xanh và khúc xạ ánh sáng đỏ vào vùng bóng, rọi lên Mặt Trăng, tương tự màu hoàng hôn. Màu sắc phụ thuộc lượng bụi, mây, tro núi lửa trong khí quyển.</p>
+<h3>6. Dùng mô hình</h3>
+<p>Bật "Quỹ đạo nghiêng" để thấy Mặt Trăng lệch khỏi trục Mặt Trời – Trái Đất. Chú ý chấm bóng tối nhỏ (umbra) nằm trong mảng nửa tối lớn hơn trên Trái Đất. Mô hình không theo tỉ lệ thật.</p>`};
+const TB=(h,r)=>`<table><tr><th></th><th>${h[0]}</th><th>${h[1]}</th></tr>${r.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}</td><td>${x[2]}</td></tr>`).join('')}</table>`;
+const ON={
+1:{c:[['☀️ Mặt Trời','Tự phát sáng, giống đèn pin khổng lồ.'],['🌙 Mặt Trăng','Quay quanh Trái Đất, không tự sáng.'],['🌑 Nhật thực','Mặt Trăng che Mặt Trời. Xảy ra ban ngày.'],['🌕 Nguyệt thực','Trái Đất che Mặt Trăng. Xảy ra ban đêm, lúc trăng tròn.'],['🕶️ An toàn','Không nhìn thẳng Mặt Trời. Dùng kính lọc đặc biệt.'],['🔦 Cái bóng','Vật chắn ánh sáng thì tạo ra bóng.']],
+ t:TB(['Nhật thực','Nguyệt thực'],[['Ai che ai?','Mặt Trăng che Mặt Trời','Trái Đất che Mặt Trăng'],['Khi nào?','Ban ngày, lúc trăng mới','Ban đêm, lúc trăng tròn'],['Nhìn bằng mắt thường?','Không! Cần kính lọc','Được, rất an toàn']]),
+ m:'<div class="note">Nhật thực: <b>Trăng</b> che <b>Mặt Trời</b>. Nguyệt thực: <b>Trái Đất</b> che <b>Trăng</b>.</div><p>☐ Em biết ai che ai.<br>☐ Em biết không nhìn thẳng Mặt Trời.<br>☐ Em chỉ được chấm tối trên mô hình.</p>'},
+2:{c:[['Bóng tối','Vùng bị che hoàn toàn ánh sáng từ nguồn sáng.'],['Bóng nửa tối','Vùng chỉ bị che một phần ánh sáng.'],['Nhật thực','Mặt Trăng ở giữa Mặt Trời và Trái Đất, lúc trăng mới.'],['Nguyệt thực','Mặt Trăng đi vào bóng Trái Đất, lúc trăng tròn.'],['Toàn phần / một phần','Toàn phần: đứng trong bóng tối. Một phần: đứng trong nửa tối.'],['Nhật thực hình khuyên','Mặt Trăng ở xa Trái Đất, chỉ che phần giữa Mặt Trời.'],['Chu kì Mặt Trăng','Khoảng 29,5 ngày một vòng các pha trăng.'],['Quỹ đạo nghiêng','Nghiêng khoảng 5° nên không có thực mỗi tháng.']],
+ t:TB(['Nhật thực','Nguyệt thực'],[['Thứ tự','Mặt Trời – Mặt Trăng – Trái Đất','Mặt Trời – Trái Đất – Mặt Trăng'],['Pha trăng','Trăng mới','Trăng tròn'],['Thời điểm','Ban ngày','Ban đêm'],['Ai thấy?','Một vùng hẹp trên Trái Đất','Cả nửa đêm Trái Đất'],['An toàn','Cần kính lọc','Nhìn trực tiếp được']]),
+ m:'<div class="note">Nhật thực: Mặt Trăng che Mặt Trời. Nguyệt thực: Trái Đất che Mặt Trăng.</div><div class="note">Trăng mới có thể có nhật thực. Trăng tròn có thể có nguyệt thực.</div><p>☐ Em phân biệt được bóng tối và nửa tối.<br>☐ Em giải thích được vì sao không có thực mỗi tháng.<br>☐ Em biết cách quan sát an toàn.</p>'},
+3:{c:[['Đường kính góc','Mặt Trời và Mặt Trăng đều xấp xỉ 0,5° nên che gần vừa khít.'],['Nút quỹ đạo','Giao điểm quỹ đạo Mặt Trăng (nghiêng 5,1°) với hoàng đạo.'],['Mùa thực','Khoảng 173 ngày một lần, khi nút quỹ đạo hướng về Mặt Trời.'],['Chu kì Saros','Khoảng 6585,3 ngày (18 năm 11 ngày 8 giờ).'],['Cận địa / viễn địa','Gần cận địa: toàn phần. Gần viễn địa: hình khuyên.'],['Umbra, penumbra, antumbra','Bóng tối, nửa tối, và vùng sau đỉnh nón bóng tối (hình khuyên).'],['Chu kì giao hội','29,53 ngày, giữa hai lần trăng mới liên tiếp.'],['Số thực mỗi năm','Tối thiểu 4, tối đa 7 (nhật thực và nguyệt thực).']],
+ t:TB(['Nhật thực toàn phần','Nguyệt thực toàn phần'],[['Thời gian tối đa','Khoảng 7 phút 32 giây','Gần 1 giờ 47 phút'],['Vùng quan sát','Dải hẹp, rộng nhất khoảng 270 km','Mọi nơi đang là đêm, thấy Mặt Trăng'],['Cơ chế','Bóng Mặt Trăng quét trên Trái Đất','Mặt Trăng vào umbra Trái Đất'],['Màu sắc','Vành nhật hoa trắng bạc','Đỏ đồng do khí quyển'],['Tần suất tại một nơi','Trung bình khoảng 375 năm','Thường xuyên hơn nhiều']]),
+ m:'<div class="note">Nhật thực: dải bóng nhỏ, thời gian ngắn. Nguyệt thực: bóng Trái Đất lớn, kéo dài lâu hơn.</div><p>☐ Em giải thích được tỉ lệ 400 : 400.<br>☐ Em nêu được điều kiện nút quỹ đạo.<br>☐ Em tính được chu kì lặp lại theo Saros.</p>'}};
+function renderOn(){const o=ON[lv];$('#on').innerHTML='<h3>Thẻ ghi nhớ (bấm để lật)</h3>'+o.c.map(c=>`<div class="fc" onclick="this.classList.toggle('open');sfx.click()"><b>${c[0]}</b><span>${c[1]}</span></div>`).join('')+'<h3>Bảng so sánh</h3>'+o.t+'<h3>Mẹo nhớ</h3>'+o.m}
+function applyLv(){$('#mt').innerHTML=DESC[lv];renderOn();$$('#lvs button').forEach(b=>b.classList.toggle('on',+b.dataset.l===lv));$('#content').scrollTop=0}
+$$('#lvs button').forEach(b=>b.onclick=()=>{lv=+b.dataset.l;stopRead();applyLv();startQuiz();sfx.click()});applyLv();
+/* ===== Trò chơi trắc nghiệm ===== */
+const QS=[
+['Nhật thực xảy ra khi nào?',['Mặt Trăng che Mặt Trời','Trái Đất che Mặt Trời','Mặt Trời đi ngủ','Mặt Trăng bị rơi'],0,'Mặt Trăng đi vào giữa Mặt Trời và Trái Đất nên che mất Mặt Trời.',1],
+['Nguyệt thực xảy ra khi Mặt Trăng như thế nào?',['Trăng non rất nhỏ','Trăng tròn','Trăng lưỡi liềm','Không nhìn thấy trăng'],1,'Nguyệt thực xảy ra vào đêm trăng tròn.',1],
+['Vật nào tự phát sáng?',['Mặt Trăng','Trái Đất','Mặt Trời','Quả bóng'],2,'Mặt Trời tự phát sáng như chiếc đèn pin khổng lồ.',1],
+['Muốn xem nhật thực an toàn, em cần gì?',['Nhìn thẳng bằng mắt','Kính râm thường','Kính lọc đặc biệt và có người lớn','Nhìn qua kính lúp'],2,'Chỉ kính lọc đặc biệt mới bảo vệ được mắt.',1],
+['Mặt Trăng đi vòng quanh vật nào?',['Mặt Trời','Trái Đất','Ngôi sao','Đám mây'],1,'Mặt Trăng đi vòng quanh Trái Đất.',1],
+['Em có thể nhìn nguyệt thực bằng mắt thường không?',['Không, rất nguy hiểm','Được, rất an toàn','Chỉ được khi có kính','Chỉ ban ngày'],1,'Nguyệt thực xảy ra ban đêm và rất an toàn khi nhìn.',1],
+['Đứng trong vùng bóng tối của Mặt Trăng trên Trái Đất, em thấy gì?',['Nhật thực toàn phần','Nhật thực một phần','Nguyệt thực','Không thấy gì'],0,'Bóng tối cho nhật thực toàn phần, nửa tối cho nhật thực một phần.',2],
+['Vì sao không có nhật thực mỗi tháng?',['Mặt Trăng ngừng quay','Quỹ đạo Mặt Trăng nghiêng so với quỹ đạo Trái Đất','Mặt Trời tắt','Trái Đất quay chậm'],1,'Mặt Trăng thường lệch lên hoặc xuống nên bóng không trúng.',2],
+['Thứ tự ba vật khi xảy ra nhật thực là gì?',['Mặt Trời – Mặt Trăng – Trái Đất','Mặt Trời – Trái Đất – Mặt Trăng','Trái Đất – Mặt Trời – Mặt Trăng','Mặt Trăng – Mặt Trời – Trái Đất'],0,'Mặt Trăng nằm giữa Mặt Trời và Trái Đất.',2],
+['Khi nguyệt thực toàn phần, Mặt Trăng thường có màu gì?',['Xanh lục','Trắng sáng','Đỏ đồng','Đen hoàn toàn'],2,'Khí quyển bẻ cong ánh sáng đỏ vào bóng Trái Đất.',2],
+['Hiện tượng nào cho thấy ánh sáng truyền theo đường thẳng?',['Sự tạo thành bóng','Mặt Trăng tròn','Gió thổi','Tiếng vang'],0,'Vật chắn ánh sáng tạo ra bóng vì ánh sáng truyền thẳng.',2],
+['Bóng nửa tối là vùng như thế nào?',['Hoàn toàn không có ánh sáng','Chỉ bị che một phần nguồn sáng','Sáng hơn bình thường','Chỉ có trên Mặt Trăng'],1,'Ở vùng này ta vẫn thấy một phần nguồn sáng.',2],
+['Vì sao Mặt Trăng che gần vừa khít Mặt Trời?',['Hai vật có cùng khối lượng','Hai vật có đường kính góc xấp xỉ 0,5°','Mặt Trăng tự phát sáng','Quỹ đạo là hình tròn hoàn hảo'],1,'Mặt Trời lớn hơn khoảng 400 lần và xa hơn khoảng 400 lần.',3],
+['Nhật thực hình khuyên xảy ra khi nào?',['Mặt Trăng gần cận địa','Mặt Trăng gần viễn địa nên trông nhỏ hơn Mặt Trời','Trái Đất che Mặt Trời','Trăng tròn'],1,'Mặt Trăng trông nhỏ hơn nên chỉ che phần giữa, để lộ vành sáng.',3],
+['Mỗi năm có bao nhiêu lần thực (nhật và nguyệt)?',['2 đến 4','4 đến 7','1 đến 3','6 đến 12'],1,'Mỗi năm có tối thiểu 4 và tối đa 7 lần thực.',3],
+['Chu kì Saros dài khoảng bao lâu?',['1 năm','18 năm 11 ngày','100 năm','29,5 ngày'],1,'Khoảng 6585,3 ngày, sau đó thực lặp lại với hình học gần như cũ.',3],
+['Thực chỉ xảy ra khi trăng mới hoặc trăng tròn trùng gần điều gì?',['Nút quỹ đạo','Cực Bắc','Xích đạo','Điểm xuân phân'],0,'Nút quỹ đạo là nơi quỹ đạo Mặt Trăng cắt mặt phẳng hoàng đạo.',3],
+['Vì sao nguyệt thực toàn phần kéo dài lâu hơn nhật thực toàn phần?',['Mặt Trăng chuyển động chậm hơn','Bóng Trái Đất ở khoảng cách Mặt Trăng rộng hơn nhiều so với Mặt Trăng','Trái Đất quay chậm','Mặt Trời yếu đi'],1,'Bóng Trái Đất rộng khoảng 2,7 lần đường kính Mặt Trăng.',3]];
+let Q=[],qi=0,sc=0,ans=false;
+function startQuiz(){Q=QS.filter(q=>q[4]===lv).sort(()=>Math.random()-.5).slice(0,6).map(q=>({q:q[0],e:q[3],o:q[1].map((t,i)=>[t,i===q[2]]).sort(()=>Math.random()-.5)}));qi=0;sc=0;ans=false;drawQ()}
+function drawQ(){const b=$('#quiz');if(qi>=Q.length){const p=sc/Q.length;b.innerHTML=`<h3>🏆 Kết quả: ${sc}/${Q.length}</h3><p>${'⭐'.repeat(Math.round(p*5))||'🌱'}</p><p>${p>=.8?'Xuất sắc! Em hiểu rất rõ về nhật thực và nguyệt thực.':p>=.5?'Khá tốt! Hãy xem lại tab Ôn tập rồi thử lại nhé.':'Cố lên! Hãy quan sát mô hình 3D và đọc lại phần Mô tả.'}</p><button class="btn" onclick="startQuiz()">Chơi lại</button>`;sfx.win();return}
+const c=Q[qi];b.innerHTML=`<div class="muted">Câu ${qi+1}/${Q.length} · Điểm: ${sc}</div><div class="pb"><i style="width:${qi/Q.length*100}%"></i></div><h4>${c.q}</h4>`+c.o.map((o,i)=>`<button class="opt" onclick="pick(${i})">${'ABCD'[i]}. ${o[0]}</button>`).join('')+'<div id="fb"></div>'}
+function pick(i){if(ans)return;ans=true;const c=Q[qi],ok=c.o[i][1];$$('.opt').forEach((b,j)=>{b.disabled=true;if(c.o[j][1])b.classList.add('ok');else if(j===i)b.classList.add('no')});ok?(sc++,sfx.ok()):sfx.no();
+$('#fb').innerHTML=`<div class="note ${ok?'':'warn'}"><b>${ok?'Chính xác! 🎉':'Chưa đúng 😅'}</b> ${c.e}</div><button class="btn" onclick="qi++;ans=false;drawQ();sfx.click()">${qi+1<Q.length?'Câu tiếp theo →':'Xem kết quả'}</button>`}
+startQuiz();
+/* ===== Mô hình 3D ===== */
+const st=$('#stage'),RS=4.5,RE=3.2,RM=1,DM=7.5,DS=36,SUN=new THREE.Vector3(-DS,0,0);
+const R=new THREE.WebGLRenderer({antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));st.prepend(R.domElement);
+const S=new THREE.Scene(),cam=new THREE.PerspectiveCamera(45,1,.1,800);
+function fit(){const w=st.clientWidth,h=st.clientHeight;R.setSize(w,h);cam.aspect=w/h;cam.updateProjectionMatrix()}
+new ResizeObserver(fit).observe(st);fit();
+function tex(w,h,fn){const c=document.createElement('canvas');c.width=w;c.height=h;fn(c.getContext('2d'),w,h);return new THREE.CanvasTexture(c)}
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const earthT=tex(512,256,(g,w,h)=>{g.fillStyle='#1b5fb3';g.fillRect(0,0,w,h);g.fillStyle='#3f8f45';for(let i=0;i<45;i++){g.beginPath();g.ellipse(rnd(0,w),rnd(30,h-30),rnd(10,45),rnd(8,28),rnd(0,3),0,7);g.fill()}g.fillStyle='#fff';g.fillRect(0,0,w,12);g.fillRect(0,h-12,w,12)});
+const moonT=tex(256,128,(g,w,h)=>{g.fillStyle='#bdbdbd';g.fillRect(0,0,w,h);for(let i=0;i<60;i++){g.fillStyle=`rgba(90,90,90,${rnd(.2,.5)})`;g.beginPath();g.arc(rnd(0,w),rnd(0,h),rnd(2,10),0,7);g.fill()}});
+const glowT=tex(128,128,(g)=>{const r=g.createRadialGradient(64,64,10,64,64,64);r.addColorStop(0,'rgba(255,220,100,.9)');r.addColorStop(1,'rgba(255,160,0,0)');g.fillStyle=r;g.fillRect(0,0,128,128)});
+const sun=new THREE.Mesh(new THREE.SphereGeometry(RS,32,32),new THREE.MeshBasicMaterial({color:0xffd54a}));sun.position.copy(SUN);S.add(sun);
+const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowT,blending:THREE.AdditiveBlending,depthWrite:false}));glow.scale.set(20,20,1);glow.position.copy(SUN);S.add(glow);
+S.add(new THREE.PointLight(0xffffff,1.5,0,0).translateX(-DS+RS+1),new THREE.AmbientLight(0xffffff,.22));
+const earth=new THREE.Mesh(new THREE.SphereGeometry(RE,48,48),new THREE.MeshPhongMaterial({map:earthT}));earth.rotation.z=.4;S.add(earth);
+const moon=new THREE.Mesh(new THREE.SphereGeometry(RM,32,32),new THREE.MeshPhongMaterial({map:moonT}));S.add(moon);
+const sp=new Float32Array(2400);for(let i=0;i<2400;i+=3){const v=new THREE.Vector3().randomDirection?0:0;const a=rnd(0,6.28),b=Math.acos(rnd(-1,1)),r=rnd(300,380);sp[i]=r*Math.sin(b)*Math.cos(a);sp[i+1]=r*Math.cos(b);sp[i+2]=r*Math.sin(b)*Math.sin(a)}
+const sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.BufferAttribute(sp,3));S.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:1.2,sizeAttenuation:false})));
+function label(t,c,sx){const m=new THREE.Sprite(new THREE.SpriteMaterial({map:tex(256,64,(g)=>{g.font='bold 34px sans-serif';g.textAlign='center';g.fillStyle=c;g.fillText(t,128,44)}),depthTest:false}));m.scale.set(sx,sx/4,1);return m}
+const lS=label('Mặt Trời','#ffd54a',16),lE=label('Trái Đất','#7fc3ff',11),lM=label('Mặt Trăng','#ddd',7);lS.position.set(-DS,9,0);S.add(lS,lE,lM);
+const orbit=new THREE.Line(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({color:0x58d68d,transparent:true,opacity:.6}));S.add(orbit);
+let tilt=0;const mp=t=>{const x=-DM*Math.cos(t),z=DM*Math.sin(t);return new THREE.Vector3(x*Math.cos(tilt),x*Math.sin(tilt),z)};
+function setOrbit(){const p=[];for(let i=0;i<=96;i++)p.push(mp(i/96*6.2832));orbit.geometry.setFromPoints(p)}setOrbit();
+function cones(r,ds,cap,capP){const L=r*ds/(RS-r),Lc=Math.min(L,cap),p=r*ds/(RS+r),h=capP+p;
+ const mat=(c,o)=>new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:o,side:2,depthWrite:false});
+ const u=new THREE.Mesh(new THREE.CylinderGeometry(r*(1-Lc/L)+.001,r,Lc,32,1,true),mat(0x9b59ff,.45));
+ const e=new THREE.Mesh(new THREE.CylinderGeometry(r*(capP+p)/p,.001,h,32,1,true),mat(0x4aa3ff,.16));
+ S.add(u,e);return{u,e,uo:Lc/2,eo:h/2-p}}
+const cM=cones(RM,DS-DM,30,16),cE=cones(RE,DS,30,22),UP=new THREE.Vector3(0,1,0);
+function place(c,pos){const d=pos.clone().sub(SUN).normalize(),q=new THREE.Quaternion().setFromUnitVectors(UP,d);c.u.position.copy(pos).addScaledVector(d,c.uo);c.e.position.copy(pos).addScaledVector(d,c.eo);c.u.quaternion.copy(q);c.e.quaternion.copy(q)}
+/* vùng tối in lên bề mặt Trái Đất và Mặt Trăng */
+function shadeMat(col){return new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{uO:{value:new THREE.Vector3()},uD:{value:new THREE.Vector3(1,0,0)},uP:{value:new THREE.Vector3(10,10,1)},uOn:{value:0},uCol:{value:new THREE.Color(col)},uMax:{value:.9}},
+vertexShader:'varying vec3 wp;varying vec3 wn;void main(){vec4 w=modelMatrix*vec4(position,1.);wp=w.xyz;wn=normalize(mat3(modelMatrix)*normal);gl_Position=projectionMatrix*viewMatrix*w;}',
+fragmentShader:'varying vec3 wp;varying vec3 wn;uniform vec3 uO,uD,uP,uCol;uniform float uOn,uMax;void main(){vec3 v=wp-uO;float t=dot(v,uD);float dd=length(v-uD*t);float ru=uP.z*(1.-t/uP.x);float rp=uP.z*(1.+t/uP.y);float pu=ru>0.?1.-smoothstep(ru*.8,ru,dd):0.;float pp=1.-smoothstep(rp*.9,rp,dd);float a=max(pp*.45,pu*uMax)*step(dot(wn,uD),0.)*step(0.,t)*uOn;gl_FragColor=vec4(uCol,a);}'})}
+const eSh=new THREE.Mesh(new THREE.SphereGeometry(RE*1.006,64,48),shadeMat(0x000000)),mSh=new THREE.Mesh(new THREE.SphereGeometry(RM*1.02,32,24),shadeMat(0x3a0a04));S.add(eSh,mSh);
+function shUp(m){const sM=DS+m.x,d=m.clone().sub(SUN).normalize(),u=eSh.material.uniforms,w=mSh.material.uniforms;
+u.uO.value.copy(m);u.uD.value.copy(d);u.uP.value.set(RM*sM/(RS-RM),RM*sM/(RS+RM),RM);u.uOn.value=m.x<0?1:0;
+mSh.position.copy(m);w.uO.value.set(0,0,0);w.uD.value.set(1,0,0);w.uP.value.set(RE*DS/(RS-RE),RE*DS/(RS+RE),RE);w.uOn.value=m.x>0?1:0}
+/* camera */
+const V={wide:{t:[-14,0,0],d:48,el:.8,az:.25},near:{t:[-1,0,0],d:20,el:.55,az:.2},side:{t:[-1,0,0],d:22,el:.04,az:0}};
+let C={az:.25,el:.8,d:48,t:new THREE.Vector3(-14,0,0)},G={az:.25,el:.8,d:48,t:new THREE.Vector3(-14,0,0)};
+function setView(k){const v=V[k];G.az=v.az;G.el=v.el;G.d=v.d;G.t.set(...v.t)}
+$('#view').onchange=e=>{setView(e.target.value);sfx.click()};
+let drag=null;const cv=R.domElement;
+cv.onpointerdown=e=>{drag=[e.clientX,e.clientY];cv.setPointerCapture(e.pointerId)};cv.onpointerup=()=>drag=null;
+cv.onpointermove=e=>{if(!drag)return;const dx=e.clientX-drag[0],dy=e.clientY-drag[1];drag=[e.clientX,e.clientY];G.az-=dx*.006;G.el=Math.max(-1.4,Math.min(1.4,G.el+dy*.006));C.az-=dx*.006;C.el=G.el};
+cv.onwheel=e=>{e.preventDefault();G.d=Math.max(8,Math.min(170,G.d*(e.deltaY>0?1.1:.9)))};
+/* điều khiển */
+let th=0,auto=true,speed=1,goal=null;
+$('#bPlay').onclick=e=>{auto=!auto;goal=null;e.target.textContent=auto?'⏸':'▶';sfx.click()};
+$('#spd').onchange=e=>speed=+e.target.value;
+$('#sl').oninput=e=>{th=e.target.value*Math.PI/180;auto=false;goal=null;$('#bPlay').textContent='▶'};
+$('#bNhat').onclick=()=>{goal=0;auto=false;$('#bPlay').textContent='▶';setView('near');$('#view').value='near';sfx.click()};
+$('#bNguyet').onclick=()=>{goal=Math.PI;auto=false;$('#bPlay').textContent='▶';setView('near');$('#view').value='near';sfx.click()};
+$('#cTilt').onchange=e=>{tilt=e.target.checked?.85:0;setOrbit();sfx.click()};
+$('#cSh').onchange=e=>{[cM.u,cM.e,cE.u,cE.e].forEach(m=>m.visible=e.target.checked);sfx.click()};
+function phase(d){return d<20||d>340?'Trăng mới':d>160&&d<200?'Trăng tròn':(d>70&&d<110)||(d>250&&d<290)?'Bán nguyệt':(d<=160&&d>=200)?'':(d<180?(d<70||d>290?'Trăng lưỡi liềm':'Trăng khuyết'):(d>290?'Trăng lưỡi liềm':'Trăng khuyết'))}
+function status(m){const d=Math.hypot(m.y,m.z);
+ if(m.x>0){const ru=RE*(1-m.x/(RE*DS/(RS-RE))),rp=RE*(1+m.x/(RE*DS/(RS+RE)));if(d+RM<=ru)return['lt','Nguyệt thực toàn phần'];if(d-RM<ru)return['lm','Nguyệt thực một phần'];if(d-RM<rp)return['ln','Nguyệt thực nửa tối (rất mờ)']}
+ else if(m.x<-1){const o=d*DS/(DS+m.x),s=DS+m.x,Lu=RM*s/(RS-RM),k=Math.max(0,-m.x-RE),ru=RM*(1-k/Lu),rp=RM*(1+k/(RM*s/(RS+RM)));
+  if(ru>0&&o-ru<RE)return['nt','Nhật thực toàn phần (tại vùng bóng tối)'];if(ru<=0&&o<RE)return['nk','Nhật thực hình khuyên'];if(o-rp<RE)return['nm','Nhật thực một phần (tại vùng nửa tối)']}
+ return['0','Không có thực']}
+let last=performance.now(),prev='0',chipT='';
+function loop(now){const dt=Math.min((now-last)/1000,.05);last=now;const TP=Math.PI*2;
+ if(goal!==null){const d=((goal-th+Math.PI)%TP+TP)%TP-Math.PI;th+=d*Math.min(1,dt*4);if(Math.abs(d)<.003){th=goal;goal=null}}else if(auto)th+=dt*speed*.35;
+ th=(th%TP+TP)%TP;const m=mp(th);moon.position.copy(m);moon.rotation.y=-th;earth.rotation.y+=dt*.6;
+ const[k,txt]=status(m);shUp(m);
+ if(k!==prev){if(k!=='0')sfx.eclipse();prev=k}
+ const deg=Math.round(th*180/Math.PI),ct=`🌙 ${phase(deg)||'Trăng khuyết'} · ${k==='0'?'Chưa có thực':txt}`;if(ct!==chipT){$('#chip').textContent=ct;chipT=ct}
+ $('#sl').value=deg%360;
+ place(cM,m);place(cE,new THREE.Vector3());
+ lE.position.set(0,5.6,0);lM.position.set(m.x,m.y+1.7,m.z);
+ const f=Math.min(1,dt*4);C.az+=(G.az-C.az)*f;C.el+=(G.el-C.el)*f;C.d+=(G.d-C.d)*f;C.t.lerp(G.t,f);
+ cam.position.set(C.t.x+C.d*Math.cos(C.el)*Math.sin(C.az),C.t.y+C.d*Math.sin(C.el),C.t.z+C.d*Math.cos(C.el)*Math.cos(C.az));cam.lookAt(C.t);
+ R.render(S,cam);requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Chặn phím tắt: F12, Ctrl+U, Ctrl+Shift+I/J/C, Ctrl+S
+    document.addEventListener('keydown', function(e) {
+      const key = e.key.toLowerCase();
+
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) || 
+        (e.ctrlKey && (key === 'u' || key === 's'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 2. Chặn chuột phải (Context Menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  });
+</script>
+</body>
+</html>

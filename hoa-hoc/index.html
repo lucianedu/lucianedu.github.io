@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Môn Hóa học - LucianEdu</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .section-title { font-family: var(--font-d, sans-serif); font-size: 20px; color: #7f5539; margin: 25px 0 15px 0; border-left: 4px solid #e76f51; padding-left: 10px; text-transform: uppercase; }
+        .grade-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .grade-btn { background: #ffffff; border: 2px solid #e76f51; color: #e76f51; padding: 15px; text-align: center; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; transition: all 0.2s; display: block; }
+        .grade-btn:hover { background: #e76f51; color: #ffffff; }
+        
+        .hero-title-row { display: flex; align-items: baseline; gap: 15px; flex-wrap: wrap; }
+        .hero-title-row h1 { font-size: 38px; color: #ffffff; margin: 0; }
+        .hero-title-row p { font-size: 20px; color: #faedcd; margin: 0; white-space: nowrap; }
+    </style>
+</head>
+<body>
+    <header class="hero" style="background: linear-gradient(135deg, #9c6644 0%, #e76f51 100%);">
+        <div class="hero-content">
+            <span class="badge" style="font-size: 14px; padding: 6px 12px; margin-bottom: 10px; display: inline-block; background: #e76f51;">Khối Tự nhiên</span>
+            <div class="hero-title-row">
+                <h1>🧪 Môn Hóa Học</h1>
+                <p>Thế giới chất và phản ứng sinh động.</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- NHÁNH BÀI GIẢNG TƯƠNG TÁC SGK -->
+        <div class="card" style="border-top-color: #e76f51;">
+            <h2>📚 Bài Giảng Tương Tác Sách Giáo Khoa</h2>
+            <p>Chọn để mở danh sách các khối lớp:</p>
+            
+            <div class="section-title">Danh mục Sách Giáo Khoa</div>
+            <div class="grade-grid">
+                <a href="bai-giang-sach-giao-khoa/index.html" class="grade-btn" style="grid-column: span 4; background: #e76f51; color: #ffffff;">📁 Mở danh sách Khối lớp (K6 - K9)</a>
+            </div>
+        </div>
+
+        <!-- NHÁNH MÔ HÌNH TƯƠNG TÁC -->
+        <div class="card" style="border-top-color: #9c6644; margin-top: 20px;">
+            <h2>🚀 Mô Hình & Thí Nghiệm Tương Tác</h2>
+            <p>Không gian trực quan các phản ứng hóa học.</p>
+            <div class="grade-grid" style="margin-top: 15px;">
+              <a href="mo-hinh-tuong-tac/index.html" class="grade-btn" style="border-color: #9c6644; color: #9c6644;">Mô hình & thí nghiệm tương tác</a>
+            </div>
+        </div>
+
+        <a href="../index.html" class="btn secondary" style="margin-top: 20px; display: inline-block;">⬅ Quay về trang chủ website</a>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 <strong>LucianEdu</strong>. Phát triển bởi Lucian.</p>
+    </footer>
+</body>
+</html>

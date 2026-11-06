@@ -1,0 +1,840 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+
+<script>
+  // Chặn phím tắt F12, Ctrl+U, Ctrl+Shift+I, Ctrl+S
+  document.addEventListener('keydown', function(e) {
+    if (
+      e.key === 'F12' || 
+      (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
+      (e.ctrlKey && (e.key === 'U' || e.key === 's' || e.key === 'u'))
+    ) {
+      e.preventDefault();
+      alert('Tính năng này bị khóa!');
+      return false;
+    }
+  });
+
+  // Chặn bấm chuột phải
+  document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    alert('Chuột phải đã bị khóa!');
+  });
+</script>
+
+</head><body>
+<title>Điều chế khí oxi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;700&display=swap">
+<style>
+/* Bố cục: mô hình thí nghiệm chiếm 3/4 bên trái, bảng nội dung 1/4 bên phải cuộn độc lập. */
+:root{
+  --bg:#e8eeeb; --surface:#f8fbf9; --stage:#f3f8f6; --ink:#14302b; --muted:#56706a; --line:#c8d6d0;
+  --accent:#6a2c9a; --accent-ink:#ffffff; --accent-soft:#efe4f7;
+  --good:#17804f; --bad:#c4361f; --warn:#b36b00;
+  --glass:#5e7f78; --glass-fill:rgba(110,170,160,.13); --glass-hi:rgba(255,255,255,.85);
+  --water:#5fb4de; --water-solid:#4aa3d3; --bench:#d3ded9; --steel:#6c8aa6; --steel-dark:#4f6b86;
+  --wood:#c9a06a; --wood-dark:#a97f4b; --rubber:#9a5636; --alcohol:#9bd3ea; --tagbg:#ffffff;
+  --display:'Bricolage Grotesque','Be Vietnam Pro',system-ui,sans-serif;
+  --body:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0b1311; --surface:#141f1c; --stage:#0d1714; --ink:#e4f0ec; --muted:#94aea6; --line:#273934;
+  --accent:#c39be8; --accent-ink:#1c0b2b; --accent-soft:#2a1c38;
+  --good:#4cc98a; --bad:#ff8a75; --warn:#f0b24a;
+  --glass:#8fb3aa; --glass-fill:rgba(140,200,190,.10); --glass-hi:rgba(255,255,255,.28);
+  --water:#2b86b5; --water-solid:#2f86b4; --bench:#1b2a26; --steel:#7e9bb7; --steel-dark:#5d7893;
+  --wood:#8f6d42; --wood-dark:#6f5232; --rubber:#b06a45; --alcohol:#4aa0c4; --tagbg:#1b2b27;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0b1311; --surface:#141f1c; --stage:#0d1714; --ink:#e4f0ec; --muted:#94aea6; --line:#273934;
+  --accent:#c39be8; --accent-ink:#1c0b2b; --accent-soft:#2a1c38;
+  --good:#4cc98a; --bad:#ff8a75; --warn:#f0b24a;
+  --glass:#8fb3aa; --glass-fill:rgba(140,200,190,.10); --glass-hi:rgba(255,255,255,.28);
+  --water:#2b86b5; --water-solid:#2f86b4; --bench:#1b2a26; --steel:#7e9bb7; --steel-dark:#5d7893;
+  --wood:#8f6d42; --wood-dark:#6f5232; --rubber:#b06a45; --alcohol:#4aa0c4; --tagbg:#1b2b27;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+html{height:100%;box-sizing:border-box}
+body{height:100%;margin:0;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--bg);color:var(--ink);font:400 14px/1.55 var(--body)}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+sub{font-size:.75em;line-height:0}
+
+.app{height:100%;min-height:600px;display:grid;grid-template-columns:minmax(0,3fr) minmax(300px,1fr);gap:12px}
+.stage,.panel{min-height:0;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;overflow:hidden}
+
+/* Stage */
+.stage-head{padding:10px 14px 8px;display:flex;flex-direction:column;gap:7px;border-bottom:1px solid var(--line)}
+.title-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.title-row h1{margin:0;font:700 19px/1.2 var(--display);letter-spacing:-.01em}
+.eq-line{font-weight:600;font-size:13px;color:var(--accent);background:var(--accent-soft);padding:3px 10px;border-radius:99px}
+.steps{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:12px;font-weight:600;padding:2px 10px;border-radius:99px;border:1px solid var(--line);color:var(--muted);display:inline-flex;gap:6px;align-items:center}
+.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--line)}
+.chip[data-s=doing]{color:var(--warn);border-color:var(--warn)}.chip[data-s=doing]::before{background:var(--warn)}
+.chip[data-s=done]{color:var(--good);border-color:var(--good)}.chip[data-s=done]::before{background:var(--good)}
+.chip[data-s=bad]{color:var(--bad);border-color:var(--bad)}.chip[data-s=bad]::before{background:var(--bad)}
+.svgwrap{position:relative;flex:1;min-height:0;background:var(--stage);display:flex}
+#lab{width:100%;height:100%;display:block}
+.statusbar{padding:8px 14px;border-top:1px solid var(--line);font-weight:500;min-height:40px;display:flex;align-items:center;gap:8px}
+.statusbar::before{content:"";flex:none;width:9px;height:9px;border-radius:50%;background:var(--accent)}
+.statusbar[data-tone=good]{color:var(--good)}.statusbar[data-tone=good]::before{background:var(--good)}
+.statusbar[data-tone=bad]{color:var(--bad)}.statusbar[data-tone=bad]::before{background:var(--bad)}
+.statusbar[data-tone=warn]{color:var(--warn)}.statusbar[data-tone=warn]::before{background:var(--warn)}
+.hud{display:flex;gap:10px;padding:8px 14px;border-top:1px solid var(--line);flex-wrap:wrap}
+.meter{flex:1 1 130px;min-width:0;display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-size:12px}
+.meter span{color:var(--muted)}.meter b{font-variant-numeric:tabular-nums}
+.meter i{grid-column:1/3;height:6px;border-radius:9px;background:var(--line);overflow:hidden;display:block}
+.meter u{display:block;height:100%;width:0;background:var(--accent);border-radius:9px;text-decoration:none}
+.meter.t u{background:#e8890c}.meter.k u{background:#7b2cae}.meter.g u{background:var(--water-solid)}
+.controls{display:flex;flex-wrap:wrap;gap:8px 10px;padding:8px 14px 12px;border-top:1px solid var(--line);align-items:center}
+.btn{font-weight:600;font-size:13px;padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:var(--surface);cursor:pointer;transition:border-color .15s,background .15s}
+.btn:hover:not(:disabled){border-color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.btn.primary[aria-pressed=true]{background:var(--bad);color:#fff}
+.btn.icon{padding:5px 10px}
+.sw{display:inline-flex;align-items:center;gap:7px;font-weight:500;font-size:13px;cursor:pointer;user-select:none}
+.sw input{position:absolute;opacity:0;width:1px;height:1px}
+.trk{width:34px;height:20px;border-radius:99px;background:var(--line);position:relative;transition:background .15s;flex:none}
+.trk::after{content:"";position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:var(--surface);transition:transform .15s;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.sw input:checked+.trk{background:var(--accent)}.sw input:checked+.trk::after{transform:translateX(14px)}
+.sw input:focus-visible+.trk{outline:2px solid var(--accent);outline-offset:2px}
+.rng{display:inline-flex;align-items:center;gap:8px;font-weight:500;font-size:13px}
+.rng input{width:96px;accent-color:var(--accent)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{background:none;border:0;padding:6px 10px;font-weight:600;font-size:13px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
+.sep{flex:1 1 0}
+
+/* SVG parts */
+.tag{cursor:pointer}
+.tag rect{fill:var(--tagbg);stroke:var(--accent);stroke-width:1.5}
+.tag text{font:600 15px var(--body);fill:var(--ink);text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.tag:hover rect,.tag:focus-visible rect,.tag.on rect{fill:var(--accent)}
+.tag:hover text,.tag:focus-visible text,.tag.on text{fill:var(--accent-ink)}
+.tag:focus-visible{outline:none}
+.lead{stroke:var(--muted);stroke-width:1.2;stroke-dasharray:3 3}
+.bub{fill:rgba(255,255,255,.35);stroke:#fff;stroke-width:1.2}
+.big-o2{font:700 28px var(--display);fill:var(--glass);text-anchor:middle}
+
+.partcard{position:absolute;left:12px;bottom:12px;max-width:min(400px,calc(100% - 24px));background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:10px 34px 10px 14px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.partcard h4{margin:0 0 2px;font:700 14px var(--display);color:var(--accent)}
+.partcard p{margin:0;font-size:13px}
+.partcard .x,.inset .x{position:absolute;right:6px;top:4px;border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:var(--muted)}
+
+.inset{position:absolute;right:12px;top:12px;width:200px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 10px 10px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.inset svg{width:100%;height:auto;display:block}
+.inset p{margin:4px 0 0;font-size:12px;font-weight:600;text-align:center}
+#splint{transition:transform 1s ease-in-out}
+.inset.in #splint{transform:translateY(95px)}
+#burst{opacity:0;transform-box:fill-box;transform-origin:50% 100%;transform:scale(.2)}
+.inset.burst #burst{opacity:1;transform:scale(1);transition:transform .35s ease-out,opacity .2s}
+.inset.burst #ember{fill:#ffd36a}
+
+/* Panel */
+.panel{min-height:0}
+.tabs{display:flex;border-bottom:1px solid var(--line);flex:none}
+.tab{flex:1;padding:12px 4px 10px;background:none;border:0;border-bottom:3px solid transparent;font-weight:600;font-size:13px;color:var(--muted);cursor:pointer}
+.tab[aria-selected=true]{color:var(--accent);border-bottom-color:var(--accent)}
+.pane{flex:1;min-height:0;overflow-y:auto;padding:16px;overscroll-behavior:contain;scrollbar-width:thin}
+.pane[hidden]{display:none}
+.prose h2{margin:0 0 8px;font:700 20px/1.25 var(--display);letter-spacing:-.01em}
+.prose h3{margin:20px 0 6px;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.prose p{margin:0 0 8px}.prose ul,.prose ol{margin:0 0 8px;padding-left:20px}.prose li{margin-bottom:4px}
+.prose .lead-p{font-size:14.5px}
+.eq{background:var(--accent-soft);color:var(--accent);font-weight:700;padding:10px 12px;border-radius:10px;margin:10px 0;text-align:center;overflow-wrap:anywhere}
+.tbl{overflow-x:auto;margin:6px 0 8px}
+.tbl table{border-collapse:collapse;width:100%;min-width:280px;font-size:13px}
+.tbl th,.tbl td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.tbl th{background:var(--accent-soft)}
+.prose dt{font-weight:700;margin-top:8px}.prose dd{margin:0 0 4px}
+.callout{border-left:4px solid var(--warn);background:var(--bg);padding:8px 12px;border-radius:0 8px 8px 0;margin:8px 0}
+
+/* Flashcards */
+.fc-wrap{perspective:900px;margin:10px 0}
+.fc{position:relative;height:210px;cursor:pointer;transition:transform .45s;transform-style:preserve-3d;border-radius:14px}
+.fc.flip{transform:rotateY(180deg)}
+.fc .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;justify-content:center;gap:8px;overflow:auto;background:var(--bg)}
+.fc .back{transform:rotateY(180deg);background:var(--accent-soft);border-color:var(--accent)}
+.fc small{color:var(--muted);font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:11px}
+.fc .q{font:600 16px/1.4 var(--display)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.progress{height:6px;border-radius:9px;background:var(--line);overflow:hidden;margin:8px 0}
+.progress u{display:block;height:100%;background:var(--accent);width:0;transition:width .3s;text-decoration:none}
+.kp{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.kp span{background:var(--accent-soft);color:var(--accent);padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600}
+
+/* Quiz */
+.qz-top{display:flex;justify-content:space-between;gap:8px;font-weight:600;font-size:13px;margin-bottom:6px;flex-wrap:wrap}
+.qz-q{font:600 16px/1.4 var(--display);margin:10px 0}
+.opt{display:flex;gap:10px;width:100%;text-align:left;padding:10px 12px;margin-bottom:8px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);cursor:pointer;transition:border-color .15s,background .15s}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt b{flex:none;width:22px;height:22px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:12px}
+.opt.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 14%,var(--surface))}
+.opt.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,var(--surface))}
+.opt:disabled{cursor:default}
+.fb{border-radius:10px;padding:10px 12px;background:var(--bg);margin:6px 0 10px;font-size:13px}
+.fb strong{display:block;margin-bottom:2px}
+.tbar{height:5px;border-radius:9px;background:var(--line);overflow:hidden}
+.tbar u{display:block;height:100%;width:100%;background:var(--warn);text-decoration:none}
+.big{font:700 40px/1 var(--display);color:var(--accent)}
+.rev{border-top:1px solid var(--line);padding:8px 0;font-size:13px}
+
+@media (max-width:860px){
+  html,body{height:auto}
+  .app{height:auto;min-height:0;display:flex;flex-direction:column}
+  .svgwrap{aspect-ratio:900/560;flex:none}
+  .panel{height:min(78vh,720px)}
+  .tag text{font-size:24px}
+  .inset{width:150px}
+}
+@media (prefers-reduced-motion:reduce){.fc,#splint,.progress u{transition:none}}
+</style>
+<div class="app">
+<section class="stage" aria-label="Mô hình thí nghiệm">
+  <div class="stage-head">
+    <div class="title-row">
+      <h1>Điều chế khí O<sub>2</sub> từ KMnO<sub>4</sub></h1>
+      <span class="eq-line">2KMnO<sub>4</sub> →(t°) K<sub>2</sub>MnO<sub>4</sub> + MnO<sub>2</sub> + O<sub>2</sub>↑</span>
+      <button class="btn icon" id="btnSound" aria-pressed="true" title="Bật hoặc tắt âm thanh">Âm thanh: bật</button>
+    </div>
+    <div class="steps" id="steps" aria-label="Tiến trình thí nghiệm"></div>
+  </div>
+
+  <div class="svgwrap">
+<svg id="lab" viewBox="0 0 900 560" role="img" aria-label="Mô hình điều chế khí oxi bằng cách nhiệt phân KMnO4 và thu khí bằng phương pháp đẩy nước">
+<defs>
+  <clipPath id="cpTube"><path d="M412,202 H178 A28,28 0 0 0 178,258 H412 Z"/></clipPath>
+  <clipPath id="cpCollect"><path d="M725,482 V265 A35,35 0 0 1 795,265 V482 Z"/></clipPath>
+  <clipPath id="cpTrough"><path d="M590,395 V512 Q590,528 606,528 H854 Q870,528 870,512 V395 Z"/></clipPath>
+  <linearGradient id="gFlame" x1="0" y1="1" x2="0" y2="0">
+    <stop offset="0" stop-color="#ff8a1f"/><stop offset=".65" stop-color="#ffc247"/><stop offset="1" stop-color="#ffe9a0" stop-opacity=".25"/>
+  </linearGradient>
+</defs>
+
+<!-- bàn thí nghiệm -->
+<rect x="0" y="532" width="900" height="28" fill="var(--bench)"/>
+
+<!-- giá sắt -->
+<rect x="262" y="516" width="170" height="16" rx="3" fill="var(--steel)"/>
+<rect x="335" y="70" width="10" height="448" fill="var(--steel)"/>
+<circle cx="340" cy="70" r="7" fill="var(--steel-dark)"/>
+
+<!-- đèn cồn -->
+<g id="lamp">
+  <rect x="130" y="482" width="120" height="50" rx="4" fill="var(--wood)"/>
+  <path d="M138,497 H242 M138,512 H242" stroke="var(--wood-dark)" stroke-width="1.5" opacity=".6"/>
+  <ellipse cx="190" cy="452" rx="46" ry="30" fill="var(--glass-fill)" stroke="var(--glass)" stroke-width="3"/>
+  <path d="M144,452 A46,30 0 0 0 236,452 Z" fill="var(--alcohol)" opacity=".7"/>
+  <rect x="178" y="392" width="24" height="32" fill="var(--glass-fill)" stroke="var(--glass)" stroke-width="3"/>
+  <rect x="172" y="384" width="36" height="10" rx="3" fill="var(--steel-dark)"/>
+  <rect x="187" y="374" width="6" height="10" fill="#3b2f2a"/>
+  <g id="flame" transform="translate(190,376) scale(1,1)" hidden>
+    <path d="M-13,0 C-17,-30 -6,-55 0,-100 C8,-60 18,-35 13,0 Z" fill="url(#gFlame)"/>
+    <path d="M-7,0 C-9,-18 -3,-30 0,-52 C4,-32 9,-18 7,0 Z" fill="#5b9bff" opacity=".75"/>
+  </g>
+  <g id="smoke"></g>
+</g>
+
+<!-- ống nghiệm đựng KMnO4 (hơi chúc miệng xuống) -->
+<g transform="rotate(3 150 230)">
+  <path d="M412,202 H178 A28,28 0 0 0 178,258 H412 Z" fill="var(--glass-fill)"/>
+  <g clip-path="url(#cpTube)">
+    <path id="powder" d="M150,238 Q190,226 215,234 Q245,240 268,254 L268,262 L150,262 Z" fill="#581c78"/>
+    <ellipse id="heatGlow" cx="205" cy="250" rx="62" ry="12" fill="#ff8c2a" opacity="0"/>
+  </g>
+  <path d="M412,202 H178 A28,28 0 0 0 178,258 H412" fill="none" stroke="var(--glass)" stroke-width="3"/>
+  <path d="M184,208 H398" stroke="var(--glass-hi)" stroke-width="3" stroke-linecap="round"/>
+  <g id="cottonIn">
+    <circle cx="380" cy="230" r="15" fill="#fbfbf6" stroke="var(--glass)" stroke-width="1.2"/>
+    <circle cx="394" cy="222" r="13" fill="#fbfbf6" stroke="var(--glass)" stroke-width="1.2"/>
+    <circle cx="394" cy="238" r="13" fill="#fbfbf6" stroke="var(--glass)" stroke-width="1.2"/>
+    <circle cx="386" cy="230" r="9" fill="#fff"/>
+  </g>
+  <path d="M404,205 L444,199 V261 L404,255 Z" fill="var(--rubber)"/>
+  <path id="crack" d="M290,203 L300,222 L288,234 L302,258 M300,222 L316,230" stroke="var(--bad)" stroke-width="2.5" fill="none" hidden/>
+</g>
+<g id="cottonOut" hidden>
+  <circle cx="470" cy="520" r="11" fill="#fbfbf6" stroke="var(--glass)" stroke-width="1.2"/>
+  <circle cx="482" cy="514" r="9" fill="#fbfbf6" stroke="var(--glass)" stroke-width="1.2"/>
+  <circle cx="482" cy="525" r="8" fill="#fbfbf6" stroke="var(--glass)" stroke-width="1.2"/>
+</g>
+
+<!-- kẹp -->
+<rect x="328" y="208" width="24" height="64" rx="6" fill="none" stroke="var(--steel-dark)" stroke-width="6"/>
+<rect x="330" y="268" width="20" height="22" rx="3" fill="var(--steel-dark)"/>
+<circle cx="340" cy="280" r="6" fill="var(--steel)" stroke="var(--steel-dark)" stroke-width="2"/>
+
+<!-- chậu nước -->
+<g clip-path="url(#cpTrough)">
+  <path id="wave" d="M590,425 H870 V530 H590 Z" fill="var(--water)" opacity=".55"/>
+  <rect id="tint" x="590" y="428" width="280" height="102" fill="#8a2fc9" opacity="0"/>
+</g>
+<path d="M590,395 V512 Q590,528 606,528 H854 Q870,528 870,512 V395" fill="none" stroke="var(--glass)" stroke-width="3"/>
+<path d="M598,402 V506" stroke="var(--glass-hi)" stroke-width="3" stroke-linecap="round"/>
+
+<!-- ống dẫn khí -->
+<path id="pipeOut" d="M446,245 H520 Q540,245 548,265 L650,440 Q662,470 690,484 H748 Q760,484 760,470 V455" fill="none" stroke="var(--glass)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="pipeIn" d="M446,245 H520 Q540,245 548,265 L650,440 Q662,470 690,484 H748 Q760,484 760,470 V455" fill="none" stroke="var(--stage)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="pipeWater" d="M760,455 V470 Q760,484 748,484 H690 Q662,470 650,440 L548,265 Q540,245 520,245 H446" fill="none" stroke="var(--water-solid)" stroke-width="6" stroke-linecap="butt" stroke-dasharray="0 9999" hidden/>
+
+<!-- ống thu khí -->
+<g clip-path="url(#cpCollect)">
+  <rect x="720" y="230" width="80" height="252" fill="var(--water)" opacity=".5"/>
+  <rect id="gasRect" x="720" y="230" width="80" height="0" fill="var(--stage)" opacity=".96"/>
+  <line id="meniscus" x1="725" x2="795" y1="230" y2="230" stroke="var(--glass)" stroke-width="1.5" opacity="0"/>
+  <text id="o2big" class="big-o2" x="760" y="290" opacity="0">O₂</text>
+  <g id="mols"></g>
+</g>
+<path d="M725,482 V265 A35,35 0 0 1 795,265 V482" fill="var(--glass-fill)" stroke="var(--glass)" stroke-width="3"/>
+<path d="M732,300 V470" stroke="var(--glass-hi)" stroke-width="3" stroke-linecap="round"/>
+
+<g id="dust"></g>
+<g id="bubbles"></g>
+<g id="leaders"></g>
+<g id="tags"></g>
+</svg>
+
+    <div class="partcard" id="partcard" hidden>
+      <button class="x" id="partX" aria-label="Đóng chú thích">×</button>
+      <h4 id="partT"></h4><p id="partP"></p>
+    </div>
+
+    <div class="inset" id="inset" hidden>
+      <button class="x" id="insetX" aria-label="Đóng">×</button>
+      <svg viewBox="0 0 190 250" role="img" aria-label="Thử khí bằng que đóm còn tàn đỏ">
+        <path d="M62,40 V196 A33,33 0 0 0 128,196 V40" fill="var(--glass-fill)" stroke="var(--glass)" stroke-width="3"/>
+        <text x="95" y="215" text-anchor="middle" font-size="22" font-weight="700" fill="var(--glass)" opacity=".7">O₂</text>
+        <g id="splint">
+          <rect x="93" y="-170" width="5" height="210" rx="2" fill="#b58a57"/>
+          <circle id="ember" cx="95.5" cy="40" r="4.5" fill="#ff4a1f"/>
+          <path id="burst" d="M85.5,40 C81.5,20 91.5,6 95.5,-16 C101.5,4 111.5,20 105.5,40 Z" fill="url(#gFlame)"/>
+        </g>
+      </svg>
+      <p id="insetCap">Đưa que đóm còn tàn đỏ vào ống…</p>
+    </div>
+  </div>
+
+  <div class="statusbar" id="status" role="status" aria-live="polite" data-tone="info">Bấm “Bật đèn cồn” để bắt đầu đun KMnO₄.</div>
+
+  <div class="hud">
+    <div class="meter t"><span>Nhiệt độ ống</span><b id="mT">25 °C</b><i><u id="bT"></u></i></div>
+    <div class="meter k"><span>KMnO₄ còn lại</span><b id="mK">100%</b><i><u id="bK"></u></i></div>
+    <div class="meter g"><span>O₂ trong ống thu</span><b id="mG">0%</b><i><u id="bG"></u></i></div>
+    <div class="meter"><span>Ống đã thu đầy</span><b id="mN">0</b></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn primary" id="btnLamp" aria-pressed="false">Bật đèn cồn</button>
+    <label class="rng">Mức lửa <input type="range" id="rngFlame" min="0" max="100" value="60" aria-label="Mức lửa"></label>
+    <label class="sw"><input type="checkbox" id="swCotton" checked><span class="trk"></span>Nút bông</label>
+    <button class="btn" id="btnPipe">Rút ống dẫn khỏi nước</button>
+    <button class="btn" id="btnTest" disabled>Thử que đóm</button>
+    <button class="btn" id="btnSwap" disabled>Thay ống thu khí</button>
+    <span class="sep"></span>
+    <div class="seg" role="group" aria-label="Tốc độ mô phỏng">
+      <button data-sp="1" aria-pressed="true">×1</button><button data-sp="2" aria-pressed="false">×2</button><button data-sp="4" aria-pressed="false">×4</button>
+    </div>
+    <label class="sw"><input type="checkbox" id="swTags" checked><span class="trk"></span>Chú thích</label>
+    <button class="btn" id="btnReset">Làm lại</button>
+  </div>
+</section>
+
+<aside class="panel" aria-label="Nội dung học tập">
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="t-desc" aria-controls="p-desc" aria-selected="true">Mô tả</button>
+    <button class="tab" role="tab" id="t-rev" aria-controls="p-rev" aria-selected="false">Ôn tập</button>
+    <button class="tab" role="tab" id="t-quiz" aria-controls="p-quiz" aria-selected="false">Trắc nghiệm</button>
+  </div>
+  <div class="pane prose" id="p-desc" role="tabpanel" aria-labelledby="t-desc">
+    <h2>Điều chế khí oxi từ KMnO<sub>4</sub></h2>
+    <p class="lead-p">Trong phòng thí nghiệm, khí oxi (O<sub>2</sub>) được điều chế bằng cách nhiệt phân những hợp chất giàu oxi và dễ bị phân hủy khi đun nóng, như KMnO<sub>4</sub> (thuốc tím) hoặc KClO<sub>3</sub>. Mô hình bên trái cho bạn tự tay đun, thu khí và thử khí.</p>
+    <div class="eq">2KMnO<sub>4</sub> →(t°) K<sub>2</sub>MnO<sub>4</sub> + MnO<sub>2</sub> + O<sub>2</sub>↑</div>
+
+    <h3>Mục tiêu bài học</h3>
+    <ul>
+      <li>Mô tả được cách lắp dụng cụ và các bước điều chế O<sub>2</sub>.</li>
+      <li>Giải thích được vai trò của nút bông, tư thế ống nghiệm và thứ tự kết thúc thí nghiệm.</li>
+      <li>Nhận biết được O<sub>2</sub> bằng que đóm còn tàn đỏ và viết đúng phương trình hóa học.</li>
+    </ul>
+
+    <h3>Dụng cụ và hóa chất</h3>
+    <ul>
+      <li>Ống nghiệm chịu nhiệt, nút cao su có ống dẫn khí bằng thủy tinh.</li>
+      <li>Giá sắt có kẹp, đèn cồn, diêm.</li>
+      <li>Chậu thủy tinh đựng nước, ống thu khí.</li>
+      <li>Bông, KMnO<sub>4</sub> rắn (tinh thể màu tím đen), que đóm.</li>
+    </ul>
+
+    <h3>Các bước tiến hành</h3>
+    <ol>
+      <li>Cho khoảng 1–2 g KMnO<sub>4</sub> vào đáy ống nghiệm, rải thành lớp mỏng.</li>
+      <li>Nhét một nhúm bông ở gần miệng ống nghiệm.</li>
+      <li>Đậy nút cao su có ống dẫn khí. Kẹp ống lên giá sắt, cách miệng ống khoảng 1/3 chiều dài, miệng hơi chúc xuống.</li>
+      <li>Đổ đầy nước vào ống thu khí, úp ngược trong chậu nước. Đặt đầu ống dẫn khí dưới miệng ống thu.</li>
+      <li>Đốt đèn cồn, hơ nóng đều cả ống rồi đun tập trung vào chỗ có KMnO<sub>4</sub>.</li>
+      <li>Khi bọt khí ra đều và liên tục thì thu khí cho đến khi nước trong ống bị đẩy hết.</li>
+      <li>Kết thúc: <strong>rút ống dẫn khí ra khỏi nước trước</strong>, sau đó mới tắt đèn cồn.</li>
+    </ol>
+
+    <h3>Hiện tượng</h3>
+    <ul>
+      <li>Chất rắn màu tím đen chuyển dần sang màu đen sẫm (K<sub>2</sub>MnO<sub>4</sub> lục thẫm và MnO<sub>2</sub> đen nâu).</li>
+      <li>Có bọt khí không màu thoát ra từ ống dẫn, đẩy nước ra khỏi ống thu.</li>
+      <li>Que đóm còn tàn đỏ đưa vào ống thu khí thì bùng cháy.</li>
+    </ul>
+
+    <h3>Vì sao làm như vậy?</h3>
+    <dl>
+      <dt>Vì sao phải nút bông?</dt>
+      <dd>Bông giữ bột KMnO<sub>4</sub> lại, không cho dòng khí cuốn bột sang ống dẫn khí và làm tím nước trong chậu. Hãy tắt công tắc “Nút bông” trong mô hình để quan sát.</dd>
+      <dt>Vì sao miệng ống nghiệm chúc xuống?</dt>
+      <dd>Hơi nước ngưng tụ ở thành ống sẽ chảy ra phía miệng, không chảy ngược xuống đáy đang nóng làm vỡ ống.</dd>
+      <dt>Vì sao thu khí bằng cách đẩy nước?</dt>
+      <dd>O<sub>2</sub> ít tan trong nước nên đẩy nước ra khỏi ống và tích lại phía trên.</dd>
+      <dt>Vì sao phải rút ống dẫn khí trước khi tắt đèn?</dt>
+      <dd>Tắt đèn trước thì ống nghiệm nguội đi, áp suất giảm và nước trong chậu bị hút ngược vào ống nóng, làm vỡ ống. Hãy thử trong mô hình.</dd>
+    </dl>
+
+    <h3>Hai cách thu khí O<sub>2</sub></h3>
+    <div class="tbl"><table>
+      <tr><th></th><th>Đẩy nước</th><th>Đẩy không khí</th></tr>
+      <tr><td>Cơ sở</td><td>O<sub>2</sub> ít tan trong nước</td><td>O<sub>2</sub> nặng hơn không khí (32/29 ≈ 1,1)</td></tr>
+      <tr><td>Cách đặt</td><td>Ống thu úp ngược trong chậu nước</td><td>Bình đặt ngửa, miệng hướng lên</td></tr>
+      <tr><td>Ưu điểm</td><td>Biết khi nào đầy, khí tinh khiết hơn</td><td>Thu được khí khô</td></tr>
+    </table></div>
+
+    <h3>Nhận biết khí O<sub>2</sub></h3>
+    <p>Đưa que đóm còn tàn đỏ vào ống thu khí. Nếu que đóm bùng cháy thì khí đó là O<sub>2</sub>. Bấm “Thử que đóm” để xem.</p>
+
+    <h3>An toàn</h3>
+    <div class="callout">Đeo kính và găng tay. Đun nóng đều, không đun quá lâu. Tắt đèn cồn bằng nắp đậy, không thổi. KMnO<sub>4</sub> làm bẩn da và quần áo, rửa tay sau khi làm.</div>
+
+    <h3>Gợi ý hoạt động với mô hình (cho giáo viên)</h3>
+    <ul>
+      <li>Cho học sinh dự đoán rồi tắt “Nút bông”: nước trong chậu đổi màu gì?</li>
+      <li>Tắt đèn trước khi rút ống dẫn khí: yêu cầu giải thích hiện tượng nước dâng trong ống.</li>
+      <li>Kéo mức lửa nhỏ và lớn rồi so sánh tốc độ thu đầy ống.</li>
+      <li>Dùng “Thay ống thu khí” để đếm số ống O<sub>2</sub> thu được và liên hệ với lượng KMnO<sub>4</sub>.</li>
+      <li>Bấm vào các nhãn trên hình để học sinh đọc chức năng từng dụng cụ.</li>
+    </ul>
+  </div>
+
+  <div class="pane" id="p-rev" role="tabpanel" aria-labelledby="t-rev" hidden>
+    <div class="prose">
+      <h2>Ôn tập nhanh</h2>
+      <div class="eq">2KMnO<sub>4</sub> →(t°) K<sub>2</sub>MnO<sub>4</sub> + MnO<sub>2</sub> + O<sub>2</sub>↑</div>
+      <div class="kp"><span>Phản ứng phân hủy</span><span>Thu khí đẩy nước</span><span>Nút bông</span><span>Que đóm tàn đỏ</span><span>Rút ống rồi tắt đèn</span></div>
+      <p><strong>Ví dụ tính toán.</strong> Nhiệt phân hoàn toàn 31,6 g KMnO<sub>4</sub> (M = 158): n = 31,6 / 158 = 0,2 mol. Theo phương trình, n(O<sub>2</sub>) = 0,1 mol, nên m(O<sub>2</sub>) = 0,1 × 32 = 3,2 g.</p>
+      <h3>Thẻ ghi nhớ</h3>
+    </div>
+    <div class="fc-wrap"><div class="fc" id="fc" tabindex="0" role="button" aria-label="Thẻ ghi nhớ, bấm để lật">
+      <div class="face front"><small id="fcN">Câu hỏi</small><div class="q" id="fcQ"></div><small>Bấm để lật thẻ</small></div>
+      <div class="face back"><small>Đáp án</small><div id="fcA"></div></div>
+    </div></div>
+    <div class="progress"><u id="fcBar"></u></div>
+    <div class="row">
+      <button class="btn" id="fcPrev">Trước</button>
+      <button class="btn" id="fcNext">Sau</button>
+      <button class="btn" id="fcShuf">Trộn thẻ</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn primary" id="fcKnow">Đã thuộc</button>
+      <button class="btn" id="fcNot">Chưa thuộc</button>
+      <span id="fcCount" style="font-weight:600;font-size:13px"></span>
+    </div>
+  </div>
+
+  <div class="pane" id="p-quiz" role="tabpanel" aria-labelledby="t-quiz" hidden>
+    <div id="quizBody"></div>
+  </div>
+</aside>
+</div>
+<script>
+(()=>{
+'use strict';
+const NS='http://www.w3.org/2000/svg';
+const $=id=>document.getElementById(id);
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const show=(el,on)=>on?el.removeAttribute('hidden'):el.setAttribute('hidden','');
+
+/* ---------- Âm thanh (Web Audio) ---------- */
+const Snd={ctx:null,on:true,fs:null,fg:null,
+  init(){ if(this.ctx)return; try{
+    const AC=window.AudioContext||window.webkitAudioContext; this.ctx=new AC();
+    this.master=this.ctx.createGain(); this.master.gain.value=.8; this.master.connect(this.ctx.destination);
+    const n=this.ctx.sampleRate*2, b=this.ctx.createBuffer(1,n,this.ctx.sampleRate), d=b.getChannelData(0);
+    for(let i=0;i<n;i++)d[i]=Math.random()*2-1; this.noiseBuf=b;
+  }catch(e){this.ctx=null} },
+  ok(){ return this.on&&this.ctx },
+  resume(){ if(this.ctx&&this.ctx.state==='suspended')this.ctx.resume() },
+  tone(f,dur=.12,type='sine',vol=.12,delay=0,to=null){
+    if(!this.ok())return; const c=this.ctx,t=c.currentTime+delay,o=c.createOscillator(),g=c.createGain();
+    o.type=type; o.frequency.setValueAtTime(f,t); if(to)o.frequency.exponentialRampToValueAtTime(to,t+dur);
+    g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+.01); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g); g.connect(this.master); o.start(t); o.stop(t+dur+.03);
+  },
+  noise(dur,type,f0,f1,vol,delay=0){
+    if(!this.ok())return; const c=this.ctx,t=c.currentTime+delay,s=c.createBufferSource(),fl=c.createBiquadFilter(),g=c.createGain();
+    s.buffer=this.noiseBuf; fl.type=type; fl.frequency.setValueAtTime(f0,t); fl.frequency.exponentialRampToValueAtTime(f1,t+dur);
+    g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+dur*.2); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    s.connect(fl); fl.connect(g); g.connect(this.master); s.start(t,Math.random()); s.stop(t+dur+.05);
+  },
+  click(){ this.tone(520,.06,'triangle',.08) },
+  flip(){ this.tone(700,.05,'square',.04) },
+  sw(on){ this.tone(on?660:440,.08,'triangle',.09) },
+  ignite(){ this.noise(.5,'bandpass',400,2600,.2); this.tone(180,.25,'sawtooth',.04) },
+  out(){ this.noise(.6,'lowpass',1800,200,.14) },
+  bubble(){ this.tone(260+Math.random()*220,.07,'sine',.07,0,900) },
+  correct(){ [523,659,784].forEach((f,i)=>this.tone(f,.2,'triangle',.12,i*.09)) },
+  wrong(){ this.tone(190,.25,'sawtooth',.09); this.tone(140,.3,'sawtooth',.09,.12) },
+  win(){ [523,659,784,1047].forEach((f,i)=>this.tone(f,.28,'triangle',.13,i*.12)) },
+  crack(){ this.noise(.3,'highpass',3500,800,.35); this.tone(95,.35,'sine',.25,0,40) },
+  whoosh(){ this.noise(.8,'bandpass',300,3200,.24); this.tone(220,.6,'sawtooth',.03,0,660) },
+  startFlame(){
+    if(!this.ok()||this.fs)return; const c=this.ctx,s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();
+    s.buffer=this.noiseBuf; s.loop=true; f.type='lowpass'; f.frequency.value=650; g.gain.value=0;
+    s.connect(f); f.connect(g); g.connect(this.master); s.start(); this.fs=s; this.fg=g;
+  },
+  setFlame(l){ if(this.fg)this.fg.gain.setTargetAtTime(l,this.ctx.currentTime,.1) },
+  stopFlame(){ if(this.fs){ this.fg.gain.setTargetAtTime(0,this.ctx.currentTime,.1); const s=this.fs; setTimeout(()=>{try{s.stop()}catch(e){}},400); this.fs=null; this.fg=null } }
+};
+window.OXI={Snd};
+
+/* ---------- Trạng thái mô phỏng ---------- */
+const PIPE_IN='M446,245 H520 Q540,245 548,265 L650,440 Q662,470 690,484 H748 Q760,484 760,470 V455';
+const PIPE_UP='M446,245 H520 Q540,245 548,265 L614,378';
+const SUCK_T=.25;
+let S;
+function fresh(){ return {lamp:false,flame:.6,cotton:true,inWater:true,temp:0,kmn:1,gas:0,tubes:0,suck:0,cracked:false,
+  tint:0,speed:1,everHeated:false,f5:null,smoke:0,bacc:0,dacc:0,once:{}} }
+S=fresh();
+const bubs=[],dusts=[]; let lastBub=0, tm=0;
+const G={}; ['flame','smoke','heatGlow','powder','cottonIn','cottonOut','crack','pipeOut','pipeIn','pipeWater','gasRect','meniscus','o2big','mols','wave','tint','bubbles','dust','tags','leaders'].forEach(k=>G[k]=$(k));
+const say=(t,tone='info')=>{ const s=$('status'); s.textContent=t; s.dataset.tone=tone };
+const once=(k,t,tone)=>{ if(!S.once[k]){ S.once[k]=1; say(t,tone) } };
+
+/* phân tử O2 trong ống thu */
+const mols=[]; for(let i=0;i<8;i++){
+  const g=document.createElementNS(NS,'g');
+  g.innerHTML='<circle cx="-3.6" r="4.2" fill="#e5533c"/><circle cx="3.6" r="4.2" fill="#e5533c"/>';
+  G.mols.appendChild(g); mols.push({g,x:rnd(738,782),y:rnd(240,260),vx:rnd(-30,30),vy:rnd(-30,30),a:rnd(0,360)});
+}
+
+/* nhãn chú thích */
+const TAGS=[
+ {id:'ongnghiem',t:'Ống nghiệm',x:262,y:150,tx:262,ty:208,d:'Ống nghiệm chịu nhiệt đựng KMnO₄. Miệng ống hơi chúc xuống để hơi nước ngưng tụ không chảy ngược về đáy đang nóng.'},
+ {id:'kmno4',t:'KMnO₄',x:95,y:190,tx:180,ty:238,d:'Kali pemanganat (thuốc tím), chất rắn màu tím đen. Khi đun nóng bị nhiệt phân thành K₂MnO₄, MnO₂ và khí O₂, nên chất rắn đổi màu.'},
+ {id:'bong',t:'Bông',x:420,y:170,tx:392,ty:238,d:'Nút bông giữ bột KMnO₄ lại, không để dòng khí cuốn bột sang ống dẫn khí và chậu nước. Thử tắt công tắc “Nút bông” để xem hậu quả.'},
+ {id:'giasat',t:'Giá sắt',x:425,y:112,tx:345,ty:125,d:'Giá sắt có kẹp giữ ống nghiệm. Kẹp cách miệng ống khoảng 1/3 chiều dài ống và phải kẹp chắc.'},
+ {id:'ongdan',t:'Ống dẫn khí',x:668,y:300,tx:590,ty:335,d:'Ống thủy tinh xuyên qua nút cao su, dẫn khí O₂ sang chậu nước. Khi kết thúc phải rút ống này ra khỏi nước trước khi tắt đèn.'},
+ {id:'denco',t:'Đèn cồn',x:62,y:440,tx:142,ty:452,d:'Đèn cồn cung cấp nhiệt. Đốt bằng diêm, tắt bằng cách đậy nắp, không thổi. Dùng phần ngọn lửa ở giữa để đun.'},
+ {id:'o2',t:'O₂',x:850,y:300,tx:796,ty:300,d:'Ống thu khí đầy nước, úp ngược trong chậu. O₂ ít tan trong nước nên đẩy nước ra và tích lại ở phía trên. Thử bằng que đóm còn tàn đỏ.'},
+ {id:'h2o',t:'H₂O',x:818,y:488,tx:818,ty:488,nolead:1,d:'Chậu thủy tinh đựng nước dùng để thu khí theo cách đẩy nước. Nếu nước bị hút ngược vào ống nghiệm nóng, ống sẽ vỡ.'}
+];
+function buildTags(){
+  TAGS.forEach(tg=>{
+    if(!tg.nolead){
+      const l=document.createElementNS(NS,'line'); l.setAttribute('class','lead');
+      l.setAttribute('x1',tg.x); l.setAttribute('y1',tg.y); l.setAttribute('x2',tg.tx); l.setAttribute('y2',tg.ty); G.leaders.appendChild(l);
+      const c=document.createElementNS(NS,'circle'); c.setAttribute('cx',tg.tx); c.setAttribute('cy',tg.ty); c.setAttribute('r',3.5); c.setAttribute('fill','var(--accent)'); G.leaders.appendChild(c);
+    }
+    const g=document.createElementNS(NS,'g'); g.setAttribute('class','tag'); g.setAttribute('tabindex','0'); g.setAttribute('role','button'); g.setAttribute('aria-label',tg.t+': xem chú thích');
+    g.innerHTML='<rect rx="10"/><text></text>'; g.querySelector('text').textContent=tg.t; g.dataset.id=tg.id; tg.el=g; G.tags.appendChild(g);
+    const open=()=>{ $('partT').textContent=tg.t; $('partP').textContent=tg.d; show($('partcard'),true); TAGS.forEach(x=>x.el.classList.toggle('on',x===tg)); Snd.init(); Snd.resume(); Snd.click(); };
+    g.addEventListener('click',open); g.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open() } });
+  });
+  measureTags();
+}
+function measureTags(){
+  TAGS.forEach(tg=>{ const t=tg.el.querySelector('text'),r=tg.el.querySelector('rect'); t.setAttribute('x',0); t.setAttribute('y',0);
+    const b=t.getBBox(); const w=(b.width||60)+22,h=(b.height||20)+10; r.setAttribute('x',-w/2); r.setAttribute('y',-h/2); r.setAttribute('width',w); r.setAttribute('height',h);
+    tg.el.setAttribute('transform','translate('+tg.x+','+tg.y+')'); });
+}
+$('partX').onclick=()=>{ show($('partcard'),false); TAGS.forEach(x=>x.el.classList.remove('on')) };
+$('swTags').onchange=e=>{ show(G.tags,e.target.checked); show(G.leaders,e.target.checked); Snd.init(); Snd.sw(e.target.checked); if(!e.target.checked)$('partX').onclick() };
+
+/* ---------- Điều khiển ---------- */
+const STEPS=[['s1','Nút bông'],['s2','Đun nóng'],['s3','Thu khí'],['s4','Rút ống dẫn khí'],['s5','Tắt đèn cồn']];
+$('steps').innerHTML=STEPS.map(s=>'<span class="chip" id="'+s[0]+'" data-s="todo">'+s[1]+'</span>').join('');
+
+function setPipe(){
+  const d=S.inWater?PIPE_IN:PIPE_UP; G.pipeOut.setAttribute('d',d); G.pipeIn.setAttribute('d',d);
+  $('btnPipe').textContent=S.inWater?'Rút ống dẫn khỏi nước':'Đặt ống dẫn vào nước';
+}
+function setCotton(){ show(G.cottonIn,S.cotton); show(G.cottonOut,!S.cotton) }
+function flameSound(){ if(S.lamp){ Snd.startFlame(); Snd.setFlame(.03+.06*S.flame) } }
+
+$('btnLamp').onclick=()=>{
+  Snd.init(); Snd.resume(); if(S.cracked){ say('Ống nghiệm đã vỡ. Bấm “Làm lại” để thử lần nữa.','bad'); return }
+  S.lamp=!S.lamp; const b=$('btnLamp'); b.setAttribute('aria-pressed',S.lamp); b.textContent=S.lamp?'Tắt đèn cồn':'Bật đèn cồn';
+  if(S.lamp){
+    Snd.ignite(); flameSound(); S.suck=0;
+    say(S.cotton?'Đèn đang cháy. Ống nghiệm nóng dần, hãy chờ nhiệt độ vượt 200 °C.':'Chưa nút bông. Bột KMnO₄ sẽ bị dòng khí cuốn đi.',S.cotton?'info':'warn');
+  } else {
+    Snd.out(); Snd.stopFlame(); S.smoke=2.2;
+    if(S.everHeated){
+      if(S.inWater&&S.temp>SUCK_T){ S.f5='bad'; say('Sai thứ tự! Ống nguội đi, nước trong chậu bị hút ngược vào ống dẫn khí.','bad') }
+      else { S.f5='done'; say('Đúng thứ tự: đã rút ống dẫn khí khỏi nước rồi mới tắt đèn.','good') }
+    } else say('Đã tắt đèn cồn.');
+  }
+};
+$('rngFlame').oninput=e=>{ S.flame=e.target.value/100; flameSound() };
+$('swCotton').onchange=e=>{
+  Snd.init(); Snd.sw(e.target.checked); S.cotton=e.target.checked; setCotton();
+  say(S.cotton?'Đã nút bông ở miệng ống nghiệm.':'Đã bỏ bông. Khi khí thoát ra, bột KMnO₄ sẽ theo ống dẫn vào nước.','warn');
+};
+$('btnPipe').onclick=()=>{
+  Snd.init(); Snd.resume(); Snd.click(); S.inWater=!S.inWater; setPipe();
+  if(!S.inWater){ say(S.everHeated?'Đã rút ống dẫn khí khỏi nước. Giờ có thể tắt đèn cồn.':'Đã rút ống dẫn khí khỏi nước. Khí sẽ không vào ống thu.','good') }
+  else if(!S.lamp&&S.temp>SUCK_T&&S.everHeated) say('Đặt ống vào nước khi ống còn nóng và đèn đã tắt: nước sẽ bị hút ngược!','bad');
+  else say('Đã đặt đầu ống dẫn khí vào nước, dưới miệng ống thu.');
+};
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{
+  Snd.init(); Snd.click(); S.speed=+b.dataset.sp; document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+});
+$('btnSwap').onclick=()=>{ Snd.init(); Snd.sw(true); S.tubes++; S.gas=0; S.once.full=0; say('Đã thay ống thu khí mới. Số ống O₂ đã thu: '+S.tubes+'.','good') };
+$('btnReset').onclick=()=>{
+  Snd.init(); Snd.click(); Snd.stopFlame(); clearT(); show($('inset'),false);
+  const sp=S.speed,fl=S.flame; S=fresh(); S.speed=sp; S.flame=fl;
+  bubs.splice(0).forEach(b=>b.el.remove()); dusts.splice(0).forEach(d=>d.el.remove());
+  const b=$('btnLamp'); b.setAttribute('aria-pressed','false'); b.textContent='Bật đèn cồn'; $('swCotton').checked=true; setCotton(); setPipe();
+  G.pipeWater.setAttribute('hidden',''); show(G.crack,false); say('Đã làm lại thí nghiệm. Bấm “Bật đèn cồn” để bắt đầu.');
+};
+$('btnSound').onclick=e=>{
+  Snd.init(); Snd.on=!Snd.on; e.currentTarget.setAttribute('aria-pressed',Snd.on); e.currentTarget.textContent='Âm thanh: '+(Snd.on?'bật':'tắt');
+  if(Snd.on){ Snd.click(); flameSound() } else Snd.stopFlame();
+};
+
+/* thử bằng que đóm */
+let tmr=[]; const clearT=()=>{ tmr.forEach(clearTimeout); tmr=[] };
+$('btnTest').onclick=()=>{
+  Snd.init(); Snd.resume(); if(S.gas<.2)return; clearT();
+  const ins=$('inset'); ins.className='inset'; show(ins,true); $('insetCap').textContent='Đưa que đóm còn tàn đỏ vào ống…'; void ins.offsetWidth;
+  ins.classList.add('in'); Snd.click();
+  tmr.push(setTimeout(()=>{ ins.classList.add('burst'); Snd.whoosh(); $('insetCap').textContent='Que đóm bùng cháy: khí thu được là O₂.'; say('Que đóm còn tàn đỏ bùng cháy, chứng tỏ khí trong ống là O₂.','good') },1100));
+};
+$('insetX').onclick=()=>{ clearT(); show($('inset'),false) };
+
+/* ---------- Bọt khí, bụi ---------- */
+function addBubble(type){
+  const el=document.createElementNS(NS,'circle'); el.setAttribute('class','bub'); el.setAttribute('r',type==='puff'?rnd(3,6):rnd(2.5,5)); G.bubbles.appendChild(el);
+  if(type==='o2') bubs.push({el,type,x:760+rnd(-5,5),y:452,vy:rnd(70,110),ph:rnd(0,6)});
+  else if(type==='esc') bubs.push({el,type,x:rnd(799,808),y:478,vy:rnd(50,80),ph:rnd(0,6)});
+  else bubs.push({el,type:'puff',x:614+rnd(-4,4),y:376,vy:rnd(25,45),ph:rnd(0,6),life:1.4});
+}
+function addDust(){ const el=document.createElementNS(NS,'circle'); el.setAttribute('r',2.4); el.setAttribute('fill','#7b2cae'); G.dust.appendChild(el); dusts.push({el,s:0,v:rnd(110,190)}) }
+
+/* ---------- Vòng lặp ---------- */
+let last=performance.now(), hudT=0;
+const gasPx=()=>S.gas*252;
+function tick(now){
+  const dt=Math.min(.05,(now-last)/1000); last=now; tm+=dt; const sdt=dt*S.speed;
+  // nhiệt độ
+  const target=S.lamp?.35+.65*S.flame:0;
+  S.temp+=(target-S.temp)*Math.min(1,sdt*(S.lamp?.28:.12));
+  if(S.temp>.5)S.everHeated=true;
+  // phản ứng
+  let r=0; if(S.temp>.45&&S.kmn>0&&!S.cracked) r=(S.temp-.45)/.55;
+  const used=Math.min(S.kmn,r*sdt*.02); S.kmn-=used; const made=used*2.2, reacting=used>0;
+  let escaping=false;
+  if(reacting){
+    once('react','KMnO₄ bắt đầu phân hủy: chất rắn đổi màu và khí O₂ sinh ra theo ống dẫn.');
+    if(S.inWater){ if(S.gas<1) S.gas=Math.min(1,S.gas+made); else escaping=true }
+  }
+  if(S.gas>=1&&!S.once.full){ S.once.full=1; say('Ống thu khí đã đầy. Có thể bấm “Thử que đóm” hoặc “Thay ống thu khí”.','good') }
+  if(S.kmn<=0&&!S.once.dep){ S.once.dep=1; say('KMnO₄ đã phân hủy hết, không còn sinh thêm O₂.','info') }
+  // hút ngược nước
+  if(!S.lamp&&S.inWater&&S.everHeated&&S.temp>SUCK_T&&!S.cracked){
+    S.suck+=sdt*.35*S.temp;
+    if(S.suck>.5&&!S.once.s50){ S.once.s50=1; say('Nước dâng nhanh trong ống dẫn khí, sắp chạm ống nghiệm nóng!','bad') }
+    if(S.suck>=.96){ S.cracked=true; S.f5='bad'; show(G.crack,true); Snd.crack(); say('Ống nghiệm nóng gặp nước lạnh nên bị vỡ. Hãy rút ống dẫn khí khỏi nước trước khi tắt đèn. Bấm “Làm lại”.','bad') }
+  }
+  // sinh bọt
+  if(reacting){
+    S.bacc+=(3+r*14)*dt*Math.min(S.speed,2);
+    while(S.bacc>=1){ S.bacc-=1; addBubble(!S.inWater?'puff':(escaping||S.gas>=1)?'esc':'o2');
+      if(S.inWater&&performance.now()-lastBub>130){ Snd.bubble(); lastBub=performance.now() } }
+    if(!S.cotton){ S.dacc+=r*7*dt; while(S.dacc>=1){ S.dacc-=1; addDust() } once('dust','Bột KMnO₄ bị cuốn theo khí qua ống dẫn: nước trong chậu sẽ đổi màu tím.','bad') }
+  }
+  // bọt
+  for(let i=bubs.length-1;i>=0;i--){ const b=bubs[i]; b.ph+=dt*6; b.y-=b.vy*dt;
+    let dead=false, x=b.x+Math.sin(b.ph)*(b.type==='o2'?2:4);
+    if(b.type==='o2'&&b.y<=230+gasPx()+2) dead=true;
+    else if(b.type==='esc'&&b.y<=428) dead=true;
+    else if(b.type==='puff'){ b.life-=dt; b.el.setAttribute('opacity',clamp(b.life,0,1)); if(b.life<=0)dead=true }
+    if(dead){ b.el.remove(); bubs.splice(i,1) } else { b.el.setAttribute('cx',x); b.el.setAttribute('cy',b.y) }
+  }
+  // bụi
+  const L=G.pipeOut.getTotalLength();
+  for(let i=dusts.length-1;i>=0;i--){ const d=dusts[i]; d.s+=d.v*dt;
+    if(d.s>=L){ if(S.inWater) S.tint=Math.min(1,S.tint+.04); d.el.remove(); dusts.splice(i,1); if(S.tint>.12) once('tint','Nước trong chậu đã có màu tím vì bột KMnO₄ lọt vào.','bad') }
+    else { const p=G.pipeOut.getPointAtLength(d.s); d.el.setAttribute('cx',p.x); d.el.setAttribute('cy',p.y) } }
+  render(dt);
+  requestAnimationFrame(tick);
+}
+
+function render(dt){
+  // lửa và khói
+  if(S.lamp){ const fl=reduce?0:Math.sin(tm*17)*.06+Math.sin(tm*29)*.04, h=(60+65*S.flame)/100;
+    G.flame.setAttribute('transform','translate(190,376) scale('+(.9+.2*S.flame+fl*.5).toFixed(3)+','+(h*(1+fl)).toFixed(3)+')'); show(G.flame,true) } else show(G.flame,false);
+  if(S.smoke>0){ S.smoke-=dt; let s=''; for(let i=0;i<4;i++){ const k=2.2-S.smoke, y=372-k*34-i*14, x=190+Math.sin(tm*3+i)*6;
+      s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+(4+i*2+k*2).toFixed(1)+'" fill="var(--muted)" opacity="'+(Math.max(0,S.smoke/2.2)*.3).toFixed(2)+'"/>' }
+    G.smoke.innerHTML=s } else if(G.smoke.firstChild) G.smoke.innerHTML='';
+  // bột rắn
+  const k=1-S.kmn, c=[88,28,120].map((a,i)=>Math.round(a+([36,50,38][i]-a)*k)); G.powder.setAttribute('fill','rgb('+c+')');
+  G.heatGlow.setAttribute('opacity',(clamp(S.temp,0,1)*.45).toFixed(2));
+  // chậu nước
+  let w='M590,'+(425+Math.sin(tm*2)*1.5).toFixed(1); for(let x=590;x<=870;x+=20) w+=' L'+x+','+(425+Math.sin(tm*2.4+x*.05)*2).toFixed(1); G.wave.setAttribute('d',w+' V530 H590 Z');
+  G.tint.setAttribute('opacity',(S.tint*.55).toFixed(2));
+  // nước hút ngược
+  if(S.suck>0&&S.inWater){ const L=G.pipeOut.getTotalLength(); G.pipeWater.setAttribute('stroke-dasharray',(L*clamp(S.suck,0,1)).toFixed(1)+' '+(L*2).toFixed(1)); show(G.pipeWater,true) } else show(G.pipeWater,false);
+  // khí trong ống thu
+  const gp=gasPx(); G.gasRect.setAttribute('height',gp.toFixed(1)); G.meniscus.setAttribute('y1',230+gp); G.meniscus.setAttribute('y2',230+gp); G.meniscus.setAttribute('opacity',gp>2?1:0);
+  G.o2big.setAttribute('opacity',clamp((gp-40)/60,0,.9).toFixed(2)); G.o2big.setAttribute('y',Math.max(262,230+gp/2+10));
+  const maxY=230+gp-8;
+  mols.forEach(m=>{ if(gp<36){ m.g.setAttribute('opacity',0); return } m.g.setAttribute('opacity',1);
+    m.x+=m.vx*dt; m.y+=m.vy*dt; m.a+=dt*60;
+    if(m.x<736){m.x=736;m.vx=Math.abs(m.vx)} if(m.x>784){m.x=784;m.vx=-Math.abs(m.vx)}
+    if(m.y<238){m.y=238;m.vy=Math.abs(m.vy)} if(m.y>maxY){m.y=maxY;m.vy=-Math.abs(m.vy)}
+    m.g.setAttribute('transform','translate('+m.x.toFixed(1)+','+m.y.toFixed(1)+') rotate('+m.a.toFixed(0)+')') });
+  // nút
+  $('btnTest').disabled=S.gas<.2; $('btnSwap').disabled=S.gas<.02;
+  // chip tiến trình
+  const st={s1:S.cotton?'done':'bad',s2:S.everHeated?'done':S.lamp?'doing':'todo',s3:(S.gas>=.95||S.tubes>0)?'done':S.gas>.02?'doing':'todo',
+    s4:(!S.inWater&&S.everHeated)?'done':'todo',s5:S.f5==='bad'?'bad':S.f5==='done'?'done':'todo'};
+  for(const id in st){ const el=$(id); if(el.dataset.s!==st[id]) el.dataset.s=st[id] }
+  // HUD
+  hudT+=dt; if(hudT>.08){ hudT=0;
+    const T=Math.round(25+389*S.temp); $('mT').textContent=T+' °C'; $('bT').style.width=clamp(S.temp,0,1)*100+'%';
+    $('mK').textContent=Math.round(S.kmn*100)+'%'; $('bK').style.width=S.kmn*100+'%';
+    $('mG').textContent=Math.round(S.gas*100)+'%'; $('bG').style.width=S.gas*100+'%'; $('mN').textContent=S.tubes }
+}
+
+buildTags(); setCotton(); setPipe();
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(measureTags);
+matchMedia('(max-width:860px)').addEventListener('change',measureTags);
+requestAnimationFrame(tick);
+})();
+</script>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const Snd=window.OXI.Snd;
+const shuffle=a=>{ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a };
+
+/* ----- Tab ----- */
+const tabs=['desc','rev','quiz'];
+tabs.forEach(n=>$('t-'+n).addEventListener('click',()=>{
+  Snd.init(); Snd.resume(); Snd.click();
+  tabs.forEach(m=>{ $('t-'+m).setAttribute('aria-selected',m===n); $('p-'+m).hidden=m!==n });
+  $('p-'+n).scrollTop=0;
+}));
+
+/* ----- Thẻ ghi nhớ ----- */
+const CARDS=[
+ ['Phương trình điều chế O₂ từ KMnO₄?','2KMnO₄ →(t°) K₂MnO₄ + MnO₂ + O₂↑'],
+ ['Vì sao phải nút bông ở miệng ống nghiệm?','Để bột KMnO₄ không bị dòng khí cuốn sang ống dẫn khí và chậu nước.'],
+ ['Vì sao thu O₂ bằng cách đẩy nước?','Vì O₂ ít tan trong nước.'],
+ ['Thu O₂ bằng cách đẩy không khí thì đặt bình thế nào? Vì sao?','Đặt ngửa bình (miệng hướng lên), vì O₂ nặng hơn không khí (32/29 ≈ 1,1).'],
+ ['Cách nhận biết khí O₂?','Que đóm còn tàn đỏ bùng cháy khi đưa vào khí O₂.'],
+ ['Thứ tự kết thúc thí nghiệm?','Rút ống dẫn khí ra khỏi nước trước, rồi mới tắt đèn cồn.'],
+ ['Vì sao miệng ống nghiệm hơi chúc xuống?','Để hơi nước ngưng tụ không chảy ngược xuống đáy ống đang nóng làm vỡ ống.'],
+ ['Phản ứng nhiệt phân KMnO₄ thuộc loại nào?','Phản ứng phân hủy: một chất sinh ra nhiều chất mới.'],
+ ['Các chất rắn còn lại sau khi nhiệt phân KMnO₄?','K₂MnO₄ (kali manganat) và MnO₂ (mangan đioxit).'],
+ ['Hiện tượng khi đun KMnO₄?','Chất rắn tím đen đổi màu sẫm, có khí không màu thoát ra đẩy nước.'],
+ ['Khối lượng chất rắn sau phản ứng thay đổi thế nào?','Giảm, và độ giảm bằng khối lượng khí O₂ thoát ra.'],
+ ['Tính chất vật lí của O₂?','Chất khí không màu, không mùi, ít tan trong nước, nặng hơn không khí.']
+];
+let order=CARDS.map((_,i)=>i), ci=0; const known=new Set();
+function fcShow(){
+  const c=CARDS[order[ci]]; $('fc').classList.remove('flip');
+  $('fcN').textContent='Câu hỏi '+(ci+1)+'/'+CARDS.length; $('fcQ').textContent=c[0]; $('fcA').textContent=c[1];
+  $('fcBar').style.width=known.size/CARDS.length*100+'%'; $('fcCount').textContent='Đã thuộc '+known.size+'/'+CARDS.length;
+}
+const fcMove=d=>{ ci=(ci+d+CARDS.length)%CARDS.length; Snd.flip(); fcShow() };
+const flip=()=>{ Snd.init(); Snd.flip(); $('fc').classList.toggle('flip') };
+$('fc').onclick=flip; $('fc').onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); flip() } };
+$('fcPrev').onclick=()=>fcMove(-1); $('fcNext').onclick=()=>fcMove(1);
+$('fcShuf').onclick=()=>{ order=shuffle(order); ci=0; Snd.flip(); fcShow() };
+$('fcKnow').onclick=()=>{ known.add(order[ci]); Snd.correct(); fcMove(1) };
+$('fcNot').onclick=()=>{ known.delete(order[ci]); fcMove(1) };
+fcShow();
+
+/* ----- Trắc nghiệm ----- */
+const BANK=[
+ {q:'Phương trình hóa học nào đúng cho phản ứng điều chế O₂ từ KMnO₄?',o:['2KMnO₄ → K₂MnO₄ + MnO₂ + O₂↑','KMnO₄ → K₂MnO₄ + MnO₂ + O₂↑','2KMnO₄ → K₂MnO₄ + 2MnO₂ + O₂↑','2KMnO₄ → K₂MnO₄ + MnO₂ + 2O₂↑'],a:0,w:'Mỗi vế có 2 K, 2 Mn và 8 O khi cân bằng như đáp án A.'},
+ {q:'Nút bông ở miệng ống nghiệm dùng để làm gì?',o:['Giữ bột KMnO₄ không bị cuốn theo khí sang ống dẫn','Giữ nhiệt cho ống nghiệm','Hút hơi nước sinh ra','Làm phản ứng xảy ra nhanh hơn'],a:0,w:'Nếu bỏ bông, bột tím theo dòng khí vào chậu nước làm nước đổi màu.'},
+ {q:'Thu khí O₂ bằng cách đẩy nước dựa vào tính chất nào?',o:['O₂ ít tan trong nước','O₂ nhẹ hơn không khí','O₂ không màu','O₂ duy trì sự cháy'],a:0,w:'Chất khí ít tan trong nước mới thu được bằng cách đẩy nước.'},
+ {q:'Thu O₂ bằng cách đẩy không khí, bình phải đặt như thế nào?',o:['Ngửa bình (miệng hướng lên) vì O₂ nặng hơn không khí','Úp bình vì O₂ nhẹ hơn không khí','Ngửa bình vì O₂ nhẹ hơn không khí','Úp bình vì O₂ ít tan trong nước'],a:0,w:'M(O₂) = 32 lớn hơn 29 nên O₂ chìm xuống, đẩy không khí lên và ra khỏi miệng bình.'},
+ {q:'Cách đơn giản nhất để nhận biết khí O₂ là gì?',o:['Que đóm còn tàn đỏ bùng cháy','Nước vôi trong bị vẩn đục','Giấy quỳ tím hóa đỏ','Dung dịch phenolphtalein hóa hồng'],a:0,w:'Nước vôi trong đục là dấu hiệu của CO₂, không phải O₂.'},
+ {q:'Khi kết thúc thí nghiệm, phải làm gì trước?',o:['Rút ống dẫn khí khỏi nước rồi mới tắt đèn cồn','Tắt đèn cồn rồi mới rút ống dẫn khí','Đổ nước lạnh vào ống nghiệm','Thổi tắt đèn cồn ngay'],a:0,w:'Tắt đèn trước thì ống nguội, áp suất giảm, nước bị hút ngược vào ống nóng làm vỡ ống.'},
+ {q:'Vì sao miệng ống nghiệm đựng KMnO₄ hơi chúc xuống?',o:['Để hơi nước ngưng tụ không chảy ngược xuống đáy nóng','Để khí O₂ thoát nhanh hơn','Để bột KMnO₄ không rơi ra','Để dễ nhìn thấy chất rắn'],a:0,w:'Nước lạnh chạm đáy ống đang nóng có thể làm ống nứt vỡ.'},
+ {q:'Nhiệt phân KMnO₄ thuộc loại phản ứng nào?',o:['Phản ứng phân hủy','Phản ứng hóa hợp','Phản ứng thế','Phản ứng trao đổi'],a:0,w:'Một chất ban đầu tạo ra ba chất mới nên là phản ứng phân hủy.'},
+ {q:'Chất rắn còn lại trong ống sau khi nhiệt phân KMnO₄ gồm những chất nào?',o:['K₂MnO₄ và MnO₂','KOH và Mn','K₂O và MnO','Chỉ có MnO₂'],a:0,w:'Theo phương trình, ngoài O₂ còn có K₂MnO₄ và MnO₂.'},
+ {q:'Nhiệt phân hoàn toàn 31,6 g KMnO₄ (M = 158) thì khối lượng O₂ thu được là bao nhiêu?',o:['3,2 g','6,4 g','1,6 g','9,6 g'],a:0,w:'n(KMnO₄) = 0,2 mol, n(O₂) = 0,1 mol, m(O₂) = 0,1 × 32 = 3,2 g.'},
+ {q:'So với lúc đầu, khối lượng chất rắn trong ống nghiệm sau phản ứng thế nào?',o:['Giảm, vì O₂ thoát ra','Tăng, vì có thêm chất mới','Không đổi','Tăng, vì hút hơi nước'],a:0,w:'Khối lượng chất rắn giảm đúng bằng khối lượng khí O₂ đã thoát ra.'},
+ {q:'Cách đun ống nghiệm đúng là gì?',o:['Hơ nóng đều cả ống rồi đun tập trung chỗ có KMnO₄','Đun ngay vào một chỗ bằng lửa lớn','Chỉ đun phần miệng ống','Đun ống nghiệm đã kẹp sát đáy'],a:0,w:'Hơ đều giúp ống nóng dần, tránh nứt vỡ do nóng đột ngột.'},
+ {q:'Tỉ khối của O₂ so với không khí xấp xỉ bao nhiêu?',o:['1,1','0,9','1,6','0,5'],a:0,w:'d = 32/29 ≈ 1,1.'},
+ {q:'Đưa que đóm còn tàn đỏ vào ống đựng O₂ thì hiện tượng gì xảy ra?',o:['Que đóm bùng cháy','Que đóm tắt ngay','Không có gì thay đổi','Ống nghiệm bị nổ'],a:0,w:'O₂ duy trì sự cháy mạnh hơn không khí.'},
+ {q:'Trong mô hình, nếu bỏ nút bông và đun nóng thì quan sát thấy điều gì?',o:['Nước trong chậu chuyển màu tím','Nước trong chậu sôi','Nước trong chậu đóng băng','Không thấy khác biệt nào'],a:0,w:'Bột KMnO₄ bị khí cuốn qua ống dẫn và hòa vào nước.'}
+];
+const Q={list:[],i:0,score:0,streak:0,right:0,wrong:[],locked:false,timed:false,tick:null,left:25};
+const body=$('quizBody');
+function best(){ try{ return +localStorage.getItem('oxi-best')||0 }catch(e){ return 0 } }
+function saveBest(v){ try{ localStorage.setItem('oxi-best',v) }catch(e){} }
+
+function qHome(){
+  clearInterval(Q.tick);
+  body.innerHTML='<div class="prose"><h2>Thử thách trắc nghiệm</h2><p>10 câu hỏi ngẫu nhiên về điều chế khí O₂. Đáp đúng liên tiếp sẽ được cộng điểm thưởng.</p></div>'+
+   '<p style="font-weight:600">Điểm cao nhất: <span style="color:var(--accent)">'+best()+'</span></p>'+
+   '<label class="sw" style="margin:8px 0 14px"><input type="checkbox" id="qTimed"><span class="trk"></span>Tính giờ (25 giây mỗi câu)</label>'+
+   '<div><button class="btn primary" id="qGo">Bắt đầu</button></div>';
+  $('qGo').onclick=()=>{ Snd.init(); Snd.resume(); Snd.click(); Q.timed=$('qTimed').checked; qStart() };
+}
+function qStart(){
+  Q.list=shuffle(BANK).slice(0,10).map(q=>({...q,ord:shuffle([0,1,2,3])})); Q.i=0; Q.score=0; Q.streak=0; Q.right=0; Q.wrong=[]; qShow();
+}
+function qShow(){
+  const q=Q.list[Q.i]; Q.locked=false; Q.left=25; $('p-quiz').scrollTop=0;
+  body.innerHTML='<div class="qz-top"><span>Câu '+(Q.i+1)+'/10</span><span>Điểm: <b id="qS">'+Q.score+'</b></span><span>Chuỗi đúng: '+Q.streak+'</span></div>'+
+   (Q.timed?'<div class="tbar"><u id="qT"></u></div>':'')+
+   '<div class="qz-q">'+q.q+'</div><div id="qOpts">'+q.ord.map((oi,k)=>'<button class="opt" data-k="'+k+'"><b>'+'ABCD'[k]+'</b><span>'+q.o[oi]+'</span></button>').join('')+'</div><div id="qFb"></div>';
+  body.querySelectorAll('.opt').forEach(b=>b.onclick=()=>qAnswer(+b.dataset.k));
+  clearInterval(Q.tick);
+  if(Q.timed){ const t0=performance.now(); Q.tick=setInterval(()=>{ const l=Math.max(0,25-(performance.now()-t0)/1000); Q.left=l; const u=$('qT'); if(u)u.style.width=l/25*100+'%'; if(l<=0){ clearInterval(Q.tick); qAnswer(-1) } },100) }
+}
+function qAnswer(k){
+  if(Q.locked)return; Q.locked=true; clearInterval(Q.tick);
+  const q=Q.list[Q.i], ok=k>=0&&q.ord[k]===q.a, opts=body.querySelectorAll('.opt');
+  opts.forEach((b,j)=>{ b.disabled=true; if(q.ord[j]===q.a)b.classList.add('ok'); else if(j===k)b.classList.add('no') });
+  let msg;
+  if(ok){ Q.streak++; Q.right++; const gain=100+Math.min(Q.streak-1,4)*25+(Q.timed?Math.round(Q.left/25*50):0); Q.score+=gain; Snd.correct(); msg='<strong style="color:var(--good)">Chính xác! +'+gain+' điểm</strong>' }
+  else { Q.streak=0; Q.wrong.push(q); Snd.wrong(); msg='<strong style="color:var(--bad)">'+(k<0?'Hết giờ.':'Chưa đúng.')+'</strong>' }
+  $('qS').textContent=Q.score;
+  $('qFb').innerHTML='<div class="fb">'+msg+q.w+'</div><button class="btn primary" id="qNext">'+(Q.i<9?'Câu tiếp theo':'Xem kết quả')+'</button>';
+  $('qNext').onclick=()=>{ Snd.click(); if(Q.i<9){ Q.i++; qShow() } else qEnd() };
+  $('qNext').focus();
+}
+function qEnd(){
+  const prev=best(), rec=Q.score>prev; if(rec)saveBest(Q.score);
+  const rank=Q.right>=9?'Xuất sắc':Q.right>=7?'Giỏi':Q.right>=5?'Khá':'Cần ôn thêm';
+  if(Q.right>=7)Snd.win(); else Snd.click();
+  body.innerHTML='<div class="prose"><h2>Kết quả</h2></div><div class="big">'+Q.right+'/10</div><p style="font-weight:600;margin:6px 0">'+rank+' · '+Q.score+' điểm'+(rec?' · Kỷ lục mới!':'')+'</p>'+
+   (Q.wrong.length?'<div class="prose"><h3>Các câu cần xem lại</h3></div>'+Q.wrong.map(q=>'<div class="rev"><strong>'+q.q+'</strong><br>Đáp án: '+q.o[q.a]+'<br><span style="color:var(--muted)">'+q.w+'</span></div>').join(''):'<p>Bạn trả lời đúng tất cả các câu.</p>')+
+   '<div class="row" style="margin-top:12px"><button class="btn primary" id="qAgain">Chơi lại</button><button class="btn" id="qHomeBtn">Về màn hình đầu</button></div>';
+  $('qAgain').onclick=()=>{ Snd.click(); qStart() }; $('qHomeBtn').onclick=()=>{ Snd.click(); qHome() };
+  $('p-quiz').scrollTop=0;
+}
+qHome();
+})();
+</script>
+
+</body></html>

@@ -1,0 +1,833 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Miếng xé dán</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<style>
+/* Bố cục: mô hình tương tác chiếm 3/4 bên trái, bảng nội dung 1/4 bên phải có thanh cuộn riêng.
+   Bảng màu lấy từ chính đối tượng: móc nylon (cam gạch), vòng sợi (xanh ngọc), lá ngưu bàng (xanh lá), hoa ngưu bàng (tím). */
+:root{
+  --bg:#e7ece3; --stage:#f3f6ef; --panel:#fafbf7; --ink:#1b2a22; --muted:#56655c; --line:#cdd7c8; --dot:#cfd9ca;
+  --hook:#c4501f; --loop:#13788c; --leaf:#4a7d37; --flower:#7a3d9a; --warn:#c98a00;
+  --accent:#7a3d9a; --accent-ink:#ffffff; --soft:#eef2e9;
+  --font-display:'Bricolage Grotesque','Be Vietnam Pro',system-ui,sans-serif;
+  --font-body:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d1511; --stage:#111b16; --panel:#16211b; --ink:#e5ece3; --muted:#9aab9f; --line:#2a3a30; --dot:#1f2e26;
+    --hook:#ff8a55; --loop:#55c6da; --leaf:#86c46a; --flower:#c58be6; --warn:#ffcf4d;
+    --accent:#c58be6; --accent-ink:#1a0f22; --soft:#1c2a22; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d1511; --stage:#111b16; --panel:#16211b; --ink:#e5ece3; --muted:#9aab9f; --line:#2a3a30; --dot:#1f2e26;
+  --hook:#ff8a55; --loop:#55c6da; --leaf:#86c46a; --flower:#c58be6; --warn:#ffcf4d;
+  --accent:#c58be6; --accent-ink:#1a0f22; --soft:#1c2a22; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.6;
+  padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+.app{height:100%;display:grid;grid-template-columns:minmax(0,3fr) minmax(310px,1fr);gap:14px}
+.stage,.side{min-height:0;min-width:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.stage{background:var(--stage);display:flex;flex-direction:column}
+.side{background:var(--panel);display:flex;flex-direction:column}
+
+/* ---- Stage header ---- */
+.sh{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;margin-right:auto}
+.mark{flex:none;width:34px;height:34px;border-radius:9px;background:
+  repeating-linear-gradient(90deg,var(--hook) 0 3px,transparent 3px 7px) top/100% 48% no-repeat,
+  repeating-linear-gradient(90deg,var(--loop) 0 3px,transparent 3px 7px) bottom/100% 48% no-repeat,var(--soft)}
+h1{font-family:var(--font-display);font-weight:800;font-size:19px;line-height:1.1;margin:0;letter-spacing:-.01em}
+.brand p{margin:0;font-size:12px;color:var(--muted)}
+.vtabs,.seg{display:flex;gap:2px;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:3px}
+.vtabs button,.seg button{border:0;background:transparent;padding:6px 12px;border-radius:7px;font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap}
+.vtabs button[aria-selected="true"],.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.snd{display:flex;gap:6px}
+.tg{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.tg::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--line)}
+.tg[aria-pressed="true"]{color:var(--ink);border-color:var(--leaf)}
+.tg[aria-pressed="true"]::before{background:var(--leaf)}
+
+/* ---- Views ---- */
+.views{flex:1;min-height:0;position:relative}
+.view{position:absolute;inset:0;display:flex;flex-direction:column;min-height:0}
+.canvas-wrap{flex:1;min-height:0;position:relative;
+  background-image:radial-gradient(var(--dot) 1.2px,transparent 1.3px);background-size:26px 26px}
+#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
+#cv.grab{cursor:grabbing}
+.hud{position:absolute;left:12px;right:12px;top:10px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;pointer-events:none}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;font-weight:600;background:color-mix(in srgb,var(--stage) 85%,transparent);padding:5px 10px;border-radius:999px;border:1px solid var(--line);align-self:flex-start}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+.sw.h{background:var(--hook)}.sw.l{background:var(--loop)}
+.stats{display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:color-mix(in srgb,var(--stage) 88%,transparent);padding:6px 12px;border-radius:12px;border:1px solid var(--line)}
+.stats b{font-family:var(--font-display);font-size:20px;line-height:1;font-variant-numeric:tabular-nums}
+.stats small{display:block;font-size:11px;color:var(--muted);line-height:1.3}
+.fb{min-width:120px}
+.bar{position:relative;height:8px;border-radius:99px;background:var(--soft);border:1px solid var(--line);margin:3px 0}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--hook);width:0}
+.bar u{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);left:0;text-decoration:none}
+.chip{font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--soft);border:1px solid var(--line)}
+
+.ctl{border-top:1px solid var(--line);padding:10px 14px 12px;display:flex;flex-direction:column;gap:9px;background:var(--panel)}
+.tip{margin:0;font-size:13.5px;color:var(--ink);min-height:2.7em}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.btns{display:flex;gap:8px}
+.btn{border:1px solid var(--line);background:var(--soft);padding:7px 14px;border-radius:9px;font-weight:600;font-size:13.5px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.slide{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;font-size:13px}
+.slide label{font-weight:600}
+.slide output{min-width:3.2em;text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--accent);min-width:0}
+
+/* ---- Compare ---- */
+.scrollv{flex:1;min-height:0;overflow:auto;padding:16px 18px;overscroll-behavior:contain}
+.scrollv h2{font-family:var(--font-display);font-size:22px;margin:0 0 4px;letter-spacing:-.01em}
+.scrollv>p{margin:0 0 14px;color:var(--muted);font-size:14px}
+.cmp{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px 8px;align-items:center;max-width:720px}
+.card{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--panel);border-radius:12px;padding:8px 10px 10px;transition:border-color .15s,transform .15s}
+.card svg{display:block;width:100%;height:auto;max-height:150px}
+.card strong{display:block;font-size:13.5px}
+.card span{font-size:12px;color:var(--muted)}
+.card.on{border-color:var(--accent);transform:translateY(-2px)}
+.arrow{font-size:22px;color:var(--muted);text-align:center}
+.note{margin:14px 0 0;max-width:720px;padding:12px 14px;border-radius:12px;background:var(--soft);border:1px solid var(--line);font-size:14px;min-height:4.6em}
+
+/* ---- Quiz ---- */
+.qwrap{max-width:640px}
+.qmeta{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-bottom:6px;font-weight:600}
+.qbar{height:6px;border-radius:99px;background:var(--soft);border:1px solid var(--line);margin-bottom:14px;overflow:hidden}
+.qbar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.qq{font-family:var(--font-display);font-size:20px;line-height:1.3;margin:0 0 12px;font-weight:600;text-wrap:balance}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;border:1.5px solid var(--line);background:var(--panel);padding:10px 14px;border-radius:10px;font-size:14.5px}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.ok{border-color:var(--leaf);background:color-mix(in srgb,var(--leaf) 18%,var(--panel))}
+.opt.no{border-color:var(--hook);background:color-mix(in srgb,var(--hook) 16%,var(--panel))}
+.opt:disabled{cursor:default}
+.exp{margin:12px 0;padding:10px 14px;border-radius:10px;background:var(--soft);border:1px solid var(--line);font-size:14px}
+.score{font-family:var(--font-display);font-size:44px;font-weight:800;line-height:1;margin:6px 0}
+
+/* ---- Side panel ---- */
+.tabs{display:flex;border-bottom:1px solid var(--line);background:var(--soft)}
+.tabs button{flex:1;border:0;background:transparent;padding:12px 6px;font-size:13px;font-weight:700;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);background:var(--panel)}
+.prog{height:3px;background:var(--line);flex:none}
+.prog i{display:block;height:100%;width:0;background:var(--accent)}
+.scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:18px 18px 40px;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.scroll>section{max-width:62ch}
+.eyebrow{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;color:var(--accent);margin:0 0 4px}
+.scroll h2{font-family:var(--font-display);font-size:24px;line-height:1.15;margin:0 0 10px;letter-spacing:-.01em;text-wrap:balance}
+.scroll h3{font-family:var(--font-display);font-size:16.5px;margin:22px 0 6px;text-wrap:balance}
+.scroll p{margin:0 0 10px}
+.lead{font-size:15.5px;color:var(--ink)}
+.scroll ul,.scroll ol{margin:0 0 10px;padding-left:20px}
+.scroll li{margin-bottom:5px}
+.def{display:grid;gap:8px;margin:8px 0 10px}
+.def div{border:1px solid var(--line);border-radius:10px;padding:9px 12px;border-left-width:5px}
+.def .h{border-left-color:var(--hook)}.def .l{border-left-color:var(--loop)}
+.def b{display:block}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:0;list-style:none}
+.chips li{margin:0;border:1px solid var(--line);background:var(--soft);padding:2px 10px;border-radius:99px;font-size:12.5px;font-weight:600}
+.fig{margin:4px 0 14px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--soft)}
+.fig .pic{display:block;width:100%}
+.fig .pic svg,.fig .pic img{display:block;width:100%;height:auto;max-height:300px;object-fit:cover}
+.fig figcaption{padding:8px 12px;font-size:12.5px;color:var(--muted);display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.fig figcaption span{min-width:0;flex:1 1 160px}
+.mini{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:600}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:8px 0 12px;font-size:14px}
+.facts dt{font-weight:700;color:var(--muted)}
+.facts dd{margin:0}
+.tl{list-style:none;padding:0;margin:8px 0 12px;border-left:2px solid var(--line)}
+.tl li{position:relative;padding:0 0 14px 18px;margin:0}
+.tl li::before{content:"";position:absolute;left:-7px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--accent);border:2px solid var(--panel)}
+.tl time{display:block;font-family:var(--font-display);font-weight:800;font-size:15px}
+.callout{border:1px solid var(--line);background:var(--soft);border-radius:12px;padding:11px 14px;margin:12px 0}
+.callout b{display:block;margin-bottom:2px}
+.fileinp{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+
+/* ---- Narrow screens ---- */
+@media (max-width:860px){
+  html,body{height:auto}
+  .app{height:auto;grid-template-columns:minmax(0,1fr)}
+  .stage{height:max(560px,86svh)}
+  .side{height:max(460px,72svh)}
+  .sh{padding:8px 10px}
+  .brand p{display:none}
+  .scroll,.scrollv{padding-left:14px;padding-right:14px}
+  .slide{grid-template-columns:1fr auto}
+  .slide label{grid-column:1/-1}
+  .tip{min-height:4em}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="app">
+  <main class="stage" aria-label="Mô hình tương tác miếng xé dán">
+    <header class="sh">
+      <div class="brand">
+        <span class="mark" aria-hidden="true"></span>
+        <div><h1>Miếng xé dán</h1><p>Velcro · phỏng sinh học từ quả ngưu bàng</p></div>
+      </div>
+      <nav class="vtabs" role="tablist" aria-label="Chế độ xem" id="vtabs">
+        <button type="button" role="tab" id="vt-sim" aria-controls="v-sim">Mô hình</button>
+        <button type="button" role="tab" id="vt-cmp" aria-controls="v-cmp">Thiên nhiên ⇄ Kỹ thuật</button>
+        <button type="button" role="tab" id="vt-quiz" aria-controls="v-quiz">Thử thách</button>
+      </nav>
+      <div class="snd">
+        <button type="button" class="tg" id="tgSfx" aria-pressed="true">Âm thanh</button>
+        <button type="button" class="tg" id="tgAmb" aria-pressed="false">Nền rừng</button>
+      </div>
+    </header>
+
+    <div class="views">
+      <!-- 1. Mô hình mô phỏng -->
+      <section class="view" id="v-sim" role="tabpanel" aria-labelledby="vt-sim">
+        <div class="canvas-wrap" id="cwrap">
+          <canvas id="cv" role="img" aria-label="Mặt cắt phóng đại: các móc nylon của mặt gai đang móc vào vòng sợi của mặt bông. Kéo lên xuống hoặc dùng thanh trượt để tách."></canvas>
+          <div class="hud">
+            <div class="legend"><span><i class="sw h"></i>Mặt gai (Hook)</span><span><i class="sw l"></i>Mặt bông (Loop)</span></div>
+            <div class="stats">
+              <div><b id="sCnt">0/0</b><small>móc đang bám</small></div>
+              <div class="fb"><small>Lực giữ</small><div class="bar"><i id="fFill"></i><u id="fPeak"></u></div><small id="fTxt">đỉnh: 0</small></div>
+              <div class="chip" id="sState">Đang dán chặt</div>
+            </div>
+          </div>
+        </div>
+        <div class="ctl">
+          <p class="tip" id="tip" aria-live="polite"></p>
+          <div class="row">
+            <div class="seg" role="group" aria-label="Kiểu tác động" id="modes">
+              <button type="button" data-mode="pull" aria-pressed="true">Kéo thẳng</button>
+              <button type="button" data-mode="peel" aria-pressed="false">Bóc từ mép</button>
+              <button type="button" data-mode="shear" aria-pressed="false">Trượt ngang</button>
+            </div>
+            <div class="btns">
+              <button type="button" class="btn" id="bPress">Ép chặt lại</button>
+              <button type="button" class="btn primary" id="bOpen">Tách ra</button>
+            </div>
+          </div>
+          <div class="slide">
+            <label for="amt" id="amtL">Kéo thẳng ra khỏi mặt bông</label>
+            <input id="amt" type="range" min="0" max="100" step="1" value="0">
+            <output id="amtO" for="amt">0%</output>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. So sánh thiên nhiên và kỹ thuật -->
+      <section class="view" id="v-cmp" role="tabpanel" aria-labelledby="vt-cmp" hidden>
+        <div class="scrollv">
+          <h2>Thiên nhiên đã làm trước, con người học theo</h2>
+          <p>Chạm vào một hình để thấy cặp tương ứng giữa thiên nhiên (bên trái) và miếng xé dán (bên phải).</p>
+          <div class="cmp" id="cmp"></div>
+          <p class="note" id="cmpNote" aria-live="polite">Gợi ý: so sánh hình dạng đầu gai của quả ngưu bàng với móc nylon, rồi so sánh lông chó với vòng sợi.</p>
+        </div>
+      </section>
+
+      <!-- 3. Thử thách -->
+      <section class="view" id="v-quiz" role="tabpanel" aria-labelledby="vt-quiz" hidden>
+        <div class="scrollv"><div class="qwrap" id="quiz"></div></div>
+      </section>
+    </div>
+  </main>
+
+  <aside class="side" aria-label="Nội dung học tập">
+    <div class="tabs" role="tablist" aria-label="Nội dung" id="stabs">
+      <button type="button" role="tab" id="st-desc" aria-controls="p-desc">Mô tả</button>
+      <button type="button" role="tab" id="st-bio" aria-controls="p-bio">Tiểu sử</button>
+      <button type="button" role="tab" id="st-ctx" aria-controls="p-ctx">Hoàn cảnh phát minh</button>
+    </div>
+    <div class="prog" aria-hidden="true"><i id="progI"></i></div>
+    <div class="scroll" id="scroll" tabindex="0" aria-label="Nội dung có thể cuộn">
+
+      <!-- Tab: Mô tả -->
+      <section id="p-desc" role="tabpanel" aria-labelledby="st-desc">
+        <p class="eyebrow">Phỏng sinh học · Biomimicry</p>
+        <h2>Miếng xé dán (khóa nhám Velcro)</h2>
+        <p class="lead">Đây là một trong những ví dụ kinh điển và thành công nhất của công nghệ phỏng sinh học. Sản phẩm được thiết kế dựa trên việc mô phỏng cơ chế bám dính tự nhiên của quả cây ngưu bàng (<i>burdock</i>) lên lông động vật và sợi vải.</p>
+
+        <h3>1. Nguồn cảm hứng từ thiên nhiên</h3>
+        <p>Năm 1941, kỹ sư người Thụy Sĩ George de Mestral đi dạo trong rừng cùng chú chó và thấy rất nhiều quả ngưu bàng bám chặt vào quần áo của ông và lông chó.</p>
+        <p>Tò mò, ông đặt những quả gai dưới kính hiển vi và phát hiện bí mật: đầu các sợi gai không phải gai nhọn thẳng, mà là những <b>móc câu nhỏ xíu</b>. Khi va chạm, các móc này móc chặt vào vòng sợi nhỏ của vải hoặc lông động vật.</p>
+
+        <h3>2. Mô phỏng cấu trúc cơ học vào đời sống</h3>
+        <p>George de Mestral mất nhiều năm nghiên cứu để tái tạo cấu trúc này bằng vật liệu nhân tạo (ban đầu là nylon), tạo ra hệ thống khóa dán gồm hai mặt tách biệt:</p>
+        <div class="def">
+          <div class="h"><b>Mặt gai (Hook)</b>Mô phỏng móc câu của quả ngưu bàng. Bề mặt chứa hàng nghìn móc vuốt làm bằng sợi nylon cứng.</div>
+          <div class="l"><b>Mặt bông (Loop)</b>Mô phỏng lông chó hoặc sợi vải xù. Bề mặt gồm hàng nghìn vòng lặp bằng sợi vải mềm.</div>
+        </div>
+        <p>Khi ép hai mặt vào nhau, các móc nylon luồn vào và khóa chặt lấy các vòng vải mềm, tạo ra liên kết rất chắc nhưng vẫn dễ bóc tách khi cần, bằng cách giật mạnh.</p>
+
+        <h3>Cách hoạt động, từng bước</h3>
+        <ol>
+          <li><b>Ép</b> hai mặt sát vào nhau: móc tiến vào khoảng trống bên trong các vòng.</li>
+          <li><b>Móc</b> bắt vào sợi vòng: mỗi móc chỉ giữ rất ít, nhưng hàng nghìn móc cộng lại thành lực giữ lớn.</li>
+          <li><b>Bóc</b> ra: từng móc bị kéo thẳng ra khỏi vòng, phát ra tiếng “xoẹt” đặc trưng.</li>
+        </ol>
+
+        <h3>3. Ý nghĩa mang tính cách mạng</h3>
+        <ul>
+          <li><b>Đơn giản và tiện lợi:</b> thay cho dây buộc, cúc bấm hoặc khóa kéo truyền thống trên giày dép, quần áo, balo.</li>
+          <li><b>Độ bền cao:</b> đóng mở hàng nghìn lần mà không bị kẹt hay hỏng như khóa kéo kim loại.</li>
+          <li><b>Ứng dụng vũ trụ:</b> NASA từng dùng miếng dán này trên bộ đồ phi hành gia và để cố định thiết bị trong môi trường không trọng lực.</li>
+        </ul>
+
+        <h3>Thực hành với mô hình bên trái</h3>
+        <ul>
+          <li>Chọn <b>Kéo thẳng</b>, kéo thanh trượt lên và quan sát thanh “Lực giữ”. Ghi lại lực đỉnh.</li>
+          <li>Chọn <b>Bóc từ mép</b> và làm lại. So sánh lực đỉnh với lần trước.</li>
+          <li>Chọn <b>Trượt ngang</b>. Hai mặt giữ chắc hơn hay kém hơn khi bị kéo song song?</li>
+        </ul>
+
+        <div class="callout"><b>Gợi ý giải thích</b>Khi bóc từ mép, mỗi lúc chỉ vài móc bị kéo căng nên rất nhẹ. Khi kéo thẳng, mọi móc cùng chịu lực nên rất chắc. Đó cũng là lý do ta thường bóc miếng dán từ một góc.</div>
+
+        <h3>Câu hỏi thảo luận</h3>
+        <ol>
+          <li>Vì sao một móc nhỏ yếu nhưng cả miếng dán lại giữ được vật nặng?</li>
+          <li>Kể thêm một sản phẩm hoặc thiết kế được lấy cảm hứng từ sinh vật.</li>
+          <li>Miếng xé dán có hạn chế gì so với khóa kéo? (Gợi ý: bụi, xơ vải, độ bền sau nhiều lần dùng.)</li>
+        </ol>
+
+        <h3>Từ khóa</h3>
+        <ul class="chips"><li>Phỏng sinh học</li><li>Biomimicry</li><li>Ngưu bàng</li><li>Mặt gai · Hook</li><li>Mặt bông · Loop</li><li>Nylon</li><li>Velcro</li></ul>
+      </section>
+
+      <!-- Tab: Tiểu sử -->
+      <section id="p-bio" role="tabpanel" aria-labelledby="st-bio" hidden>
+        <p class="eyebrow">Người tạo ra miếng xé dán</p>
+        <h2>George de Mestral</h2>
+        <figure class="fig">
+          <div class="pic" id="portrait"></div>
+          <figcaption><span id="portCap">Ảnh tác giả do giáo viên cung cấp. Có thể thay bằng ảnh khác.</span>
+            <label class="mini" for="portFile" tabindex="0" id="portLbl">Thay bằng ảnh</label>
+            <input class="fileinp" type="file" accept="image/*" id="portFile" aria-label="Chọn ảnh chân dung">
+          </figcaption>
+        </figure>
+        <dl class="facts">
+          <dt>Sinh</dt><dd>19/6/1907, Colombier (bang Vaud), Thụy Sĩ</dd>
+          <dt>Mất</dt><dd>8/2/1990, Commugny, Thụy Sĩ</dd>
+          <dt>Nghề</dt><dd>Kỹ sư điện, nhà phát minh</dd>
+          <dt>Nổi tiếng</dt><dd>Phát minh miếng xé dán, thương hiệu Velcro</dd>
+        </dl>
+        <p class="lead">George de Mestral là một kỹ sư Thụy Sĩ có thói quen quan sát và đặt câu hỏi về những điều nhỏ nhặt quanh mình. Ý tưởng của ông bắt đầu từ một chuyến đi dạo bình thường.</p>
+
+        <h3>Những mốc đáng nhớ</h3>
+        <ol class="tl">
+          <li><time>1907</time>Chào đời tại Colombier, Thụy Sĩ.</li>
+          <li><time>Thuở thiếu niên</time>Theo nhiều tài liệu, ông thiết kế một mẫu máy bay đồ chơi từ khi còn nhỏ và được cấp bằng sáng chế đầu tiên. Đây là dấu hiệu sớm của óc sáng tạo.</li>
+          <li><time>Những năm trưởng thành</time>Học kỹ thuật, làm kỹ sư điện và thường xuyên thử nghiệm các ý tưởng riêng.</li>
+          <li><time>1941</time>Đi dạo trong rừng cùng chú chó, thấy quả ngưu bàng bám chặt vào quần áo và lông chó. Ông đem quả gai về quan sát dưới kính hiển vi.</li>
+          <li><time>Nhiều năm sau đó</time>Kiên trì thử nghiệm để tái tạo hai mặt móc và vòng bằng vật liệu nhân tạo, chủ yếu là nylon. Có nguồn cho biết ông phải hợp tác với thợ dệt và tìm cách xử lý nhiệt để móc đủ cứng.</li>
+          <li><time>1955</time>Được cấp bằng sáng chế tại Thụy Sĩ. Tên Velcro ghép từ tiếng Pháp <i>velours</i> (nhung) và <i>crochet</i> (móc).</li>
+          <li><time>1990</time>Qua đời, để lại một phát minh có mặt trong giày dép, quần áo, y tế và cả ngành hàng không vũ trụ.</li>
+        </ol>
+
+        <h3>Điều học sinh có thể rút ra</h3>
+        <ul>
+          <li><b>Quan sát:</b> ông không phải người đầu tiên bị quả gai bám vào áo, nhưng là người đặt câu hỏi “vì sao?”.</li>
+          <li><b>Kiểm chứng:</b> ông dùng kính hiển vi để xem tận mắt cấu trúc thay vì đoán.</li>
+          <li><b>Kiên trì:</b> từ ý tưởng đến sản phẩm dùng được mất nhiều năm thử và sai.</li>
+          <li><b>Học từ tự nhiên:</b> ông sao chép cơ chế hoạt động, không sao chép hình dáng bên ngoài.</li>
+        </ul>
+        <div class="callout"><b>Thảo luận</b>Nếu em là George de Mestral, em sẽ làm gì khác đi khi thấy quả gai bám vào áo? Em muốn quan sát sinh vật nào để tìm ý tưởng?</div>
+        <p style="font-size:12.5px;color:var(--muted)">Ngày tháng và chi tiết ở một số mốc có thể khác nhau giữa các nguồn. Giáo viên nên đối chiếu thêm khi cần độ chính xác cao.</p>
+      </section>
+
+      <!-- Tab: Hoàn cảnh phát minh -->
+      <section id="p-ctx" role="tabpanel" aria-labelledby="st-ctx" hidden>
+        <p class="eyebrow">Từ một chuyến đi dạo đến một phát minh</p>
+        <h2>Hoàn cảnh ra đời của miếng xé dán</h2>
+        <figure class="fig">
+          <div class="pic" id="burdock"></div>
+          <figcaption><span>Cây ngưu bàng (<i>Arctium lappa</i>) và quả gai móc phóng to. Hình minh họa.</span>
+            <label class="mini" for="burFile" tabindex="0" id="burLbl">Thay bằng ảnh</label>
+            <input class="fileinp" type="file" accept="image/*" id="burFile" aria-label="Chọn ảnh cây ngưu bàng">
+          </figcaption>
+        </figure>
+
+        <h3>Một buổi đi dạo năm 1941</h3>
+        <p>George de Mestral đi dạo cùng chú chó trong vùng núi Jura của Thụy Sĩ. Khi về, ông thấy quần áo và bộ lông chó dính đầy quả ngưu bàng, gỡ rất khó. Phần lớn mọi người chỉ phàn nàn rồi gỡ bỏ. Ông thì tò mò: <b>vì sao những quả nhỏ này bám chắc đến vậy?</b></p>
+
+        <h3>Từ câu hỏi đến phát minh</h3>
+        <ol class="tl">
+          <li><time>Quan sát</time>Quả gai dính chặt vào vải len và lông chó.</li>
+          <li><time>Đặt câu hỏi</time>Cơ chế nào giữ chặt đến vậy?</li>
+          <li><time>Soi kính hiển vi</time>Đầu các gai uốn cong thành móc nhỏ, móc vào các vòng sợi.</li>
+          <li><time>Mô hình hóa</time>Một mặt có móc, một mặt có vòng. Hai mặt ép vào nhau thì khóa lại.</li>
+          <li><time>Thử vật liệu</time>Nhiều năm thử nghiệm để tìm sợi đủ bền, trong đó nylon cho kết quả tốt.</li>
+          <li><time>Sản xuất</time>Tạo ra hàng nghìn móc và vòng nhỏ đều đặn trên một dải vải để dùng được trong đời sống.</li>
+        </ol>
+
+        <h3>Cây ngưu bàng trong thiên nhiên</h3>
+        <dl class="facts">
+          <dt>Tên khoa học</dt><dd><i>Arctium lappa</i></dd>
+          <dt>Họ</dt><dd>Cúc (Asteraceae)</dd>
+          <dt>Hình dạng</dt><dd>Lá to hình tim, hoa tím giống cúc gai, quả có nhiều gai móc</dd>
+          <dt>Công dụng</dt><dd>Củ dùng làm thực phẩm ở một số nước châu Á; một số bộ phận dùng trong y học cổ truyền</dd>
+        </dl>
+        <p>Các gai móc không sinh ra để làm khó con người. Quả bám vào lông thú vật đi ngang qua và được mang đi xa, nhờ vậy hạt phát tán sang nơi mới. Đây là một chiến lược sinh tồn của cây.</p>
+
+        <h3>Phỏng sinh học là gì?</h3>
+        <p>Là lĩnh vực nghiên cứu cách sinh vật giải quyết vấn đề trong tự nhiên, rồi áp dụng nguyên lý đó vào kỹ thuật và đời sống. Sau hàng triệu năm chọn lọc, nhiều cấu trúc tự nhiên đã rất hiệu quả, nên con người có thể học theo.</p>
+        <div class="callout"><b>Ví dụ khác</b>Thiết kế mũi tàu cao tốc lấy cảm hứng từ chim bồng chanh, hay bề mặt chống bám bẩn lấy cảm hứng từ lá sen. Em còn nghĩ ra ví dụ nào?</div>
+
+        <h3>Câu hỏi suy ngẫm</h3>
+        <ul>
+          <li>Vì sao George de Mestral cần kính hiển vi chứ không chỉ nhìn bằng mắt thường?</li>
+          <li>Nếu quả gai thẳng và nhọn, nó còn bám chắc vào lông và vải không?</li>
+          <li>Em đã từng gặp hiện tượng tương tự (gai bám vào quần áo) ở đâu?</li>
+        </ul>
+        <p style="font-size:12.5px;color:var(--muted)">Mẹo: nút “Thử thách” phía trên mô hình có sáu câu hỏi ôn tập từ cả ba tab.</p>
+      </section>
+    </div>
+  </aside>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+
+/* ================= ÂM THANH (Web Audio, tổng hợp tại chỗ) ================= */
+const Snd=(()=>{
+  let ctx=null,master=null,nbuf=null,sfx=true,amb=false,ambN=null,birdT=null;const last={};
+  function ac(){
+    if(!ctx){
+      try{
+        const A=window.AudioContext||window.webkitAudioContext; if(!A) return null;
+        ctx=new A(); master=ctx.createGain(); master.gain.value=.6; master.connect(ctx.destination);
+        const n=ctx.sampleRate; nbuf=ctx.createBuffer(1,n,ctx.sampleRate); const d=nbuf.getChannelData(0);
+        for(let i=0;i<n;i++) d[i]=Math.random()*2-1;
+      }catch(e){ctx=null;return null;}
+    }
+    if(ctx.state==='suspended') ctx.resume().catch(()=>{});
+    return ctx;
+  }
+  function gap(k,ms){const n=performance.now(); if(last[k]&&n-last[k]<ms) return false; last[k]=n; return true;}
+  function env(g,t,a,d,v){g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(v,t+a); g.gain.exponentialRampToValueAtTime(.0001,t+a+d);}
+  function blip(f,dur,type,vol,delay,f2){
+    const c=ac(); if(!c||!sfx) return; const t=c.currentTime+(delay||0);
+    const o=c.createOscillator(),g=c.createGain(); o.type=type||'sine'; o.frequency.setValueAtTime(f,t);
+    if(f2) o.frequency.exponentialRampToValueAtTime(f2,t+dur);
+    env(g,t,.005,dur,vol); o.connect(g); g.connect(master); o.start(t); o.stop(t+dur+.05);
+  }
+  function burst(freq,dur,vol,type,q){
+    const c=ac(); if(!c||!sfx) return; const t=c.currentTime;
+    const s=c.createBufferSource(); s.buffer=nbuf; s.playbackRate.value=.8+Math.random()*.6;
+    const f=c.createBiquadFilter(); f.type=type||'bandpass'; f.frequency.value=freq; f.Q.value=q||1.2;
+    const g=c.createGain(); env(g,t,.002,dur,vol); s.connect(f); f.connect(g); g.connect(master);
+    s.start(t,Math.random()*.5); s.stop(t+dur+.05);
+  }
+  function chirp(){
+    if(!amb||!ctx) return; const t=ctx.currentTime, base=2200+Math.random()*1800, n=2+Math.floor(Math.random()*3);
+    for(let i=0;i<n;i++){
+      const o=ctx.createOscillator(),g=ctx.createGain(),st=t+i*.13;
+      o.type='sine'; o.frequency.setValueAtTime(base,st); o.frequency.exponentialRampToValueAtTime(base*(1.2+Math.random()*.5),st+.09);
+      env(g,st,.01,.08,.035); o.connect(g); g.connect(master); o.start(st); o.stop(st+.14);
+    }
+    birdT=setTimeout(chirp,1800+Math.random()*4200);
+  }
+  return {
+    unlock(){ac();},
+    click(){blip(660,.07,'triangle',.12,0,880);},
+    snap(){ if(!gap('snap',35)) return; burst(2600+Math.random()*1500,.035,.22,'bandpass',1.4); blip(900+Math.random()*300,.03,'square',.025,0); },
+    rip(v){ if(!gap('rip',22)) return; burst(3200+Math.random()*2500,.05,.14+.14*clamp(v||0,0,1),'highpass',.7); },
+    whoosh(){
+      const c=ac(); if(!c||!sfx) return; const t=c.currentTime;
+      const s=c.createBufferSource(); s.buffer=nbuf; const f=c.createBiquadFilter(); f.type='bandpass'; f.Q.value=.9;
+      f.frequency.setValueAtTime(400,t); f.frequency.exponentialRampToValueAtTime(3000,t+.22);
+      const g=c.createGain(); env(g,t,.04,.2,.13); s.connect(f); f.connect(g); g.connect(master); s.start(t); s.stop(t+.3);
+    },
+    good(){blip(660,.14,'sine',.18,0); blip(880,.14,'sine',.18,.1); blip(1320,.22,'sine',.16,.2);},
+    bad(){blip(220,.25,'sawtooth',.09,0,150);},
+    fanfare(){[523,659,784,1047].forEach((f,i)=>blip(f,.22,'triangle',.16,i*.12));},
+    setSfx(v){sfx=v;},
+    ambient(on){
+      amb=on; const c=ac(); if(!c) return;
+      if(on){
+        if(ambN) return;
+        const s=c.createBufferSource(); s.buffer=nbuf; s.loop=true;
+        const f=c.createBiquadFilter(); f.type='lowpass'; f.frequency.value=520;
+        const g=c.createGain(); g.gain.value=.05;
+        const lfo=c.createOscillator(); lfo.frequency.value=.18; const lg=c.createGain(); lg.gain.value=.025;
+        lfo.connect(lg); lg.connect(g.gain); s.connect(f); f.connect(g); g.connect(master); s.start(); lfo.start();
+        ambN={s,lfo}; chirp();
+      }else{
+        if(ambN){try{ambN.s.stop();ambN.lfo.stop();}catch(e){} ambN=null;}
+        clearTimeout(birdT);
+      }
+    }
+  };
+})();
+
+/* ================= HÌNH MINH HỌA SVG ================= */
+// Tạo đường gai có đầu cong thành móc
+function spines(cx,cy,r1,r2,n,hook){
+  let d='';
+  for(let i=0;i<n;i++){
+    const a=i/n*Math.PI*2, dx=Math.cos(a), dy=Math.sin(a), px=-dy, py=dx;
+    const x1=cx+dx*r1,y1=cy+dy*r1,x2=cx+dx*r2,y2=cy+dy*r2;
+    d+=`M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}q${(dx*hook*.7).toFixed(1)} ${(dy*hook*.7).toFixed(1)} ${(dx*hook*.3+px*hook).toFixed(1)} ${(dy*hook*.3+py*hook).toFixed(1)}`;
+  }
+  return d;
+}
+function burrSVG(){
+  return `<svg viewBox="0 0 220 150" role="img" aria-label="Quả ngưu bàng với các gai có đầu móc">
+  <path d="${spines(110,75,26,50,22,9)}" fill="none" stroke="var(--leaf)" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="110" cy="75" r="27" fill="var(--leaf)" opacity=".35"/>
+  <circle cx="110" cy="75" r="27" fill="none" stroke="var(--leaf)" stroke-width="2.4"/></svg>`;
+}
+function hookSVG(){
+  let s='<svg viewBox="0 0 220 150" role="img" aria-label="Mặt gai với các móc nylon"><rect x="16" y="14" width="188" height="20" rx="5" fill="var(--hook)" opacity=".3" stroke="var(--hook)" stroke-width="1.5"/>';
+  for(let i=0;i<6;i++){const x=34+i*30; s+=`<path d="M${x} 34v62c0 14 8 20 15 20s14-8 14-24" fill="none" stroke="var(--hook)" stroke-width="5" stroke-linecap="round"/>`;}
+  return s+'</svg>';
+}
+function furSVG(){
+  let s='<svg viewBox="0 0 220 150" role="img" aria-label="Lông thú và sợi vải xù tạo thành các vòng nhỏ">';
+  for(let i=0;i<8;i++){const y=22+i*15, a=(i%2?8:-8); s+=`<path d="M10 ${y}C60 ${y+a} 100 ${y-a} 150 ${y+a*.5}S200 ${y-a*.5} 212 ${y}" fill="none" stroke="var(--muted)" stroke-width="2" opacity=".55" stroke-linecap="round"/>`;}
+  [[62,50],[118,80],[90,110],[160,40],[150,100]].forEach(([x,y])=>{s+=`<ellipse cx="${x}" cy="${y}" rx="15" ry="11" fill="none" stroke="var(--loop)" stroke-width="3"/>`;});
+  return s+'</svg>';
+}
+function loopSVG(){
+  let s='<svg viewBox="0 0 220 150" role="img" aria-label="Mặt bông với các vòng sợi mềm"><rect x="16" y="116" width="188" height="20" rx="5" fill="var(--loop)" opacity=".3" stroke="var(--loop)" stroke-width="1.5"/>';
+  for(let i=0;i<5;i++){const x=40+i*35; s+=`<path d="M${x-15} 116C${x-15} 40 ${x+15} 40 ${x+15} 116" fill="none" stroke="var(--loop)" stroke-width="4" stroke-linecap="round"/>`;}
+  return s+'</svg>';
+}
+function portraitSVG(){
+  return `<svg viewBox="0 0 240 280" role="img" aria-label="Tranh minh họa chân dung kỹ sư George de Mestral">
+  <rect width="240" height="280" fill="var(--soft)"/>
+  <path d="M0 210L50 140l35 45 45-70 55 85 55-60v110H0z" fill="var(--leaf)" opacity=".28"/>
+  <path d="M0 240L70 180l50 50 60-55 60 65v40H0z" fill="var(--leaf)" opacity=".4"/>
+  <path d="M26 280C36 218 78 200 120 198c42 2 84 20 94 82z" fill="#33465c"/>
+  <path d="M100 200l20 46 20-46z" fill="#f4f1ea"/>
+  <path d="M114 216h12l3 46-9 8-9-8z" fill="#7a3d9a"/>
+  <path d="M104 166h32v34q-16 14-32 0z" fill="#d9a67f"/>
+  <ellipse cx="80" cy="128" rx="6" ry="11" fill="#d9a67f"/><ellipse cx="160" cy="128" rx="6" ry="11" fill="#d9a67f"/>
+  <ellipse cx="120" cy="124" rx="40" ry="50" fill="#e3b48f"/>
+  <path d="M79 120C76 70 108 60 128 64c34 3 40 32 33 56-10-22-30-30-48-28-16 2-27 12-34 28z" fill="#3a2a22"/>
+  <circle cx="104" cy="126" r="2.8" fill="#2b2420"/><circle cx="136" cy="126" r="2.8" fill="#2b2420"/>
+  <path d="M96 116q8-4 16 0M128 116q8-4 16 0" fill="none" stroke="#3a2a22" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M120 130l-5 20h8" fill="none" stroke="#b98962" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M107 162q13 8 26 0" fill="none" stroke="#9a5f48" stroke-width="2.4" stroke-linecap="round"/>
+  </svg>`;
+}
+function burdockSVG(){
+  let heads='';
+  [[160,86],[238,92],[84,110]].forEach(([x,y])=>{
+    heads+=`<g><circle cx="${x}" cy="${y}" r="14" fill="var(--leaf)" opacity=".55"/><circle cx="${x}" cy="${y}" r="14" fill="none" stroke="var(--leaf)" stroke-width="2"/>`;
+    for(let k=0;k<11;k++){const a=-Math.PI+.35+k*(Math.PI-.7)/10; heads+=`<line x1="${x}" y1="${y-8}" x2="${(x+Math.cos(a)*20).toFixed(1)}" y2="${(y-8+Math.sin(a)*20).toFixed(1)}" stroke="var(--flower)" stroke-width="2.4" stroke-linecap="round"/>`;}
+    heads+='</g>';
+  });
+  return `<svg viewBox="0 0 320 250" role="img" aria-label="Minh họa cây ngưu bàng với lá to, hoa tím và quả gai móc">
+  <rect width="320" height="250" fill="var(--soft)"/>
+  <ellipse cx="160" cy="240" rx="150" ry="12" fill="var(--leaf)" opacity=".25"/>
+  <path d="M160 242C100 247 40 215 52 170c10-30 58-20 88 15 10 12 16 33 20 57z" fill="var(--leaf)" opacity=".8"/>
+  <path d="M160 242C220 247 280 215 268 170c-10-30-58-20-88 15-10 12-16 33-20 57z" fill="var(--leaf)" opacity=".65"/>
+  <path d="M160 240C120 215 90 195 66 178M160 240c40-25 70-45 94-62" fill="none" stroke="var(--panel)" stroke-width="1.6" opacity=".7"/>
+  <path d="M160 242C158 190 162 140 160 100M160 150C190 132 220 120 236 104M160 176C130 152 100 142 84 124" fill="none" stroke="var(--leaf)" stroke-width="5" stroke-linecap="round"/>
+  ${heads}
+  <line x1="84" y1="100" x2="62" y2="76" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="3 3" opacity=".6"/>
+  <defs><clipPath id="lens"><circle cx="58" cy="56" r="46"/></clipPath></defs>
+  <circle cx="58" cy="56" r="46" fill="var(--panel)"/>
+  <g clip-path="url(#lens)"><path d="${spines(58,56,13,31,16,8)}" fill="none" stroke="var(--leaf)" stroke-width="2.2" stroke-linecap="round"/><circle cx="58" cy="56" r="14" fill="var(--leaf)" opacity=".4"/></g>
+  <circle cx="58" cy="56" r="46" fill="none" stroke="var(--ink)" stroke-width="2.2"/>
+  <text x="58" y="115" text-anchor="middle" font-size="9.5" font-weight="700" fill="var(--ink)">Quả gai móc phóng to</text>
+  </svg>`;
+}
+const PORTRAIT_SRC='data:image/jpeg;base64,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';
+(function(){const box=$('#portrait');const im=new Image();im.alt='Ảnh George de Mestral, người tạo ra miếng xé dán, cầm dải vải trắng';im.src=PORTRAIT_SRC;im.style.objectFit='contain';im.style.maxHeight='380px';im.onerror=()=>{box.innerHTML=portraitSVG();};box.appendChild(im);})();
+$('#burdock').innerHTML=burdockSVG();
+
+// Cho phép giáo viên thay bằng ảnh thật (chỉ lưu tạm trên trang)
+function wireUpload(inputId,boxId,original,capId){
+  const inp=$('#'+inputId),box=$('#'+boxId),lbl=inp.previousElementSibling;
+  const open=()=>inp.click();
+  lbl.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});
+  inp.addEventListener('change',()=>{
+    const f=inp.files&&inp.files[0]; if(!f) return;
+    const r=new FileReader();
+    r.onload=()=>{box.innerHTML=''; const im=new Image(); im.alt='Ảnh do giáo viên thêm';im.style.objectFit='contain';im.style.maxHeight='380px'; im.src=r.result; box.appendChild(im); Snd.good();};
+    r.readAsDataURL(f);
+  });
+}
+wireUpload('portFile','portrait');
+wireUpload('burFile','burdock');
+
+/* ================= MÔ HÌNH MÔ PHỎNG ================= */
+const Sim=(()=>{
+  const cv=$('#cv'),g=cv.getContext('2d'),wrap=$('#cwrap'),view=$('#v-sim');
+  const slider=$('#amt'),amtO=$('#amtO'),amtL=$('#amtL'),tip=$('#tip');
+  const sCnt=$('#sCnt'),fFill=$('#fFill'),fPeak=$('#fPeak'),fTxt=$('#fTxt'),sState=$('#sState');
+  const L=62,LOOPH=58,BACK=24;
+  const MODES={
+    pull:{label:'Kéo thẳng ra khỏi mặt bông',dur:900,tip:'Kéo thẳng: mọi móc bị kéo cùng một lúc nên lực giữ rất lớn. Kéo thanh trượt hoặc kéo trực tiếp trên hình.'},
+    peel:{label:'Bóc dần từ mép trái',dur:2400,tip:'Bóc từ mép: mỗi lúc chỉ vài móc bị kéo căng, các móc bung ra lần lượt nên rất nhẹ. Quan sát lực đỉnh thấp hơn.'},
+    shear:{label:'Trượt hai mặt song song',dur:1400,tip:'Trượt ngang: móc bị kéo theo phương của sợi vòng nên giữ chắc hơn kéo thẳng. Thử kéo sang phải.'}
+  };
+  let W=0,H=0,dpr=1,sc=1,LW=0,LH=0,mode='pull',v=0,anim=null,hooks=[],N=0,x0=0,span=1,peak=0,col={},cf=0,ml=0;
+  let lastS={};
+
+  function colors(){
+    const cs=getComputedStyle(document.documentElement), k=n=>cs.getPropertyValue(n).trim();
+    col={hook:k('--hook'),loop:k('--loop'),stage:k('--stage'),ink:k('--ink'),muted:k('--muted'),warn:k('--warn'),line:k('--line')};
+  }
+  function build(){
+    ml=LW>640?170:34; const mr=LW>640?60:34, usable=LW-ml-mr;
+    const n=clamp(Math.floor(usable/52)+1,6,16);
+    let sp=usable/(n-1); if(sp>72) sp=72;
+    const old=hooks; N=n; span=sp*(n-1); x0=ml+(usable-span)/2;
+    hooks=[];
+    for(let i=0;i<n;i++){
+      const prev=old.length===n?old[i]:null;
+      const c=prev?prev.catchable:Math.random()>.12;
+      hooks.push({x:x0+i*sp,catchable:c,breakAt:26+Math.random()*16,breakSh:44+Math.random()*26,
+        eng:prev?prev.eng:c,lift:0,t:0,px:0,py:0,vib:0,init:!prev});
+    }
+  }
+  function resize(){
+    const r=wrap.getBoundingClientRect(); if(r.width<10||r.height<10) return;
+    W=r.width;H=r.height;dpr=Math.min(window.devicePixelRatio||1,2);
+    sc=clamp(H/470,.62,1.5); LW=W/sc; LH=H/sc;
+    cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
+    build(); colors();
+  }
+  function setV(x){v=clamp(x,0,1); slider.value=String(Math.round(v*100)); amtO.textContent=Math.round(v*100)+'%';}
+  function liftAt(xn){
+    if(mode==='pull') return v*115;
+    if(mode==='peel') return Math.min(115,Math.max(0,v*1.25-xn)*270);
+    return 0;
+  }
+  function setMode(m,snd){
+    mode=m; $$('#modes button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===m)));
+    amtL.textContent=MODES[m].label; tip.textContent=MODES[m].tip;
+    anim=null; setV(0); hooks.forEach(h=>{h.eng=h.catchable;h.vib=0;}); peak=0;
+    if(snd) Snd.click();
+  }
+  function animateTo(to,dur){ anim={from:v,to,t:performance.now(),dur:dur*(Math.abs(to-v)||.2)}; }
+  function curve(c,x0_,y0_,x1_,y1_,x2_,y2_,x3_,y3_){c.bezierCurveTo(x1_,y1_,x2_,y2_,x3_,y3_);}
+
+  function step(now){
+    if(view.hidden||!W){requestAnimationFrame(step);return;}
+    if(anim){
+      const k=clamp((now-anim.t)/anim.dur,0,1), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+      setV(anim.from+(anim.to-anim.from)*e); if(k>=1) anim=null;
+    }
+    if(++cf%30===0) colors();
+    const bB=LH-112, restY=bB-LOOPH-L+3;
+    const dx=mode==='shear'?v*72:0;
+    let F=0,cnt=0,eligible=0;
+    hooks.forEach((h,i)=>{
+      const xn=i/(N-1); h.lift=liftAt(xn); if(h.catchable) eligible++;
+      if(h.eng){
+        const tt=Math.max(h.lift/h.breakAt,Math.abs(dx)/h.breakSh);
+        if(tt>=1){h.eng=false;h.vib=7;h.t=0;Snd.rip(v);}
+        else{h.t=tt;F+=tt*(mode==='shear'?1.8:1);cnt++;}
+      }else{
+        h.t=0;
+        if(h.catchable&&h.lift<5&&Math.abs(dx)<6){h.eng=true;Snd.snap();}
+      }
+    });
+    if(v<.02) peak=0; peak=Math.max(peak,F);
+
+    // ---- vẽ ----
+    g.setTransform(dpr*sc,0,0,dpr*sc,0,0); g.clearRect(0,0,LW,LH);
+    const xa=x0-46, xb=x0+span+70;
+    // mặt bông (đáy)
+    g.fillStyle=col.loop; g.globalAlpha=.22; g.beginPath(); g.roundRect(xa,bB,xb-xa,BACK,7); g.fill();
+    g.globalAlpha=.9; g.strokeStyle=col.loop; g.lineWidth=1.6; g.stroke(); g.globalAlpha=1;
+    // vòng
+    const time=now/1000, poses=[];
+    hooks.forEach((h,i)=>{
+      const xn=i/(N-1), e=.01, lf=liftAt(clamp(xn+e,0,1.2))-liftAt(clamp(xn-e,0,1.2));
+      const th=Math.atan2(-lf,2*e*span), bx=h.x+dx, by=restY-h.lift;
+      const cx=bx+10*Math.cos(th)-(L-3)*Math.sin(th), cy=by+10*Math.sin(th)+(L-3)*Math.cos(th);
+      poses.push({bx,by,th,cx,cy});
+      let tx,ty;
+      if(h.eng){tx=cx;ty=cy;}else{tx=h.x+10+Math.sin(time*42+i)*h.vib;ty=bB-LOOPH;h.vib*=.9;}
+      if(!h.px){h.px=tx;h.py=ty;}
+      const k=h.eng?.7:.2; h.px+=(tx-h.px)*k; h.py+=(ty-h.py)*k;
+      const fl=h.x+10-24, fr=h.x+10+24;
+      g.beginPath(); g.moveTo(fl,bB); curve(g,0,0,fl-2,(bB+h.py)/2,h.px-14,h.py+5,h.px,h.py);
+      curve(g,0,0,h.px+14,h.py+5,fr+2,(bB+h.py)/2,fr,bB);
+      g.strokeStyle=col.loop; g.lineWidth=4; g.lineCap='round'; g.stroke();
+    });
+    // dải mặt gai (có thể uốn cong khi bóc)
+    g.beginPath();
+    for(let x=xa;x<=xb;x+=10){
+      const xn=(x-x0)/span, y=restY-liftAt(clamp(xn,0,1.3))-12;
+      if(x===xa) g.moveTo(x+dx,y); else g.lineTo(x+dx,y);
+    }
+    g.strokeStyle=col.hook; g.globalAlpha=.28; g.lineWidth=24; g.lineCap='butt'; g.lineJoin='round'; g.stroke(); g.globalAlpha=.9; g.lineWidth=1.4;
+    [-12,12].forEach(o=>{g.beginPath();for(let x=xa;x<=xb;x+=10){const xn=(x-x0)/span,y=restY-liftAt(clamp(xn,0,1.3))-12+o; if(x===xa)g.moveTo(x+dx,y);else g.lineTo(x+dx,y);} g.stroke();});
+    g.globalAlpha=1;
+    // móc
+    hooks.forEach((h,i)=>{
+      const p=poses[i]; g.save(); g.translate(p.bx,p.by); g.rotate(p.th);
+      g.beginPath(); g.moveTo(0,0); g.lineTo(0,L-20); g.bezierCurveTo(0,L-6,6,L,10,L); g.bezierCurveTo(15,L,19,L-8,19,L-19);
+      g.lineCap='round'; g.lineJoin='round';
+      g.strokeStyle=col.stage; g.lineWidth=9; g.stroke();
+      g.strokeStyle=(h.eng&&h.t>.8)?col.warn:col.hook; g.lineWidth=5.5; g.stroke();
+      g.restore();
+    });
+    // nhãn
+    g.fillStyle=col.ink; g.textBaseline='middle';
+    if(LW>640){
+      g.font='700 12px "Be Vietnam Pro",system-ui,sans-serif'; g.textAlign='left';
+      g.fillStyle=col.hook; g.fillText('MẶT GAI · HOOK',14,restY+L*.42-12); g.fillStyle=col.muted; g.font='500 12px "Be Vietnam Pro",system-ui,sans-serif'; g.fillText('móc nylon cứng',14,restY+L*.42+6);
+      g.fillStyle=col.loop; g.font='700 12px "Be Vietnam Pro",system-ui,sans-serif'; g.fillText('MẶT BÔNG · LOOP',14,bB-LOOPH*.45-10); g.fillStyle=col.muted; g.font='500 12px "Be Vietnam Pro",system-ui,sans-serif'; g.fillText('vòng sợi mềm',14,bB-LOOPH*.45+8);
+    }
+    g.textAlign='center'; g.fillStyle=col.muted; g.font='500 12px "Be Vietnam Pro",system-ui,sans-serif';
+    g.fillText('Mặt cắt phóng đại (hình minh họa)',(xa+xb)/2,bB+BACK+22);
+
+    // ---- HUD ----
+    const cs=cnt+'/'+eligible; if(lastS.cnt!==cs){sCnt.textContent=cs;lastS.cnt=cs;}
+    const maxF=N*(mode==='shear'?1.8:1), fw=Math.round(clamp(F/maxF,0,1)*100), pw=Math.round(clamp(peak/maxF,0,1)*100);
+    if(lastS.f!==fw){fFill.style.width=fw+'%';lastS.f=fw;}
+    if(lastS.p!==pw){fPeak.style.left=pw+'%';fTxt.textContent='đỉnh: '+peak.toFixed(1);lastS.p=pw;}
+    const st=cnt===0?'Đã tách hoàn toàn':(cnt>=eligible&&v<.03?'Đang dán chặt':'Đang tách…');
+    if(lastS.s!==st){sState.textContent=st;lastS.s=st;}
+    requestAnimationFrame(step);
+  }
+
+  // ---- điều khiển ----
+  slider.addEventListener('input',()=>{anim=null;Snd.unlock();setV(slider.value/100);});
+  $$('#modes button').forEach(b=>b.addEventListener('click',()=>{Snd.unlock();setMode(b.dataset.mode,true);}));
+  $('#bPress').addEventListener('click',()=>{Snd.unlock();Snd.click();animateTo(0,MODES[mode].dur*.7);});
+  $('#bOpen').addEventListener('click',()=>{Snd.unlock();Snd.click();animateTo(1,MODES[mode].dur);});
+  let drag=null;
+  cv.addEventListener('pointerdown',e=>{Snd.unlock();cv.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,v0:v};anim=null;cv.classList.add('grab');});
+  cv.addEventListener('pointermove',e=>{
+    if(!drag) return;
+    const d=mode==='shear'?(e.clientX-drag.x):-(e.clientY-drag.y);
+    setV(drag.v0+d/260);
+  });
+  const end=()=>{drag=null;cv.classList.remove('grab');};
+  cv.addEventListener('pointerup',end); cv.addEventListener('pointercancel',end);
+  new ResizeObserver(resize).observe(wrap);
+  setMode('pull',false); resize(); requestAnimationFrame(step);
+  return {resize};
+})();
+
+/* ================= SO SÁNH THIÊN NHIÊN ⇄ KỸ THUẬT ================= */
+(function(){
+  const items=[
+    {pair:1,svg:burrSVG(),t:'Quả ngưu bàng',s:'Gai có đầu cong thành móc'},
+    {arrow:true},
+    {pair:1,svg:hookSVG(),t:'Mặt gai (Hook)',s:'Hàng nghìn móc nylon cứng'},
+    {pair:2,svg:furSVG(),t:'Lông chó, sợi vải xù',s:'Vô số vòng sợi nhỏ'},
+    {arrow:true},
+    {pair:2,svg:loopSVG(),t:'Mặt bông (Loop)',s:'Hàng nghìn vòng sợi mềm'}
+  ];
+  const notes={
+    1:'Đầu mỗi gai của quả ngưu bàng cong thành một móc nhỏ. Mặt gai tái tạo hàng nghìn móc như vậy bằng sợi nylon cứng. Móc là bộ phận “chủ động” đi tìm vòng để bám.',
+    2:'Lông thú và sợi vải xù tạo ra vô số vòng nhỏ. Mặt bông dệt sợi mềm thành các vòng tương tự để móc có chỗ bám. Vòng càng nhiều, miếng dán càng chắc.'
+  };
+  const box=$('#cmp'),note=$('#cmpNote');
+  items.forEach(it=>{
+    if(it.arrow){const a=document.createElement('div');a.className='arrow';a.setAttribute('aria-hidden','true');a.textContent='⇄';box.appendChild(a);return;}
+    const b=document.createElement('button');b.type='button';b.className='card';b.dataset.pair=it.pair;
+    b.innerHTML=it.svg+`<strong>${it.t}</strong><span>${it.s}</span>`;
+    b.addEventListener('click',()=>{
+      $$('.card',box).forEach(c=>c.classList.toggle('on',c.dataset.pair===String(it.pair)));
+      note.textContent=notes[it.pair]; Snd.click();
+    });
+    box.appendChild(b);
+  });
+})();
+
+/* ================= THỬ THÁCH ================= */
+(function(){
+  const Q=[
+    {q:'Miếng xé dán được thiết kế dựa trên đặc điểm nào trong tự nhiên?',o:['Mạng nhện giăng giữa hai cành cây','Vảy trơn của loài cá','Móc câu nhỏ ở quả cây ngưu bàng','Gai nhọn thẳng của cây xương rồng'],a:2,e:'Dưới kính hiển vi, đầu các gai của quả ngưu bàng là những móc câu nhỏ xíu, móc vào vòng sợi của vải và lông thú.'},
+    {q:'Mặt bông (Loop) của miếng xé dán mô phỏng cấu trúc nào?',o:['Móc câu của quả ngưu bàng','Lông chó hoặc sợi vải xù','Lá to của cây ngưu bàng','Cuống hoa ngưu bàng'],a:1,e:'Mặt bông gồm hàng nghìn vòng sợi mềm, mô phỏng lông chó và sợi vải xù để móc có chỗ bám.'},
+    {q:'George de Mestral nảy ra ý tưởng trong hoàn cảnh nào?',o:['Khi nhận bằng sáng chế năm 1955','Khi làm việc tại NASA','Khi đi dạo trong rừng cùng chú chó năm 1941','Khi học ở trường kỹ thuật'],a:2,e:'Năm 1941, ông thấy quả ngưu bàng bám chặt vào quần áo và lông chó, rồi đem quan sát dưới kính hiển vi.'},
+    {q:'Vật liệu ban đầu dùng để tái tạo cấu trúc móc và vòng là gì?',o:['Thép không gỉ','Gỗ sồi','Cao su','Sợi nylon'],a:3,e:'Theo tài liệu học tập, ban đầu ông dùng nylon: sợi cứng cho móc, sợi mềm cho vòng.'},
+    {q:'Vì sao bóc miếng dán từ mép lại nhẹ tay hơn kéo thẳng cả miếng?',o:['Vì khi đó các móc đều bị gãy','Vì mỗi lúc chỉ vài móc phải chịu lực','Vì mặt bông tự tan ra','Vì lực hút Trái Đất giảm đi'],a:1,e:'Bóc từ mép làm các móc bung ra lần lượt. Kéo thẳng khiến mọi móc cùng chịu lực nên rất chắc. Bạn có thể kiểm chứng ở tab Mô hình.'},
+    {q:'“Phỏng sinh học” nghĩa là gì?',o:['Nuôi sinh vật trong phòng thí nghiệm','Học cách tự nhiên giải quyết vấn đề rồi áp dụng vào kỹ thuật','Chỉ vẽ lại hình dạng của sinh vật','Sao chép gen của sinh vật'],a:1,e:'Phỏng sinh học là học nguyên lý hoạt động trong tự nhiên để thiết kế vật liệu, máy móc và sản phẩm.'}
+  ];
+  const root=$('#quiz'); let i=0,score=0;
+  function render(){
+    if(i>=Q.length){
+      const msg=score>=5?'Xuất sắc! Bạn đã nắm vững bài học.':score>=3?'Khá tốt. Hãy xem lại các tab bên phải để củng cố.':'Hãy đọc lại nội dung và thử mô hình thêm lần nữa.';
+      root.innerHTML=`<p class="eyebrow">Kết quả</p><div class="score">${score}/${Q.length}</div><p>${msg}</p><button type="button" class="btn primary" id="again">Làm lại</button>`;
+      (score>=4?Snd.fanfare:Snd.click)();
+      $('#again').addEventListener('click',()=>{i=0;score=0;Snd.click();render();}); return;
+    }
+    const q=Q[i];
+    root.innerHTML=`<div class="qmeta"><span>Câu ${i+1}/${Q.length}</span><span>Điểm: ${score}</span></div>
+      <div class="qbar"><i style="width:${i/Q.length*100}%"></i></div>
+      <h2 class="qq">${q.q}</h2><div class="opts"></div><div class="exp" hidden></div><button type="button" class="btn primary" id="nx" hidden>${i===Q.length-1?'Xem kết quả':'Câu tiếp theo'}</button>`;
+    const opts=$('.opts',root),exp=$('.exp',root),nx=$('#nx');
+    q.o.forEach((t,k)=>{
+      const b=document.createElement('button');b.type='button';b.className='opt';b.textContent=t;
+      b.addEventListener('click',()=>{
+        $$('.opt',opts).forEach((x,j)=>{x.disabled=true;if(j===q.a)x.classList.add('ok');});
+        if(k===q.a){score++;Snd.good();}else{b.classList.add('no');Snd.bad();}
+        exp.hidden=false;exp.textContent=(k===q.a?'Chính xác. ':'Chưa đúng. ')+q.e;nx.hidden=false;nx.focus();
+      });
+      opts.appendChild(b);
+    });
+    nx.addEventListener('click',()=>{i++;Snd.click();render();});
+  }
+  render();
+})();
+
+/* ================= TAB, CUỘN, ÂM THANH ================= */
+function tabs(sel,onSel){
+  const btns=$$(sel+' [role=tab]');
+  function select(i,snd){
+    btns.forEach((b,j)=>{const on=i===j;b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;$('#'+b.getAttribute('aria-controls')).hidden=!on;});
+    if(onSel) onSel(i,snd);
+  }
+  btns.forEach((b,i)=>{
+    b.addEventListener('click',()=>{Snd.unlock();select(i,true);});
+    b.addEventListener('keydown',e=>{
+      let n=null; if(e.key==='ArrowRight')n=(i+1)%btns.length; if(e.key==='ArrowLeft')n=(i-1+btns.length)%btns.length;
+      if(n!==null){e.preventDefault();select(n,true);btns[n].focus();}
+    });
+  });
+  select(0,false);
+}
+const scroller=$('#scroll'),progI=$('#progI');
+function prog(){const m=scroller.scrollHeight-scroller.clientHeight; progI.style.width=(m>0?scroller.scrollTop/m*100:0)+'%';}
+scroller.addEventListener('scroll',prog,{passive:true});
+tabs('#stabs',(i,snd)=>{scroller.scrollTop=0;prog();if(snd)Snd.whoosh();});
+tabs('#vtabs',(i,snd)=>{if(snd)Snd.whoosh(); if(i===0) requestAnimationFrame(()=>Sim.resize());});
+
+const tgS=$('#tgSfx'),tgA=$('#tgAmb');
+tgS.addEventListener('click',()=>{const on=tgS.getAttribute('aria-pressed')!=='true';tgS.setAttribute('aria-pressed',String(on));Snd.setSfx(on);if(on){Snd.unlock();Snd.click();}});
+tgA.addEventListener('click',()=>{const on=tgA.getAttribute('aria-pressed')!=='true';tgA.setAttribute('aria-pressed',String(on));Snd.unlock();Snd.ambient(on);});
+})();
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Chặn phím tắt: F12, Ctrl+U, Ctrl+Shift+I/J/C, Ctrl+S
+    document.addEventListener('keydown', function(e) {
+      const key = e.key.toLowerCase();
+
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) || 
+        (e.ctrlKey && (key === 'u' || key === 's'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 2. Chặn chuột phải (Context Menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  });
+</script>
+</body></html>

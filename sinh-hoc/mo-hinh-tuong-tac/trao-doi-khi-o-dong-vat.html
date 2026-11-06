@@ -1,0 +1,724 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Trao đổi khí ở động vật</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap">
+<style>
+/* Bố cục: mô hình chiếm 3/4 bên trái, bảng nội dung cuộn riêng chiếm 1/4 bên phải */
+:root{
+  --bg:#E6EEED; --surface:#FFFFFF; --surface2:#F1F6F5; --ink:#10302E; --muted:#56706D; --line:#CBDAD8;
+  --accent:#0E7C73; --accent-soft:#D6EFEB; --o2:#E0463B; --co2:#2D6BE0; --ok:#1F8F55; --bad:#D23A3A;
+  --halo:rgba(255,255,255,.88); --on-box:#0B2E2B;
+  --env:#E1F1F6; --env2:#CFE7EF; --water:#C9E6F3; --soil:#BFA48C; --bodybox:#EBDDC8;
+  --organ:#8CD3CB; --cellbox:#7CCBD8; --worm:#E8A5A8; --worm2:#C77A84; --insect:#8FBF72; --insect-d:#5E8F46;
+  --wing:#D6EDC4; --trachea:#2E7D5B; --cellc:#F2B6BA; --fish:#7FA3C0; --fish-d:#4D6F8C; --gill:#E0463B;
+  --cat:#B3B8BD; --cat-d:#8C939A; --lung:#F0A6AE; --lung-d:#C9707C; --alv:#FBD3D7; --tract:#F6D6A8;
+  --larynx:#E8B86B; --muscle:#C46A5A; --skin:#F1CFB5;
+  --display:'Bricolage Grotesque','Be Vietnam Pro',system-ui,sans-serif;
+  --body:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0B1819; --surface:#122426; --surface2:#183032; --ink:#E4F1EF; --muted:#8FAAA6; --line:#25413F;
+  --accent:#3CC2B5; --accent-soft:#16403D; --o2:#FF6B5E; --co2:#6C9BFF; --ok:#46C783; --bad:#FF7070;
+  --halo:rgba(10,24,25,.88); --on-box:#F4FFFD;
+  --env:#14303A; --env2:#1B3E4B; --water:#0F3A4D; --soil:#4A3A2E; --bodybox:#2E3A38;
+  --organ:#1E6E67; --cellbox:#1D6C7B; --worm:#C78489; --worm2:#A25E69; --insect:#6FA357; --insect-d:#4A7A38;
+  --wing:#9BC27F; --trachea:#7BE0B0; --cellc:#E48D93; --fish:#5E86A6; --fish-d:#3D5F7B; --gill:#FF6B5E;
+  --cat:#8A9097; --cat-d:#6C7279; --lung:#D77C86; --lung-d:#A8545E; --alv:#F2B3BA; --tract:#E8C48F;
+  --larynx:#D9A453; --muscle:#D9806F; --skin:#C9A088; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B1819; --surface:#122426; --surface2:#183032; --ink:#E4F1EF; --muted:#8FAAA6; --line:#25413F;
+  --accent:#3CC2B5; --accent-soft:#16403D; --o2:#FF6B5E; --co2:#6C9BFF; --ok:#46C783; --bad:#FF7070;
+  --halo:rgba(10,24,25,.88); --on-box:#F4FFFD;
+  --env:#14303A; --env2:#1B3E4B; --water:#0F3A4D; --soil:#4A3A2E; --bodybox:#2E3A38;
+  --organ:#1E6E67; --cellbox:#1D6C7B; --worm:#C78489; --worm2:#A25E69; --insect:#6FA357; --insect-d:#4A7A38;
+  --wing:#9BC27F; --trachea:#7BE0B0; --cellc:#E48D93; --fish:#5E86A6; --fish-d:#3D5F7B; --gill:#FF6B5E;
+  --cat:#8A9097; --cat-d:#6C7279; --lung:#D77C86; --lung-d:#A8545E; --alv:#F2B3BA; --tract:#E8C48F;
+  --larynx:#D9A453; --muscle:#D9806F; --skin:#C9A088; color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,.hs:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.app{display:grid;grid-template-columns:minmax(0,3fr) minmax(300px,1fr);gap:14px;height:100%}
+
+/* Mô hình */
+.stage{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.stage-top{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:12px 16px 10px}
+h1{font:700 21px/1.2 var(--display);margin:0;letter-spacing:-.01em}
+.scenes{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+.chip{border:1px solid var(--line);background:var(--surface2);border-radius:999px;padding:6px 13px;font-weight:500;font-size:13px}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.viewport{position:relative;flex:1;min-height:0;margin:0 12px;border-radius:14px;overflow:hidden;background:var(--env)}
+#scene{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.big{font:700 26px var(--display);fill:var(--ink)}
+.on{font:600 21px var(--body);fill:var(--on-box)}
+.sm{font:500 15px var(--body);fill:var(--muted)}
+.pt{font:700 10px var(--body);fill:#fff;pointer-events:none}
+.guide{stroke-width:2;stroke-dasharray:6 8;opacity:.35}
+.hs{cursor:pointer}
+.hs text{font:600 15px var(--body);fill:var(--ink);paint-order:stroke;stroke:var(--halo);stroke-width:5px;stroke-linejoin:round}
+.hs .lead{stroke:var(--ink);stroke-width:1.4;opacity:.55}
+.hs .dot{fill:var(--accent);stroke:#fff;stroke-width:2.5;transition:transform .2s;transform-box:fill-box;transform-origin:center}
+.hs .ring{fill:var(--accent);transform-box:fill-box;transform-origin:center;animation:pulse 2.2s ease-out infinite}
+.hs:hover .dot,.hs.on .dot{transform:scale(1.4)}
+.hs.on .dot{fill:var(--o2)}
+.hs.on text{fill:var(--o2)}
+.nolabels .hs text,.nolabels .hs .lead{display:none}
+@keyframes pulse{0%{transform:scale(1);opacity:.55}100%{transform:scale(2.8);opacity:0}}
+.badge{position:absolute;left:12px;top:12px;padding:6px 14px;border-radius:999px;font-weight:700;font-size:13px;background:var(--surface);border:2px solid var(--accent);letter-spacing:.04em}
+.badge.in{border-color:var(--o2);color:var(--o2)}
+.badge.out{border-color:var(--co2);color:var(--co2)}
+.legend{position:absolute;right:12px;top:12px;display:flex;gap:6px}
+.legend span{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px 10px 3px 4px;font-size:12px;font-weight:600}
+.legend i{width:18px;height:18px;border-radius:50%;display:inline-block}
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 16px}
+.btn{border:1px solid var(--line);background:var(--surface2);border-radius:10px;padding:6px 12px;font-weight:600;font-size:13px}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:var(--surface2);padding:6px 12px;font-weight:600;font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.ctl{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:500}
+.ctl input[type=range]{width:96px;accent-color:var(--accent)}
+.callout{margin:0 12px 12px;padding:10px 14px;background:var(--accent-soft);border-radius:12px;min-height:66px;max-height:108px;overflow:auto}
+.callout b{font-family:var(--display);font-size:15px}
+.callout p{margin:2px 0 0}
+
+/* Bảng nội dung */
+.panel{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.tabs{display:flex;border-bottom:1px solid var(--line);flex:none}
+.tab{flex:1;border:0;background:none;padding:13px 4px;font-weight:600;font-size:13px;color:var(--muted)}
+.tab[aria-selected="true"]{color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+.pbody{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:14px 16px 28px;scrollbar-width:thin}
+.pane[hidden]{display:none}
+.pane h2{font:700 16px/1.3 var(--display);margin:18px 0 6px}
+.pane h2:first-child{margin-top:0}
+.pane p{margin:0 0 8px}
+.pane ol,.pane ul{margin:0 0 8px;padding-left:20px}
+.pane li{margin-bottom:4px}
+.card{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.card h3{margin:0 0 4px;font:700 14px var(--display)}
+.kv{display:grid;grid-template-columns:84px minmax(0,1fr);gap:4px 10px;margin:0}
+.kv dt{font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding-top:2px}
+.kv dd{margin:0}
+.o2t{color:var(--o2);font-weight:700}.co2t{color:var(--co2);font-weight:700}
+.fc{width:100%;text-align:left;border:1px solid var(--line);background:var(--surface2);border-radius:12px;padding:10px 12px;margin-bottom:8px;min-height:62px}
+.fc small{display:block;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:11px}
+.fc.flip{background:var(--accent-soft);border-color:var(--accent)}
+
+/* Trắc nghiệm */
+.qhead{display:flex;justify-content:space-between;gap:8px;font-weight:600;font-size:13px;margin-bottom:6px}
+.bar{height:8px;border-radius:99px;background:var(--surface2);border:1px solid var(--line);overflow:hidden;margin-bottom:10px}
+.bar i{display:block;height:100%;background:var(--accent);width:100%}
+.qtext{font-weight:600;font-size:15px;margin:0 0 10px}
+.opt{display:flex;gap:10px;width:100%;text-align:left;border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:9px 11px;margin-bottom:8px;align-items:flex-start}
+.opt b{flex:none;width:24px;height:24px;border-radius:7px;background:var(--surface2);display:grid;place-items:center;font-size:12px}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 16%,var(--surface))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 16%,var(--surface))}
+.opt:disabled{cursor:default}
+.fb{border-radius:12px;padding:10px 12px;background:var(--surface2);margin:4px 0 10px}
+.score{font:700 44px/1 var(--display);color:var(--accent);margin:6px 0}
+.mini{font-size:12px;color:var(--muted)}
+
+@media (max-width:860px){
+  html,body{height:auto}
+  .app{display:block;height:auto}
+  .panel{margin-top:14px;height:78vh}
+  .viewport{aspect-ratio:8/5;flex:none}
+  .hs text{font-size:23px}
+  .stage-top .scenes{margin-left:0}
+  .legend{top:auto;bottom:10px}
+}
+@media (prefers-reduced-motion:reduce){.hs .ring{animation:none}}
+</style>
+
+<main class="app">
+  <section class="stage" aria-label="Mô hình tương tác trao đổi khí">
+    <div class="stage-top">
+      <h1>Trao đổi khí ở động vật</h1>
+      <div class="scenes" id="scenes" role="tablist" aria-label="Chọn mô hình"></div>
+    </div>
+    <div class="viewport" id="viewport">
+      <svg id="scene" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Mô hình trao đổi khí">
+        <g id="art"></g><g id="flows"></g><g id="hsl"></g>
+      </svg>
+      <div class="badge" id="badge" hidden></div>
+      <div class="legend"><span><i style="background:var(--o2)"></i>O₂ vào</span><span><i style="background:var(--co2)"></i>CO₂ ra</span></div>
+    </div>
+    <div class="controls">
+      <div class="seg" id="breathCtl" hidden role="group" aria-label="Nhịp thở">
+        <button data-b="auto" aria-pressed="true">Tự động</button>
+        <button data-b="in" aria-pressed="false">Hít vào</button>
+        <button data-b="out" aria-pressed="false">Thở ra</button>
+      </div>
+      <button class="btn" id="btnPause">Tạm dừng</button>
+      <label class="ctl">Tốc độ <input type="range" id="spd" min="0.4" max="2" step="0.1" value="1"></label>
+      <button class="btn" id="btnLabels" aria-pressed="true">Nhãn: Bật</button>
+      <button class="btn" id="btnSound" aria-pressed="true">Âm thanh: Bật</button>
+    </div>
+    <div class="callout" id="callout" aria-live="polite"></div>
+  </section>
+
+  <aside class="panel" aria-label="Nội dung học tập">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-desc" data-tab="desc" aria-selected="true">Mô tả</button>
+      <button class="tab" role="tab" id="tab-review" data-tab="review" aria-selected="false">Ôn tập</button>
+      <button class="tab" role="tab" id="tab-quiz" data-tab="quiz" aria-selected="false">Trắc nghiệm</button>
+    </div>
+    <div class="pbody" id="pbody">
+      <section class="pane" id="pane-desc">
+        <div id="descScene"></div>
+        <h2>Trao đổi khí là gì?</h2>
+        <p>Là quá trình cơ thể lấy <span class="o2t">O₂</span> từ môi trường và thải <span class="co2t">CO₂</span> ra môi trường. Khí đi qua bề mặt trao đổi khí bằng cách khuếch tán: từ nơi nồng độ cao sang nơi nồng độ thấp.</p>
+        <h2>Quá trình ở người</h2>
+        <ol>
+          <li>Khi hít vào, không khí đi qua khoang mũi, hầu, khí quản, phế quản rồi vào phổi.</li>
+          <li>Ở phổi, <span class="o2t">O₂</span> khuếch tán từ phế nang vào máu.</li>
+          <li>Máu đưa <span class="o2t">O₂</span> đến cung cấp cho các tế bào trong cơ thể.</li>
+          <li>Tại tế bào, <span class="co2t">CO₂</span> khuếch tán vào máu và được đưa về phổi.</li>
+          <li>Ở phổi, <span class="co2t">CO₂</span> khuếch tán vào phế nang rồi được đẩy ra ngoài khi thở ra.</li>
+        </ol>
+        <h2>Bề mặt trao đổi khí hiệu quả</h2>
+        <ul>
+          <li>Mỏng và ẩm để khí hòa tan, khuếch tán dễ.</li>
+          <li>Diện tích bề mặt lớn.</li>
+          <li>Có nhiều mao mạch máu (ở da, mang, phổi).</li>
+          <li>Có sự chênh lệch nồng độ khí giữa hai phía.</li>
+        </ul>
+        <h2>Gợi ý dạy học</h2>
+        <ul>
+          <li>Cho học sinh dự đoán cơ quan trao đổi khí trước khi chọn mô hình.</li>
+          <li>Tắt nhãn để học sinh tự gọi tên các bộ phận, rồi bật lại để đối chiếu.</li>
+          <li>Ở mô hình mèo và người, chọn Hít vào hoặc Thở ra để quan sát chiều đi của khí.</li>
+          <li>Chuyển qua lại các mô hình để so sánh điểm giống nhau: bề mặt mỏng, ẩm, có khuếch tán.</li>
+        </ul>
+      </section>
+      <section class="pane" id="pane-review" hidden></section>
+      <section class="pane" id="pane-quiz" hidden></section>
+    </div>
+  </aside>
+</main>
+<script>
+(function(){
+'use strict';
+const NS='http://www.w3.org/2000/svg';
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const mk=(t,a={},p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;};
+const BG='<rect x="-600" y="-400" width="2000" height="1300" fill="var(--env)"/>';
+
+/* ---------- Dữ liệu các mô hình ---------- */
+const SC={};
+const yw=x=>262+34*Math.sin((x-110)/85);
+const yTop=x=>255-52*Math.sqrt(1-Math.pow((x-330)/170,2));
+
+SC.overview={label:'Sơ đồ chung',bg:'var(--env)',
+ info:{name:'Sơ đồ khái quát',organ:'Da, hệ thống ống khí, mang hoặc phổi',feature:'Mọi động vật đều lấy O₂ từ môi trường và thải CO₂ ra môi trường.',how:'O₂ đi từ môi trường qua cơ quan trao đổi khí đến tất cả các tế bào. CO₂ đi theo chiều ngược lại.',ex:'Giun đất, châu chấu, cá, mèo, người'},
+ build(){return{
+  art:`${BG}
+  <rect x="20" y="40" width="205" height="420" rx="26" fill="var(--env2)"/>
+  <text class="big" x="122" y="82" text-anchor="middle">Môi trường</text>
+  <text class="sm" x="122" y="112" text-anchor="middle">không khí, nước</text>
+  <rect x="250" y="40" width="530" height="420" rx="26" fill="var(--bodybox)"/>
+  <text class="big" x="515" y="82" text-anchor="middle">Cơ thể</text>
+  <rect x="278" y="130" width="206" height="230" rx="24" fill="var(--organ)"/>
+  <text class="on" text-anchor="middle"><tspan x="381" y="182">Cơ quan trao</tspan><tspan x="381" y="208">đổi khí (da, hệ</tspan><tspan x="381" y="234">thống ống khí,</tspan><tspan x="381" y="260">mang, phổi)</tspan></text>
+  <rect x="548" y="130" width="200" height="230" rx="24" fill="var(--cellbox)"/>
+  <text class="on" text-anchor="middle"><tspan x="648" y="208">Tất cả các tế bào</tspan><tspan x="648" y="236">trong cơ thể</tspan></text>
+  <line class="guide" x1="30" y1="310" x2="770" y2="310" stroke="var(--o2)"/>
+  <line class="guide" x1="30" y1="340" x2="770" y2="340" stroke="var(--co2)"/>
+  <polygon points="772,310 756,301 756,319" fill="var(--o2)"/>
+  <polygon points="28,340 44,331 44,349" fill="var(--co2)"/>`,
+  flows:[{type:'O2',pts:[[30,310],[770,310]],n:5,v:1},{type:'CO2',pts:[[770,340],[30,340]],n:5,v:1}],
+  hs:[
+   {id:'env',x:122,y:372,lx:122,ly:392,anchor:'middle',t:'Nguồn O₂',d:'Môi trường chứa O₂ trong không khí hoặc hòa tan trong nước. CO₂ do cơ thể thải ra cũng đi trở lại môi trường.'},
+   {id:'organ',x:381,y:372,lx:381,ly:392,anchor:'middle',t:'Nơi trao đổi khí',d:'Là nơi khí được trao đổi giữa cơ thể và môi trường. Tùy loài, đó là da, hệ thống ống khí, mang hoặc phổi.'},
+   {id:'cells',x:648,y:372,lx:648,ly:392,anchor:'middle',t:'Nơi dùng O₂',d:'Tế bào dùng O₂ để phân giải chất hữu cơ, giải phóng năng lượng và tạo ra CO₂ thải ra ngoài.'}]};}};
+
+SC.worm={label:'Giun đất',bg:'var(--env)',
+ info:{name:'Giun đất',organ:'Da',feature:'Da mỏng, luôn ẩm nhờ chất nhầy, dưới da có nhiều mao mạch.',how:'O₂ hòa tan trong lớp chất nhầy ẩm rồi khuếch tán qua da vào máu. CO₂ từ máu khuếch tán qua da ra ngoài.',ex:'Giun đất, đỉa'},
+ build(){
+  const pts=[];for(let x=110;x<=690;x+=8)pts.push([x,yw(x)]);
+  const P=a=>'M'+a.map(p=>p[0]+' '+p[1].toFixed(1)).join(' L');
+  const d=P(pts),dc=P(pts.filter(p=>p[0]>=215&&p[0]<=262));
+  const xs=[160,250,340,430,520,610],flows=[];
+  xs.forEach((x,i)=>{
+   flows.push({type:'O2',pts:[[x,yw(x)-130],[x,yw(x)-6]],n:1,v:.8,d:i*.17});
+   flows.push({type:'CO2',pts:[[x+26,yw(x+26)-6],[x+26,yw(x+26)-130]],n:1,v:.8,d:i*.17+.5});});
+  return{
+  art:`${BG}
+  <circle cx="60" cy="60" r="30" fill="#FFD36B" opacity=".9"/>
+  <path d="M-600 345 L0 345 Q100 335 200 350 T400 348 T600 346 T800 345 L1400 345 L1400 900 L-600 900Z" fill="var(--soil)"/>
+  <path d="${d}" fill="none" stroke="var(--worm)" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="${d}" fill="none" stroke="var(--worm2)" stroke-width="40" stroke-dasharray="2 12" opacity=".45"/>
+  <path d="${dc}" fill="none" stroke="var(--worm2)" stroke-width="44" stroke-linecap="round"/>
+  <path d="${d}" fill="none" stroke="var(--o2)" stroke-width="5" stroke-dasharray="1 9" stroke-linecap="round" opacity=".8"/>`,
+  flows,
+  hs:[
+   {id:'skin',x:340,y:yw(340)+20,lx:340,ly:405,anchor:'middle',t:'Da ẩm',d:'Da giun đất mỏng và luôn ẩm nhờ chất nhầy. Khí hòa tan vào lớp nước này nên dễ khuếch tán qua da.'},
+   {id:'cap',x:500,y:yw(500),lx:500,ly:440,anchor:'middle',t:'Mao mạch dưới da',d:'Dưới da có nhiều mao mạch. O₂ khuếch tán từ ngoài vào máu, CO₂ khuếch tán từ máu ra ngoài. Da khô thì giun không trao đổi khí được.'},
+   {id:'air',x:90,y:130,lx:90,ly:100,anchor:'start',t:'Không khí',d:'O₂ trong không khí nhiều hơn trong cơ thể nên khuếch tán vào qua da. CO₂ trong cơ thể nhiều hơn nên khuếch tán ra ngoài.'}]};}};
+
+SC.grass={label:'Châu chấu',bg:'var(--env)',
+ info:{name:'Châu chấu',organ:'Hệ thống ống khí',feature:'Ống khí phân nhánh nhỏ dần đến từng tế bào, mở ra ngoài bằng các lỗ thở ở hai bên thân.',how:'O₂ từ không khí qua lỗ thở vào ống khí rồi đến thẳng tế bào. CO₂ từ tế bào theo ống khí ra ngoài. Máu không đóng vai trò chính trong vận chuyển khí.',ex:'Châu chấu, ong, bướm'},
+ build(){
+  const xs=[250,310,370,430],flows=[];let tubes='',cells='';
+  xs.forEach((x,i)=>{const y=yTop(x);
+   flows.push({type:'O2',pts:[[x-5,y-95],[x-5,y],[x-5,274]],n:1,v:.8,d:i*.2});
+   flows.push({type:'CO2',pts:[[x+5,274],[x+5,y],[x+5,y-95]],n:1,v:.8,d:i*.2+.5});
+   tubes+=`<path d="M${x} ${y} L${x} 274" stroke="var(--trachea)" stroke-width="5" fill="none"/><circle cx="${x}" cy="${y}" r="6" fill="var(--ink)" opacity=".75"/>`;
+   cells+=`<circle cx="${x}" cy="288" r="11" fill="var(--cellc)" stroke="var(--worm2)" stroke-width="2"/>`;});
+  return{
+  art:`${BG}
+  <path d="M470 285 L540 372 L520 440 M530 288 L600 382 M450 280 L380 345 L330 450" stroke="var(--insect-d)" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="330" cy="255" rx="170" ry="52" fill="var(--insect)"/>
+  <ellipse cx="530" cy="245" rx="70" ry="55" fill="var(--insect)"/>
+  <ellipse cx="640" cy="250" rx="48" ry="42" fill="var(--insect)"/>
+  <circle cx="655" cy="238" r="11" fill="var(--ink)"/>
+  <path d="M665 215 L735 150" stroke="var(--insect-d)" stroke-width="4" stroke-linecap="round"/>
+  <ellipse cx="360" cy="214" rx="150" ry="20" fill="var(--wing)" opacity=".55" transform="rotate(-6 360 214)"/>
+  <path d="M215 250 L600 250" stroke="var(--trachea)" stroke-width="6" stroke-linecap="round"/>
+  ${tubes}${cells}`,
+  flows,
+  hs:[
+   {id:'spir',x:430,y:yTop(430),lx:520,ly:130,anchor:'start',t:'Lỗ thở',d:'Lỗ thở là các lỗ nhỏ ở hai bên thân, nơi không khí đi vào và đi ra khỏi hệ thống ống khí.'},
+   {id:'trach',x:215,y:250,lx:110,ly:335,anchor:'middle',t:'Ống khí',d:'Ống khí phân nhánh nhỏ dần, dẫn khí trực tiếp đến từng tế bào nên máu không phải chở khí.'},
+   {id:'cell',x:250,y:288,lx:190,ly:440,anchor:'middle',t:'Tế bào',d:'Tế bào nhận O₂ trực tiếp từ ống khí và thải CO₂ vào ống khí.'}]};}};
+
+SC.fish={label:'Cá',bg:'var(--water)',
+ info:{name:'Cá',organ:'Mang',feature:'Mang gồm nhiều phiến mỏng, chứa dày đặc mao mạch, nằm dưới nắp mang.',how:'Nước giàu O₂ vào qua miệng và chảy qua mang. O₂ khuếch tán từ nước vào máu, CO₂ khuếch tán từ máu ra nước rồi theo dòng nước thoát ra qua nắp mang.',ex:'Cá, tôm, cua'},
+ build(){
+  let gills='';for(let i=0;i<5;i++)gills+=`<path d="M${648-i*10} 218 Q${628-i*10} 262 ${648-i*10} 306" stroke="var(--gill)" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+  return{
+  art:BG.replace('var(--env)','var(--water)')+`
+  <polygon points="100,250 30,190 52,250 30,310" fill="var(--fish-d)"/>
+  <polygon points="330,160 380,100 450,165" fill="var(--fish-d)"/>
+  <polygon points="560,300 520,365 600,325" fill="var(--fish-d)"/>
+  <path d="M90 250 C190 160 420 140 600 190 C690 215 745 245 760 262 C740 285 690 310 600 330 C420 380 190 350 90 250Z" fill="var(--fish)"/>
+  <path d="M150 285 C300 345 480 350 600 322 C480 310 300 300 150 285Z" fill="#fff" opacity=".25"/>
+  <path d="M600 272 L300 272" stroke="var(--o2)" stroke-width="6" stroke-dasharray="2 8" opacity=".6"/>
+  <path d="M300 292 L600 292" stroke="var(--co2)" stroke-width="6" stroke-dasharray="2 8" opacity=".6"/>
+  ${gills}
+  <path d="M600 195 C570 250 570 280 600 325" stroke="var(--fish-d)" stroke-width="4" fill="none"/>
+  <circle cx="700" cy="240" r="8" fill="var(--ink)"/>
+  <path d="M760 262 L735 266" stroke="var(--fish-d)" stroke-width="3" stroke-linecap="round"/>`,
+  flows:[
+   {type:'O2',pts:[[795,240],[758,258],[700,262],[640,262]],n:3,v:1},
+   {type:'O2',pts:[[640,262],[600,272],[450,272],[300,272]],n:2,v:.9,d:.3},
+   {type:'CO2',pts:[[300,292],[450,292],[600,292],[590,325],[540,385],[480,445]],n:3,v:1,d:.1}],
+  hs:[
+   {id:'gill',x:628,y:262,lx:690,ly:110,anchor:'middle',t:'Mang',d:'Mang gồm nhiều phiến mỏng chứa dày đặc mao mạch. O₂ trong nước khuếch tán vào máu, CO₂ từ máu khuếch tán ra nước.'},
+   {id:'mouth',x:758,y:262,lx:735,ly:375,anchor:'middle',t:'Miệng',d:'Cá đớp nước qua miệng. Nước chứa O₂ hòa tan chảy qua các phiến mang.'},
+   {id:'operc',x:598,y:205,lx:480,ly:72,anchor:'middle',t:'Nắp mang',d:'Nước đã mất bớt O₂ và có thêm CO₂ thoát ra ngoài qua khe nắp mang.'}]};}};
+
+SC.cat={label:'Mèo',bg:'var(--env)',breath:true,lung:{cx:495,cy:292},
+ info:{name:'Mèo',organ:'Phổi',feature:'Phổi có rất nhiều phế nang nhỏ, thành mỏng, bao quanh bởi mao mạch. Không khí vào phổi qua đường dẫn khí.',how:'Khi hít vào, không khí đi theo đường dẫn khí vào phổi và O₂ khuếch tán vào máu. CO₂ từ máu khuếch tán vào phổi rồi được thở ra ngoài.',ex:'Mèo, chó, chim, người'},
+ build(){return{
+  art:`${BG}
+  <path d="M310 270 C240 260 200 200 230 130" stroke="var(--cat)" stroke-width="24" fill="none" stroke-linecap="round"/>
+  <rect x="330" y="320" width="42" height="130" rx="16" fill="var(--cat-d)"/>
+  <rect x="385" y="325" width="42" height="125" rx="16" fill="var(--cat)"/>
+  <rect x="545" y="325" width="42" height="125" rx="16" fill="var(--cat-d)"/>
+  <rect x="598" y="320" width="42" height="130" rx="16" fill="var(--cat)"/>
+  <ellipse cx="470" cy="285" rx="170" ry="80" fill="var(--cat)"/>
+  <polygon points="625,195 635,140 668,182" fill="var(--cat)"/>
+  <polygon points="680,180 706,140 716,198" fill="var(--cat)"/>
+  <ellipse cx="665" cy="235" rx="70" ry="60" fill="var(--cat)"/>
+  <circle cx="690" cy="222" r="6" fill="var(--ink)"/>
+  <circle cx="735" cy="247" r="5" fill="#E58C98"/>
+  <path d="M733 247 L690 247 L640 262 L560 282 L530 290" stroke="var(--tract)" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <g id="lungs"><ellipse cx="495" cy="292" rx="58" ry="46" fill="var(--lung)" stroke="var(--lung-d)" stroke-width="3"/>
+   <path d="M530 290 L495 292 L470 275 M495 292 L475 312" stroke="var(--lung-d)" stroke-width="3" fill="none" stroke-linecap="round"/></g>`,
+  flows:[
+   {type:'O2',pts:[[790,235],[740,246],[690,247],[640,262],[560,282],[510,292]],n:2,v:1.3,ph:'in'},
+   {type:'CO2',pts:[[510,292],[560,282],[640,262],[690,247],[740,246],[790,235]],n:2,v:1.3,ph:'out'}],
+  hs:[
+   {id:'nose',x:733,y:247,lx:722,ly:335,anchor:'middle',t:'Khoang mũi',d:'Không khí đi vào cơ thể qua khoang mũi, rồi xuống hầu và khí quản.'},
+   {id:'trach',x:600,y:271,lx:560,ly:172,anchor:'middle',t:'Khí quản',d:'Khí quản là ống dẫn khí, đưa không khí xuống phổi khi hít vào và đưa CO₂ lên khi thở ra.'},
+   {id:'lung',x:480,y:300,lx:410,ly:178,anchor:'middle',t:'Phổi',d:'Phổi là nơi trao đổi khí: O₂ khuếch tán từ không khí vào máu, CO₂ khuếch tán từ máu vào phổi rồi được thở ra.'}]};}};
+
+SC.human={label:'Người',bg:'var(--env)',breath:true,dia:true,lung:{cx:250,cy:345},
+ info:{name:'Người',organ:'Phổi cùng đường dẫn khí',feature:'Đường dẫn khí gồm khoang mũi, hầu, thanh quản, khí quản, phế quản. Phổi có rất nhiều phế nang thành mỏng, bao quanh bởi mao mạch.',how:'Hít vào: không khí đi vào phổi, O₂ khuếch tán vào máu. Máu đưa O₂ đến tế bào và đưa CO₂ về phổi. Thở ra: CO₂ khuếch tán vào phế nang rồi ra ngoài.',ex:'Người'},
+ build(){
+  const alv=[[160,375],[185,398],[207,372],[172,340],[198,346]];
+  const al=alv.map(a=>`<circle cx="${a[0]}" cy="${a[1]}" r="6" fill="var(--alv)" stroke="var(--lung-d)" stroke-width="1.5"/><circle cx="${500-a[0]}" cy="${a[1]}" r="6" fill="var(--alv)" stroke="var(--lung-d)" stroke-width="1.5"/>`).join('');
+  const cl=[[590,235],[650,225],[710,240],[600,300],[660,312],[715,296]].map(c=>`<circle cx="${c[0]}" cy="${c[1]}" r="22" fill="var(--cellc)" stroke="var(--worm2)" stroke-width="2"/><circle cx="${c[0]}" cy="${c[1]}" r="8" fill="var(--lung-d)"/>`).join('');
+  const lAir=[[150,95],[232,98],[250,112],[250,258]];
+  return{
+  art:`${BG}
+  <path d="M345 308 C400 278 470 250 560 250" stroke="var(--o2)" stroke-width="8" fill="none" opacity=".45"/>
+  <path d="M560 305 C480 330 420 340 345 350" stroke="var(--co2)" stroke-width="8" fill="none" opacity=".45"/>
+  <rect x="545" y="150" width="215" height="230" rx="26" fill="var(--cellbox)"/>
+  <text class="on" x="652" y="182" text-anchor="middle" style="font-size:17px">Tế bào cơ thể</text>${cl}
+  <rect x="228" y="120" width="44" height="46" fill="var(--skin)"/>
+  <path d="M120 540 C118 330 130 215 190 180 L310 180 C370 215 382 330 380 540Z" fill="var(--skin)"/>
+  <circle cx="250" cy="75" r="52" fill="var(--skin)"/>
+  <g id="lungs">
+   <ellipse cx="183" cy="345" rx="60" ry="88" transform="rotate(6 183 345)" fill="var(--lung)" stroke="var(--lung-d)" stroke-width="3"/>
+   <ellipse cx="317" cy="345" rx="60" ry="88" transform="rotate(-6 317 345)" fill="var(--lung)" stroke="var(--lung-d)" stroke-width="3"/>
+   <path d="M205 292 L185 330 L170 365 M185 330 L200 362 M295 292 L315 330 L330 365 M315 330 L300 362" stroke="var(--lung-d)" stroke-width="3" fill="none" stroke-linecap="round"/>${al}</g>
+  <ellipse cx="250" cy="90" rx="14" ry="22" fill="var(--tract)"/>
+  <path d="M250 108 L250 258" stroke="var(--tract)" stroke-width="12" stroke-linecap="round"/>
+  <rect x="237" y="158" width="26" height="24" rx="8" fill="var(--larynx)"/>
+  <path d="M250 258 L205 292 M250 258 L295 292" stroke="var(--tract)" stroke-width="10" stroke-linecap="round"/>
+  <g id="dia"><path d="M125 445 Q250 405 375 445" stroke="var(--muscle)" stroke-width="9" fill="none" stroke-linecap="round"/></g>`,
+  flows:[
+   {type:'O2',pts:lAir.concat([[205,292],[185,338]]),n:2,v:1.3,ph:'in'},
+   {type:'O2',pts:lAir.concat([[295,292],[315,338]]),n:2,v:1.3,ph:'in',d:.25},
+   {type:'CO2',pts:[[185,338],[205,292],[250,258],[250,112],[232,98],[150,95]],n:2,v:1.3,ph:'out'},
+   {type:'CO2',pts:[[315,338],[295,292],[250,258],[250,112],[232,98],[150,95]],n:2,v:1.3,ph:'out',d:.25},
+   {type:'O2',pts:[[345,308],[400,278],[470,250],[560,250],[600,265]],n:2,v:.8},
+   {type:'CO2',pts:[[600,305],[560,305],[480,330],[400,345],[345,350]],n:2,v:.8,d:.2}],
+  hs:[
+   {id:'nose',x:250,y:88,lx:330,ly:58,anchor:'start',t:'Mũi',d:'Không khí vào cơ thể qua khoang mũi, nơi được làm ấm và làm ẩm.'},
+   {id:'hau',x:250,y:135,lx:405,ly:122,anchor:'start',t:'Hầu',d:'Hầu là đoạn dẫn không khí từ khoang mũi xuống thanh quản và khí quản.'},
+   {id:'lar',x:250,y:170,lx:405,ly:165,anchor:'start',t:'Thanh quản',d:'Thanh quản nằm giữa hầu và khí quản, có dây thanh âm giúp tạo tiếng nói.'},
+   {id:'trach',x:250,y:218,lx:405,ly:208,anchor:'start',t:'Khí quản',d:'Khí quản là ống dẫn khí, đưa không khí xuống hai phế quản.'},
+   {id:'bron',x:205,y:292,lx:112,ly:262,anchor:'end',t:'Phế quản',d:'Phế quản chia thành hai nhánh, dẫn không khí vào phổi trái và phổi phải.'},
+   {id:'lung',x:160,y:325,lx:112,ly:405,anchor:'end',t:'Phổi',d:'Phổi là nơi trao đổi khí giữa không khí và máu. Khi hít vào phổi nở ra, khi thở ra phổi xẹp lại.'},
+   {id:'alv',x:207,y:372,lx:112,ly:456,anchor:'end',t:'Phế nang',d:'Phế nang là túi khí nhỏ, thành rất mỏng, bao quanh bởi mao mạch. O₂ khuếch tán từ phế nang vào máu, CO₂ khuếch tán từ máu vào phế nang.'},
+   {id:'dia',x:250,y:425,lx:250,ly:462,anchor:'middle',t:'Cơ hoành',d:'Cơ hoành nằm dưới phổi. Khi co lại, nó hạ xuống làm lồng ngực mở rộng, giúp hít vào.'},
+   {id:'blood',x:470,y:333,lx:470,ly:398,anchor:'middle',t:'Máu vận chuyển khí',d:'Máu mang O₂ từ phổi đến tế bào và mang CO₂ từ tế bào về phổi.'},
+   {id:'cell',x:650,y:268,lx:650,ly:412,anchor:'middle',t:'Tế bào',d:'Tại tế bào, O₂ từ máu khuếch tán vào tế bào. CO₂ sinh ra từ tế bào khuếch tán vào máu.'}]};}};
+
+const ORDER=['overview','worm','grass','fish','cat','human'];
+
+/* ---------- Âm thanh (Web Audio, tổng hợp tại chỗ) ---------- */
+let AC=null,MG=null,soundOn=true,noiseBuf=null;
+function ensureAudio(){
+  try{
+    if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(!C)return;AC=new C();MG=AC.createGain();MG.gain.value=.55;MG.connect(AC.destination);}
+    if(AC.state==='suspended')AC.resume();
+  }catch(e){}
+}
+document.addEventListener('pointerdown',ensureAudio,true);
+document.addEventListener('keydown',ensureAudio,true);
+function tone(f,d,o={}){
+  if(!soundOn||!AC)return;
+  const t=AC.currentTime+(o.delay||0),osc=AC.createOscillator(),g=AC.createGain();
+  osc.type=o.type||'sine';osc.frequency.setValueAtTime(f,t);
+  if(o.to)osc.frequency.exponentialRampToValueAtTime(o.to,t+d);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(o.vol||.15,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  osc.connect(g);g.connect(MG);osc.start(t);osc.stop(t+d+.03);
+}
+function noise(d,o={}){
+  if(!soundOn||!AC)return;
+  const t=AC.currentTime+(o.delay||0);
+  if(!noiseBuf){const n=AC.sampleRate*2;noiseBuf=AC.createBuffer(1,n,AC.sampleRate);const c=noiseBuf.getChannelData(0);for(let i=0;i<n;i++)c[i]=Math.random()*2-1;}
+  const s=AC.createBufferSource();s.buffer=noiseBuf;
+  const f=AC.createBiquadFilter();f.type=o.type||'bandpass';f.Q.value=o.q||1;f.frequency.setValueAtTime(o.from||800,t);
+  if(o.to)f.frequency.exponentialRampToValueAtTime(o.to,t+d);
+  const g=AC.createGain();g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(o.vol||.1,t+d*.35);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  s.connect(f);f.connect(g);g.connect(MG);s.start(t);s.stop(t+d+.05);
+}
+const sfx={
+  pop(){tone(620,.12,{to:980,vol:.16});},
+  tab(){tone(480,.07,{type:'triangle',vol:.1});},
+  ok(){[523,659,784,1047].forEach((f,i)=>tone(f,.18,{delay:i*.07,vol:.13,type:'triangle'}));},
+  bad(){tone(220,.28,{to:110,type:'sawtooth',vol:.1});},
+  tick(){tone(900,.04,{vol:.05,type:'square'});},
+  whoosh(dir){noise(1.5,{from:dir==='in'?450:1700,to:dir==='in'?1700:450,vol:.12,q:.9});},
+  bubble(){const f=300+Math.random()*350;tone(f,.14,{to:f*2,vol:.1});},
+  chirp(){for(let i=0;i<4;i++)tone(4300,.045,{delay:i*.07,vol:.035});},
+  rustle(){noise(.5,{type:'highpass',from:2500,vol:.05});},
+  win(){[523,659,784,1047,1319].forEach((f,i)=>tone(f,.25,{delay:i*.1,vol:.14,type:'triangle'}));}
+};
+setInterval(()=>{
+  if(!soundOn||!AC||AC.state!=='running'||document.hidden||paused)return;
+  if(curId==='fish'&&Math.random()<.65)sfx.bubble();
+  else if(curId==='grass'&&Math.random()<.4)sfx.chirp();
+  else if(curId==='worm'&&Math.random()<.35)sfx.rustle();
+},900);
+
+/* ---------- Bộ máy mô hình ---------- */
+const svg=$('#scene'),artG=$('#art'),flowG=$('#flows'),hsG=$('#hsl'),viewport=$('#viewport'),callout=$('#callout'),badge=$('#badge');
+let curId='overview',cur=SC.overview,built=null,parts=[],hsSel=null;
+let clock=0,speed=1,paused=false,breathMode='auto',lungS=1,lastPhase=null,lungsEl=null,diaEl=null;
+
+function mkParticle(type){
+  const g=mk('g',{}),c=mk('circle',{r:14,fill:type==='O2'?'var(--o2)':'var(--co2)',stroke:'#fff','stroke-width':1.5},g);
+  const t=mk('text',{'text-anchor':'middle',y:4,class:'pt'},g);
+  t.innerHTML=(type==='O2'?'O':'CO')+'<tspan dy="3" font-size="7">2</tspan>';
+  return g;
+}
+function prep(f){
+  f.cum=[0];
+  for(let i=1;i<f.pts.length;i++){const a=f.pts[i-1],b=f.pts[i];f.cum.push(f.cum[i-1]+Math.hypot(b[0]-a[0],b[1]-a[1]));}
+  f.L=f.cum[f.cum.length-1];f.vis=f.ph?0:1;
+}
+function at(f,t){
+  const d=t*f.L;let i=1;
+  while(i<f.cum.length-1&&f.cum[i]<d)i++;
+  const a=f.pts[i-1],b=f.pts[i],seg=f.cum[i]-f.cum[i-1]||1,u=(d-f.cum[i-1])/seg;
+  return[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u];
+}
+function drawHS(list){
+  hsG.innerHTML='';
+  list.forEach(h=>{
+    const g=mk('g',{class:'hs',tabindex:'0',role:'button','aria-label':h.t,'data-id':h.id},hsG);
+    const lead=h.lx!=null&&(h.lx!==h.x||h.ly!==h.y);
+    if(lead)mk('line',{class:'lead',x1:h.x,y1:h.y,x2:h.lx,y2:h.ly},g);
+    mk('circle',{class:'ring',cx:h.x,cy:h.y,r:8},g);
+    mk('circle',{class:'dot',cx:h.x,cy:h.y,r:8},g);
+    mk('circle',{cx:h.x,cy:h.y,r:20,fill:'transparent'},g);
+    if(lead){
+      const t=mk('text',{x:h.lx+(h.anchor==='start'?6:h.anchor==='end'?-6:0),y:h.ly+(h.ly>=h.y?17:-6),'text-anchor':h.anchor||'middle'},g);
+      t.textContent=h.t;
+    }
+    g.addEventListener('click',()=>selectHS(h.id,true));
+    g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectHS(h.id,true);}});
+  });
+}
+function selectHS(id,sound){
+  hsSel=id;
+  $$('.hs',hsG).forEach(g=>g.classList.toggle('on',g.dataset.id===id));
+  const h=built.hs.find(x=>x.id===id);
+  if(h){callout.innerHTML=`<b></b><p></p>`;$('b',callout).textContent=h.t;$('p',callout).textContent=h.d;}
+  if(sound)sfx.pop();
+}
+function showDefault(){
+  hsSel=null;
+  callout.innerHTML='<b></b><p></p>';
+  $('b',callout).textContent=cur.info.name+': '+cur.info.organ;
+  $('p',callout).textContent=cur.info.how+' Nhấn vào các chấm sáng trên mô hình để xem chi tiết.';
+}
+function loadScene(id,sound){
+  curId=id;cur=SC[id];built=cur.build();
+  artG.innerHTML=built.art;flowG.innerHTML='';parts=[];
+  built.flows.forEach(f=>{
+    prep(f);
+    for(let i=0;i<f.n;i++){const g=mkParticle(f.type);flowG.appendChild(g);parts.push({f,off:i/f.n+(f.d||0),g});}
+  });
+  drawHS(built.hs);
+  lungsEl=$('#lungs',artG);diaEl=$('#dia',artG);
+  viewport.style.background=cur.bg;
+  $('#breathCtl').hidden=!cur.breath;
+  badge.hidden=!cur.breath;lastPhase=null;lungS=1;
+  $$('#scenes .chip').forEach(b=>b.setAttribute('aria-selected',b.dataset.id===id));
+  showDefault();renderDesc();
+  if(sound)sfx.tab();
+}
+function getPhase(){
+  if(breathMode==='auto')return((clock%5200)/5200)<.5?'in':'out';
+  return breathMode;
+}
+function frame(now){
+  const dt=Math.min(50,now-(frame.last||now));frame.last=now;
+  if(!paused)clock+=dt*speed;
+  const ph=getPhase();
+  if(cur.breath){
+    if(breathMode==='auto')lungS=1-.1*Math.cos(2*Math.PI*(clock%5200)/5200);
+    else if(!paused)lungS+=((ph==='in'?1.12:.92)-lungS)*.05;
+    const L=cur.lung,sx=1+(lungS-1)*.6;
+    if(lungsEl)lungsEl.setAttribute('transform',`translate(${L.cx} ${L.cy}) scale(${sx.toFixed(3)} ${lungS.toFixed(3)}) translate(${-L.cx} ${-L.cy})`);
+    if(diaEl)diaEl.setAttribute('transform',`translate(0 ${((lungS-1)*120).toFixed(1)})`);
+    if(ph!==lastPhase){
+      lastPhase=ph;badge.className='badge '+ph;
+      badge.textContent=ph==='in'?'HÍT VÀO: O₂ vào phổi':'THỞ RA: CO₂ ra ngoài';
+      if(!paused)sfx.whoosh(ph);
+    }
+  }
+  built.flows.forEach(f=>{if(f.ph)f.vis+=((f.ph===ph?1:0)-f.vis)*.12;});
+  parts.forEach(p=>{
+    const f=p.f,t=(((clock*.0003*f.v+p.off)%1)+1)%1;
+    const xy=at(f,t),fade=Math.min(1,t/.08,(1-t)/.08),a=fade*f.vis;
+    p.g.setAttribute('transform',`translate(${xy[0].toFixed(1)} ${xy[1].toFixed(1)})`);
+    p.g.setAttribute('opacity',a.toFixed(2));
+  });
+  requestAnimationFrame(frame);
+}
+
+/* ---------- Điều khiển ---------- */
+const sc=$('#scenes');
+ORDER.forEach(id=>{
+  const b=document.createElement('button');b.className='chip';b.role='tab';b.dataset.id=id;b.textContent=SC[id].label;
+  b.setAttribute('aria-selected',id===curId);b.addEventListener('click',()=>loadScene(id,true));sc.appendChild(b);
+});
+$('#breathCtl').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  breathMode=b.dataset.b;lastPhase=null;sfx.tab();
+  $$('#breathCtl button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+});
+$('#btnPause').addEventListener('click',e=>{paused=!paused;e.currentTarget.textContent=paused?'Tiếp tục':'Tạm dừng';sfx.tab();});
+$('#spd').addEventListener('input',e=>{speed=parseFloat(e.target.value);});
+$('#btnLabels').addEventListener('click',e=>{
+  const on=e.currentTarget.getAttribute('aria-pressed')!=='true';
+  e.currentTarget.setAttribute('aria-pressed',on);e.currentTarget.textContent='Nhãn: '+(on?'Bật':'Tắt');
+  svg.classList.toggle('nolabels',!on);sfx.tab();
+});
+$('#btnSound').addEventListener('click',e=>{
+  soundOn=!soundOn;e.currentTarget.setAttribute('aria-pressed',soundOn);e.currentTarget.textContent='Âm thanh: '+(soundOn?'Bật':'Tắt');
+  if(soundOn){ensureAudio();setTimeout(()=>sfx.pop(),60);}
+});
+
+/* ---------- Tab nội dung ---------- */
+function showTab(name){
+  $$('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===name));
+  ['desc','review','quiz'].forEach(n=>{$('#pane-'+n).hidden=n!==name;});
+  $('#pbody').scrollTop=0;sfx.tab();
+}
+$$('.tab').forEach(t=>t.addEventListener('click',()=>showTab(t.dataset.tab)));
+
+function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function sub(s){return esc(s).replace(/O₂/g,'<span class="o2t">O₂</span>').replace(/CO₂/g,'<span class="co2t">CO₂</span>');}
+function renderDesc(){
+  const i=cur.info;
+  $('#descScene').innerHTML=`<div class="card"><h3>Đang xem: ${esc(i.name)}</h3><dl class="kv">
+   <dt>Cơ quan</dt><dd>${sub(i.organ)}</dd><dt>Đặc điểm</dt><dd>${sub(i.feature)}</dd>
+   <dt>Cách trao đổi</dt><dd>${sub(i.how)}</dd><dt>Ví dụ</dt><dd>${sub(i.ex)}</dd></dl></div>`;
+}
+
+/* ---------- Tab ôn tập ---------- */
+const FC=[
+ ['Trao đổi khí là gì?','Cơ thể lấy O₂ từ môi trường và thải CO₂ ra môi trường.'],
+ ['Khí đi qua bề mặt trao đổi khí bằng cách nào?','Khuếch tán: từ nơi nồng độ cao sang nơi nồng độ thấp.'],
+ ['Giun đất trao đổi khí qua đâu?','Qua da. Da mỏng, ẩm, có nhiều mao mạch.'],
+ ['Châu chấu trao đổi khí bằng cơ quan nào?','Hệ thống ống khí, mở ra ngoài bằng các lỗ thở.'],
+ ['Cá trao đổi khí qua đâu?','Qua mang. O₂ từ nước khuếch tán vào máu, CO₂ khuếch tán ra nước.'],
+ ['Mèo và người trao đổi khí bằng cơ quan nào?','Phổi, cùng đường dẫn khí.'],
+ ['Đường đi của không khí khi hít vào ở người?','Khoang mũi, hầu, khí quản, phế quản, phổi.'],
+ ['Phế nang có đặc điểm gì?','Túi khí nhỏ, thành mỏng, bao quanh bởi mao mạch.'],
+ ['Máu có vai trò gì trong trao đổi khí ở người?','Chở O₂ từ phổi đến tế bào và chở CO₂ từ tế bào về phổi.'],
+ ['Sơ đồ chung của trao đổi khí?','Môi trường, cơ quan trao đổi khí, tế bào. O₂ đi vào, CO₂ đi ra.']];
+const GROUPS=[['worm','Giun đất','Da','Mỏng, ẩm, nhiều mao mạch'],['grass','Châu chấu','Ống khí','Phân nhánh tới từng tế bào, lỗ thở'],['fish','Cá','Mang','Phiến mang mỏng, nhiều mao mạch'],['cat','Mèo','Phổi','Phế nang nhiều, thành mỏng'],['human','Người','Phổi','Đường dẫn khí và phế nang']];
+function renderReview(){
+  const p=$('#pane-review');
+  p.innerHTML=`<h2>Ghi nhớ nhanh</h2>
+  <ul><li>Mọi động vật đều lấy <span class="o2t">O₂</span> và thải <span class="co2t">CO₂</span> qua bề mặt trao đổi khí.</li>
+  <li>Bề mặt trao đổi khí thường mỏng, ẩm, rộng và có nhiều mao mạch.</li>
+  <li>Cơ quan khác nhau theo loài: da, ống khí, mang, phổi.</li></ul>
+  <h2>So sánh các nhóm</h2>
+  ${GROUPS.map(g=>`<div class="card"><h3>${g[1]}: ${g[2]}</h3><p style="margin:0 0 6px">${g[3]}</p><button class="btn" data-go="${g[0]}">Xem trên mô hình</button></div>`).join('')}
+  <h2>Thẻ ôn tập</h2><p class="mini">Nhấn vào thẻ để lật xem đáp án.</p>
+  ${FC.map((c,i)=>`<button class="fc" data-i="${i}"><small>Câu hỏi</small><span>${sub(c[0])}</span></button>`).join('')}`;
+  p.addEventListener('click',e=>{
+    const go=e.target.closest('[data-go]');
+    if(go){loadScene(go.dataset.go,true);return;}
+    const fc=e.target.closest('.fc');
+    if(fc){const i=+fc.dataset.i,fl=fc.classList.toggle('flip');
+      fc.innerHTML=fl?`<small>Đáp án</small><span>${sub(FC[i][1])}</span>`:`<small>Câu hỏi</small><span>${sub(FC[i][0])}</span>`;sfx.tab();}
+  });
+}
+
+/* ---------- Trò chơi trắc nghiệm ---------- */
+const BANK=[
+ {q:'Ở giun đất, khí được trao đổi qua cơ quan nào?',o:['Phổi','Mang','Da','Hệ thống ống khí'],c:2,e:'Giun đất trao đổi khí qua da ẩm, có nhiều mao mạch.'},
+ {q:'Cơ quan trao đổi khí của châu chấu là gì?',o:['Hệ thống ống khí','Mang','Phổi','Da'],c:0,e:'Ống khí phân nhánh dẫn khí đến từng tế bào.'},
+ {q:'Ở cá, O₂ từ nước khuếch tán vào máu qua bộ phận nào?',o:['Da','Mang','Phổi','Lỗ thở'],c:1,e:'Mang có nhiều phiến mỏng chứa dày đặc mao mạch.'},
+ {q:'Thứ tự đúng của đường dẫn khí khi hít vào ở người là gì?',o:['Khoang mũi, hầu, khí quản, phế quản, phổi','Khoang mũi, khí quản, hầu, phế quản, phổi','Hầu, khoang mũi, phế quản, khí quản, phổi','Khoang mũi, hầu, phế quản, khí quản, phổi'],c:0,e:'Không khí đi từ khoang mũi xuống hầu, khí quản, phế quản rồi vào phổi.'},
+ {q:'Ở phổi, O₂ khuếch tán theo hướng nào?',o:['Từ máu vào phế nang','Từ phế nang vào máu','Từ khí quản vào tế bào','Từ tế bào vào phế nang'],c:1,e:'O₂ từ phế nang, nơi nồng độ cao, khuếch tán vào máu.'},
+ {q:'Tại các tế bào của cơ thể, khí khuếch tán theo hướng nào?',o:['O₂ từ tế bào vào máu, CO₂ từ máu vào tế bào','Cả hai khí đều đi từ máu vào tế bào','O₂ từ máu vào tế bào, CO₂ từ tế bào vào máu','Cả hai khí đều đi từ tế bào vào máu'],c:2,e:'Tế bào dùng O₂ và tạo ra CO₂ nên O₂ vào tế bào, CO₂ vào máu.'},
+ {q:'Vì sao da giun đất phải luôn ẩm?',o:['Để khí hòa tan rồi khuếch tán qua da','Để giun đỡ bị mất nhiệt','Để giun hút được nước mưa','Để máu chảy nhanh hơn'],c:0,e:'Khí hòa tan trong lớp chất nhầy ẩm mới khuếch tán qua da được.'},
+ {q:'Ở châu chấu, ống khí dẫn O₂ đến đâu?',o:['Đến tim','Trực tiếp đến các tế bào','Đến mang','Đến phổi'],c:1,e:'Ống khí phân nhánh nhỏ dần tới từng tế bào.'},
+ {q:'Lỗ thở của châu chấu có chức năng gì?',o:['Là nơi thức ăn đi vào','Là nơi khí đi vào và đi ra hệ thống ống khí','Là nơi máu thoát ra','Là nơi tiết tiếng kêu'],c:1,e:'Lỗ thở mở ra ngoài, nối với hệ thống ống khí.'},
+ {q:'Mèo trao đổi khí bằng cơ quan nào?',o:['Da','Mang','Phổi','Ống khí'],c:2,e:'Mèo là động vật có phổi, giống người.'},
+ {q:'Sự di chuyển của chất từ nơi nồng độ cao sang nơi nồng độ thấp gọi là gì?',o:['Khuếch tán','Hô hấp','Tiêu hóa','Bài tiết'],c:0,e:'Các khí đi qua bề mặt trao đổi khí bằng khuếch tán.'},
+ {q:'Đặc điểm nào KHÔNG giúp bề mặt trao đổi khí hoạt động hiệu quả?',o:['Mỏng và ẩm','Diện tích lớn','Nhiều mao mạch','Dày và khô'],c:3,e:'Bề mặt dày, khô làm khí khó khuếch tán.'},
+ {q:'Ở cá, nước giàu O₂ đi vào cơ thể trước hết qua đâu?',o:['Nắp mang','Vây','Miệng','Da'],c:2,e:'Cá đớp nước qua miệng rồi nước chảy qua mang.'},
+ {q:'Cặp động vật và cơ quan trao đổi khí nào sau đây đúng?',o:['Cá, phổi','Giun đất, mang','Châu chấu, ống khí','Mèo, da'],c:2,e:'Châu chấu dùng hệ thống ống khí.'},
+ {q:'Khí nào được tế bào thải ra rồi đưa ra ngoài môi trường?',o:['O₂','CO₂','N₂','H₂'],c:1,e:'Tế bào tạo ra CO₂, được máu đưa về cơ quan trao đổi khí và thải ra.'},
+ {q:'Theo sơ đồ chung, O₂ đi theo thứ tự nào?',o:['Tế bào, cơ quan trao đổi khí, môi trường','Môi trường, tế bào, cơ quan trao đổi khí','Cơ quan trao đổi khí, môi trường, tế bào','Môi trường, cơ quan trao đổi khí, tế bào'],c:3,e:'O₂ từ môi trường qua cơ quan trao đổi khí rồi đến tế bào.'},
+ {q:'Tế bào cần O₂ để làm gì?',o:['Phân giải chất hữu cơ, giải phóng năng lượng','Tạo ra nước uống','Làm lạnh cơ thể','Tạo ra khí N₂'],c:0,e:'O₂ giúp tế bào phân giải chất hữu cơ và giải phóng năng lượng.'},
+ {q:'Ở phổi, CO₂ khuếch tán từ máu vào đâu?',o:['Phế nang','Tế bào','Thực quản','Cơ hoành'],c:0,e:'CO₂ vào phế nang rồi được đẩy ra ngoài khi thở ra.'}];
+const NQ=10,LIMIT=20;
+let run=null,timerId=null;
+const qp=$('#pane-quiz');
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+function best(){try{return +localStorage.getItem('tdk-best')||0;}catch(e){return 0;}}
+function saveBest(v){try{localStorage.setItem('tdk-best',String(v));}catch(e){}}
+function quizStart(){
+  qp.innerHTML=`<h2>Thử thách trao đổi khí</h2>
+  <p>Trả lời ${NQ} câu hỏi. Đáp án nhanh được thêm điểm, trả lời đúng liên tiếp được thưởng điểm chuỗi.</p>
+  <label class="ctl" style="margin-bottom:12px"><input type="checkbox" id="qTimed" checked> Tính giờ ${LIMIT} giây mỗi câu</label>
+  <div><button class="btn pri" id="qGo">Bắt đầu</button></div>
+  <p class="mini" style="margin-top:12px">Điểm cao nhất trên máy này: <b>${best()}</b></p>`;
+}
+function quizBegin(){
+  const timed=$('#qTimed').checked;
+  run={timed,i:0,score:0,streak:0,maxStreak:0,right:0,wrong:[],left:LIMIT,done:false,
+    list:shuffle(BANK).slice(0,NQ).map(q=>{const opts=shuffle(q.o.map((t,k)=>({t,ok:k===q.c})));return{q:q.q,e:q.e,opts};})};
+  quizAsk();
+}
+function stopTimer(){if(timerId){clearInterval(timerId);timerId=null;}}
+function quizAsk(){
+  const r=run,q=r.list[r.i];r.done=false;r.left=LIMIT;stopTimer();
+  qp.innerHTML=`<div class="qhead"><span>Câu ${r.i+1}/${NQ}</span><span>Điểm <b id="qs">${r.score}</b></span><span>Chuỗi ${r.streak}</span></div>
+  ${r.timed?'<div class="bar"><i id="qbar"></i></div>':''}
+  <p class="qtext">${sub(q.q)}</p>
+  <div>${q.opts.map((o,k)=>`<button class="opt" data-k="${k}"><b>${'ABCD'[k]}</b><span>${sub(o.t)}</span></button>`).join('')}</div>
+  <div id="qfb"></div>`;
+  if(r.timed){
+    timerId=setInterval(()=>{
+      r.left-=.1;const bar=$('#qbar');if(bar)bar.style.width=Math.max(0,r.left/LIMIT*100)+'%';
+      if(r.left<=5&&Math.abs(r.left-Math.round(r.left))<.05)sfx.tick();
+      if(r.left<=0)quizAnswer(-1);
+    },100);
+  }
+}
+function quizAnswer(k){
+  const r=run;if(!r||r.done)return;r.done=true;stopTimer();
+  const q=r.list[r.i],good=k>=0&&q.opts[k].ok;
+  $$('.opt',qp).forEach((b,j)=>{b.disabled=true;if(q.opts[j].ok)b.classList.add('right');else if(j===k)b.classList.add('wrong');});
+  let gain=0;
+  if(good){
+    r.streak++;r.maxStreak=Math.max(r.maxStreak,r.streak);r.right++;
+    gain=100+(r.timed?Math.round(Math.max(0,r.left)/LIMIT*50):0)+Math.min(r.streak-1,4)*10;
+    r.score+=gain;sfx.ok();
+  }else{r.streak=0;r.wrong.push(q);sfx.bad();}
+  $('#qs').textContent=r.score;
+  const last=r.i===NQ-1;
+  $('#qfb').innerHTML=`<div class="fb"><b>${good?'Chính xác! +'+gain+' điểm':(k<0?'Hết giờ.':'Chưa đúng.')}</b><p style="margin:4px 0 0">${sub(q.e)}</p></div>
+  <button class="btn pri" id="qNext">${last?'Xem kết quả':'Câu tiếp theo'}</button>`;
+}
+function quizEnd(){
+  const r=run;stopTimer();
+  const rank=r.right===NQ?'Chuyên gia hô hấp':r.right>=8?'Học sinh giỏi':r.right>=6?'Khá tốt':'Cần ôn thêm';
+  const nb=r.score>best();if(nb)saveBest(r.score);
+  sfx.win();
+  qp.innerHTML=`<h2>Kết quả</h2><div class="score">${r.score}</div>
+  <p><b>${rank}</b>. Đúng ${r.right}/${NQ} câu, chuỗi đúng dài nhất: ${r.maxStreak}.${nb?' Đây là điểm cao nhất mới của bạn.':''}</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><button class="btn pri" id="qAgain">Chơi lại</button><button class="btn" data-tab-go="review">Ôn tập</button></div>
+  ${r.wrong.length?`<h2>Các câu cần xem lại</h2>${r.wrong.map(q=>`<div class="card"><p style="margin:0 0 4px"><b>${sub(q.q)}</b></p><p style="margin:0">Đáp án: ${sub(q.opts.find(o=>o.ok).t)}. ${sub(q.e)}</p></div>`).join('')}`:'<p>Bạn không sai câu nào.</p>'}`;
+  run=null;
+}
+qp.addEventListener('click',e=>{
+  const t=e.target;
+  if(t.closest('#qGo')){quizBegin();return;}
+  if(t.closest('#qNext')){run.i++;if(run.i>=NQ)quizEnd();else quizAsk();return;}
+  if(t.closest('#qAgain')){quizStart();return;}
+  const go=t.closest('[data-tab-go]');if(go){showTab(go.dataset.tabGo);return;}
+  const o=t.closest('.opt');if(o)quizAnswer(+o.dataset.k);
+});
+
+/* ---------- Khởi động ---------- */
+renderReview();quizStart();loadScene('overview',false);
+requestAnimationFrame(frame);
+})();
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Chặn phím tắt: F12, Ctrl+U, Ctrl+Shift+I/J/C, Ctrl+S
+    document.addEventListener('keydown', function(e) {
+      const key = e.key.toLowerCase();
+
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) || 
+        (e.ctrlKey && (key === 'u' || key === 's'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 2. Chặn chuột phải (Context Menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  });
+</script>
+</body></html>

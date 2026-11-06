@@ -1,0 +1,29 @@
+:root {
+    --bg: #f4f6f9; --panel: #ffffff; --fg: #1a2530; --muted: #586573; --accent: #b8322a;
+}
+body {
+    font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: var(--bg); color: var(--fg); line-height: 1.6;
+}
+.hero {
+    background: linear-gradient(135deg, #1a2530 0%, #2c3e50 100%); color: white; text-align: center; padding: 3.5rem 1rem;
+}
+.hero .badge {
+    background: rgba(255, 255, 255, 0.15); padding: 4px 12px; border-radius: 20px; font-size: 12px; text-transform: uppercase; font-weight: 600;
+}
+.hero h1 { font-size: 2.8rem; margin: 10px 0; text-transform: uppercase; }
+.hero p { color: #cbd5e1; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+.container { max-width: 1100px; margin: -30px auto 40px auto; padding: 0 20px; position: relative; z-index: 2; }
+.grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.card {
+    background: var(--panel); border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06); border-top: 5px solid var(--accent); display: flex; flex-direction: column; justify-content: space-between;
+}
+.card-icon { font-size: 2.2rem; margin-bottom: 12px; }
+.card h2 { font-size: 1.4rem; margin: 0 0 8px 0; text-transform: uppercase; }
+.card p { color: var(--muted); font-size: 0.95rem; margin: 0 0 20px 0; }
+.btn {
+    display: inline-block; background: var(--fg); color: white; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem; text-align: center;
+}
+.btn:hover { background: var(--accent); }
+.btn.secondary { background: #34495e; }
+.card.full-width { grid-column: 1 / -1; }
+footer { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 0.9rem; border-top: 1px solid #e2e8f0; background: var(--panel); }

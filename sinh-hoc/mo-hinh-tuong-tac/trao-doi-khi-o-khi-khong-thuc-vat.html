@@ -1,0 +1,864 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Mô hình khí khổng</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap">
+<style>
+/* Layout: một màn hình học tập. Mô hình chiếm 3/4 chiều ngang, 1/4 còn lại là bảng nội dung có thanh cuộn riêng. */
+:root{
+  --font-display:'Bricolage Grotesque','Be Vietnam Pro',system-ui,sans-serif;
+  --font-body:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --bg:#e8efe7; --surface:#f6faf5; --surface2:#e2ebe0; --fg:#14291b; --muted:#566b5c; --line:#c2d2c3;
+  --accent:#1d6f3a; --accent-fg:#ffffff; --accent-soft:#d2e7d4;
+  --co2:#2a68d1; --o2:#d23f35; --good:#1f8a45; --bad:#c23b2e; --warn:#9a6200;
+  --epi-fill:#8fc65a; --epi-line:#2c7a3a; --gc-fill:#5da44f; --gc-wall:#0f4a30; --gc-thick:#0b3a2a; --pore:#f4f9f1;
+  --chl:#2f8f47; --nuc:#d8473b; --nuc-ring:#a62f27; --nuc-epi:#b8693a; --nuc-epi-ring:#e8c08a;
+  --vac:#a9d6ea; --vac-line:#6fa8c6; --hl:#ffb300;
+  --sun:#f4a81d; --sun-tint:#ffe7a0; --sky-night:#1f2d52; --sky-day:#9fd4f0;
+  --light:0;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d1612; --surface:#14211a; --surface2:#1c2d23; --fg:#e3efe5; --muted:#9ab0a0; --line:#2a4033;
+    --accent:#5cc474; --accent-fg:#08180e; --accent-soft:#1d3a27;
+    --co2:#6ea8ff; --o2:#ff7a6c; --good:#5cc474; --bad:#ff7a6c; --warn:#f0b34a;
+    --epi-fill:#3f7330; --epi-line:#1b4a25; --gc-fill:#2f6a3d; --gc-wall:#0a2a1c; --gc-thick:#06180f; --pore:#0b130e;
+    --chl:#58c26e; --nuc:#e2564a; --nuc-ring:#8f2a23; --nuc-epi:#b5784a; --nuc-epi-ring:#6e4a2a;
+    --vac:#4a7f99; --vac-line:#82bad6; --hl:#ffc233;
+    --sun:#f4b73d; --sun-tint:#5a4a1c; --sky-night:#121b36; --sky-day:#3f7ea3;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d1612; --surface:#14211a; --surface2:#1c2d23; --fg:#e3efe5; --muted:#9ab0a0; --line:#2a4033;
+  --accent:#5cc474; --accent-fg:#08180e; --accent-soft:#1d3a27;
+  --co2:#6ea8ff; --o2:#ff7a6c; --good:#5cc474; --bad:#ff7a6c; --warn:#f0b34a;
+  --epi-fill:#3f7330; --epi-line:#1b4a25; --gc-fill:#2f6a3d; --gc-wall:#0a2a1c; --gc-thick:#06180f; --pore:#0b130e;
+  --chl:#58c26e; --nuc:#e2564a; --nuc-ring:#8f2a23; --nuc-epi:#b5784a; --nuc-epi-ring:#6e4a2a;
+  --vac:#4a7f99; --vac-line:#82bad6; --hl:#ffc233;
+  --sun:#f4b73d; --sun-tint:#5a4a1c; --sky-night:#121b36; --sky-day:#3f7ea3;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:14px; line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:10px;
+}
+button{font:inherit; color:inherit}
+:focus-visible{outline:3px solid var(--hl); outline-offset:2px}
+.app{height:100%; display:flex; flex-direction:column; gap:10px; min-height:0}
+
+.top{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+.brand h1{margin:0; font-family:var(--font-display); font-weight:700; font-size:26px; line-height:1.1; letter-spacing:-.01em}
+.brand p{margin:2px 0 0; color:var(--muted); font-size:13px}
+.tools{display:flex; gap:8px; flex-wrap:wrap}
+.tgl{border:1px solid var(--line); background:var(--surface); border-radius:999px; padding:6px 14px; cursor:pointer; font-size:13px; font-weight:500}
+.tgl[aria-pressed="true"]{background:var(--accent); color:var(--accent-fg); border-color:var(--accent)}
+.tgl:hover{border-color:var(--accent)}
+
+.grid{flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,3fr) minmax(280px,1fr); gap:12px}
+.stage,.panel{min-height:0; background:var(--surface); border:1px solid var(--line); border-radius:12px; overflow:hidden}
+.stage{display:grid; grid-template-rows:auto minmax(0,1fr) auto auto}
+
+.bar{display:flex; align-items:center; gap:10px 14px; flex-wrap:wrap; padding:8px 12px; border-bottom:1px solid var(--line)}
+.seg{display:inline-flex; background:var(--surface2); border:1px solid var(--line); border-radius:999px; padding:3px}
+.seg button{border:0; background:transparent; padding:5px 14px; border-radius:999px; cursor:pointer; font-size:13px; font-weight:600; color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent); color:var(--accent-fg)}
+.legend{margin-left:auto; display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600}
+.dot{display:inline-block; width:12px; height:12px; border-radius:50%}
+.dot.co2{background:var(--co2)} .dot.o2{background:var(--o2); margin-left:8px}
+
+.svgwrap{position:relative; min-height:0; background:color-mix(in srgb, var(--sun-tint) calc(var(--light) * 38%), var(--surface))}
+.svgwrap svg{position:absolute; inset:0; width:100%; height:100%; display:block}
+.part{cursor:pointer}
+.part:hover{filter:brightness(1.1)}
+.sel{filter:drop-shadow(0 0 7px var(--hl)) drop-shadow(0 0 2px var(--hl))}
+.lbl text{font-family:var(--font-body); font-size:19px; font-weight:600; fill:var(--fg); paint-order:stroke; stroke:var(--surface); stroke-width:5px; stroke-linejoin:round; cursor:pointer}
+.gas-t{font-family:var(--font-display); font-weight:700; font-size:27px}
+.ttl{font-family:var(--font-display); font-weight:700; font-size:27px; fill:var(--fg)}
+
+.info{height:78px; padding:8px 14px; border-top:1px solid var(--line); overflow-y:auto; display:flex; flex-direction:column; justify-content:center; gap:2px}
+.info b{font-family:var(--font-display); font-size:16px}
+.info span{color:var(--muted); font-size:13px}
+.info .x{align-self:flex-start}
+
+.controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:8px 18px; padding:10px 14px; border-top:1px solid var(--line); background:var(--surface2)}
+.ctl label,.ctl .lab{display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:13px; font-weight:600; margin-bottom:4px}
+.ctl .val{font-variant-numeric:tabular-nums; color:var(--accent); font-weight:700}
+.row{display:flex; align-items:center; gap:8px}
+.sun{width:28px; height:28px; flex:none}
+.play{border:1px solid var(--line); background:var(--surface); border-radius:8px; padding:4px 10px; cursor:pointer; font-size:12px; font-weight:600; white-space:nowrap}
+.play[aria-pressed="true"]{background:var(--accent); color:var(--accent-fg); border-color:var(--accent)}
+input[type=range]{width:100%; height:22px; margin:0; background:transparent; -webkit-appearance:none; appearance:none; cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:8px; border-radius:99px; background:var(--trk,var(--line))}
+input[type=range]::-moz-range-track{height:8px; border-radius:99px; background:var(--trk,var(--line))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:20px; height:20px; border-radius:50%; background:var(--surface); border:3px solid var(--accent); margin-top:-6px}
+input[type=range]::-moz-range-thumb{width:14px; height:14px; border-radius:50%; background:var(--surface); border:3px solid var(--accent)}
+#hour{--trk:linear-gradient(90deg,var(--sky-night) 0%,var(--sky-night) 22%,var(--sky-day) 50%,var(--sky-night) 78%,var(--sky-night) 100%)}
+#water{--trk:linear-gradient(90deg,var(--surface),var(--co2))}
+.meter{height:8px; border-radius:99px; background:var(--line); overflow:hidden}
+.meter i{display:block; height:100%; width:0; background:var(--accent); border-radius:99px}
+.status{margin:6px 0 0; font-size:12px; color:var(--muted); line-height:1.4}
+
+.panel{display:flex; flex-direction:column}
+.tabs{display:flex; gap:4px; padding:8px 8px 0; border-bottom:1px solid var(--line); flex:none}
+.tabs button{flex:1; border:0; background:transparent; padding:9px 4px; font-size:13px; font-weight:600; color:var(--muted); cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-1px}
+.tabs button[aria-selected="true"]{color:var(--accent); border-bottom-color:var(--accent)}
+.pbody{flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding:14px 16px 24px; scrollbar-width:thin; scrollbar-color:var(--line) transparent}
+.pbody::-webkit-scrollbar{width:8px} .pbody::-webkit-scrollbar-thumb{background:var(--line); border-radius:8px}
+.pbody h2{font-family:var(--font-display); font-size:20px; margin:0 0 8px; line-height:1.2}
+.pbody h3{font-family:var(--font-display); font-size:15.5px; margin:18px 0 6px}
+.pbody p{margin:0 0 8px}
+.pbody ul{margin:0 0 8px; padding-left:18px} .pbody li{margin-bottom:4px}
+.pbody b{font-weight:600; color:var(--accent)}
+.try{display:inline-block; border:1px solid var(--accent); color:var(--accent); background:transparent; border-radius:999px; padding:3px 11px; font-size:12px; font-weight:600; cursor:pointer; margin:2px 4px 2px 0}
+.try:hover{background:var(--accent); color:var(--accent-fg)}
+.note{background:var(--accent-soft); border-radius:10px; padding:10px 12px; margin:12px 0; font-size:13px}
+.note h3{margin-top:0}
+.chips{display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 10px}
+.chip{background:var(--surface2); border:1px solid var(--line); border-radius:999px; padding:2px 10px; font-size:12px; font-weight:500}
+.tblwrap{overflow-x:auto; margin:6px 0 10px}
+table{border-collapse:collapse; width:100%; font-size:12.5px}
+th,td{border:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:top}
+th{background:var(--surface2); font-weight:600}
+.fc{display:block; width:100%; text-align:left; border:1px solid var(--line); background:var(--surface2); border-radius:10px; padding:10px 12px; margin-bottom:8px; cursor:pointer; font-size:13.5px}
+.fc small{display:block; color:var(--muted); font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; margin-bottom:2px}
+.fc .fa{display:none}
+.fc[aria-pressed="true"]{background:var(--accent-soft); border-color:var(--accent)}
+.fc[aria-pressed="true"] .fq{display:none} .fc[aria-pressed="true"] .fa{display:block}
+details{border:1px solid var(--line); border-radius:10px; padding:8px 12px; margin:8px 0}
+summary{cursor:pointer; font-weight:600}
+
+.qhead{display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:var(--muted); flex-wrap:wrap}
+.qhead .sc{color:var(--accent); font-variant-numeric:tabular-nums}
+.prog{height:6px; background:var(--line); border-radius:99px; margin:8px 0 12px; overflow:hidden}
+.prog i{display:block; height:100%; background:var(--accent); transition:width .3s}
+.qtext{font-family:var(--font-display); font-size:17px; line-height:1.35; margin:0 0 10px; font-weight:600}
+.opt{display:flex; gap:10px; width:100%; text-align:left; border:1.5px solid var(--line); background:var(--surface); border-radius:10px; padding:9px 11px; margin-bottom:7px; cursor:pointer; font-size:13.5px; line-height:1.4}
+.opt:hover:not(:disabled){border-color:var(--accent); background:var(--accent-soft)}
+.opt .k{flex:none; width:22px; height:22px; border-radius:50%; background:var(--surface2); display:grid; place-items:center; font-size:12px; font-weight:700}
+.opt.ok{border-color:var(--good); background:color-mix(in srgb,var(--good) 18%,var(--surface))}
+.opt.no{border-color:var(--bad); background:color-mix(in srgb,var(--bad) 16%,var(--surface))}
+.opt.ok .k{background:var(--good); color:var(--accent-fg)} .opt.no .k{background:var(--bad); color:#fff}
+.opt:disabled{cursor:default}
+.opt.dim{opacity:.6}
+.why{border-radius:10px; padding:10px 12px; margin:8px 0; font-size:13px; background:var(--surface2)}
+.why b{display:block; margin-bottom:2px}
+.big{font-family:var(--font-display); font-size:44px; font-weight:700; line-height:1; color:var(--accent)}
+.btn{border:0; background:var(--accent); color:var(--accent-fg); border-radius:999px; padding:8px 18px; font-weight:600; cursor:pointer; margin:4px 6px 4px 0}
+.btn.alt{background:transparent; color:var(--accent); border:1px solid var(--accent)}
+.miss{font-size:12.5px; color:var(--muted); margin:4px 0}
+
+@media (max-width:860px){
+  html,body{height:auto}
+  .app{height:auto}
+  .grid{display:flex; flex-direction:column}
+  .stage{display:block}
+  .svgwrap{aspect-ratio:4/3; max-width:100%}
+  .panel{height:78vh}
+  .legend{margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){ .prog i{transition:none} }
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <h1>Khí khổng</h1>
+      <p>Cấu tạo và trao đổi khí ở lá cây</p>
+    </div>
+    <div class="tools">
+      <button class="tgl" id="btnSound" aria-pressed="true">Âm thanh: bật</button>
+      <button class="tgl" id="btnAmb" aria-pressed="false">Nhạc nền thiên nhiên</button>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="stage" aria-label="Mô hình khí khổng">
+      <div class="bar">
+        <div class="seg" role="group" aria-label="Chọn quá trình">
+          <button id="mPhoto" aria-pressed="true">Quang hợp</button>
+          <button id="mResp" aria-pressed="false">Hô hấp</button>
+          <button id="mBoth" aria-pressed="false">Cả hai</button>
+        </div>
+        <button class="tgl" id="btnLabels" aria-pressed="false">Chú thích</button>
+        <div class="legend"><i class="dot co2"></i>CO₂<i class="dot o2"></i>O₂</div>
+      </div>
+
+      <div class="svgwrap" id="wrap">
+        <svg id="model" viewBox="0 0 960 720" role="img" aria-label="Mô hình tế bào khí khổng và sự trao đổi khí"></svg>
+      </div>
+
+      <div class="info" id="info" aria-live="polite"></div>
+
+      <div class="controls">
+        <div class="ctl">
+          <div class="lab"><span>Thời gian trong ngày</span><span class="val" id="hourVal">11:00</span></div>
+          <div class="row">
+            <svg class="sun" viewBox="0 0 32 32" aria-hidden="true">
+              <g id="sunIcon"><circle cx="16" cy="16" r="6" style="fill:var(--sun)"/>
+                <g style="stroke:var(--sun);stroke-width:2.2;stroke-linecap:round"><path d="M16 3v4M16 25v4M3 16h4M25 16h4M7 7l3 3M22 22l3 3M25 7l-3 3M10 22l-3 3"/></g></g>
+              <path id="moonIcon" d="M20 4a12 12 0 1 0 8 18A10 10 0 0 1 20 4z" style="fill:var(--muted)" hidden/>
+            </svg>
+            <input type="range" id="hour" min="0" max="24" step="0.25" value="11" aria-label="Thời gian trong ngày">
+            <button class="play" id="btnPlay" aria-pressed="false">Chạy một ngày</button>
+          </div>
+        </div>
+        <div class="ctl">
+          <div class="lab"><span>Lượng nước trong cây</span><span class="val" id="waterVal">85%</span></div>
+          <input type="range" id="water" min="0" max="100" step="1" value="85" aria-label="Lượng nước trong cây">
+        </div>
+        <div class="ctl">
+          <div class="lab"><span>Độ mở khí khổng</span><span class="val" id="openVal">0%</span></div>
+          <div class="meter"><i id="openBar"></i></div>
+          <p class="status" id="status"></p>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel" aria-label="Nội dung học tập">
+      <div class="tabs" role="tablist">
+        <button role="tab" id="t-desc" aria-selected="true" aria-controls="p-desc">Mô tả</button>
+        <button role="tab" id="t-rev" aria-selected="false" aria-controls="p-rev">Ôn tập</button>
+        <button role="tab" id="t-quiz" aria-selected="false" aria-controls="p-quiz">Trắc nghiệm</button>
+      </div>
+
+      <div class="pbody" id="p-desc" role="tabpanel" aria-labelledby="t-desc">
+        <h2>Trao đổi khí ở thực vật</h2>
+        <h3 style="margin-top:6px">1. Cấu tạo của khí khổng</h3>
+        <p>Thực vật trao đổi khí với môi trường chủ yếu qua <b>khí khổng</b> ở lá cây. Mỗi khí khổng gồm <b>hai tế bào hình hạt đậu</b> nằm áp sát nhau. Thành ngoài của tế bào <b>mỏng</b>, thành trong <b>dày</b>. Giữa hai tế bào là <b>khe khí khổng</b>.</p>
+        <ul>
+          <li>Tế bào khí khổng có nhân, không bào và lục lạp.</li>
+          <li>Thành ngoài mỏng dễ giãn, thành trong dày ít giãn.</li>
+          <li>Khe khí khổng là đường đi của các chất khí.</li>
+        </ul>
+        <p>Nhấn vào từng bộ phận trên mô hình, hoặc chọn nhanh:</p>
+        <p>
+          <button class="try" data-view='{"part":"guard"}'>Tế bào khí khổng</button>
+          <button class="try" data-view='{"part":"thin"}'>Thành mỏng</button>
+          <button class="try" data-view='{"part":"thick"}'>Thành dày</button>
+          <button class="try" data-view='{"part":"pore"}'>Khe khí khổng</button>
+          <button class="try" data-view='{"labels":true}'>Bật chú thích</button>
+        </p>
+
+        <h3>2. Chức năng của khí khổng</h3>
+        <ul>
+          <li><b>Quang hợp:</b> khí khổng mở cho khí CO₂ từ môi trường khuếch tán vào lá, khí O₂ từ lá khuếch tán ra môi trường.</li>
+          <li><b>Hô hấp:</b> quá trình này diễn ra ngược lại. Khí O₂ khuếch tán vào lá, khí CO₂ khuếch tán ra môi trường.</li>
+          <li><b>Thoát hơi nước:</b> ngoài trao đổi khí, khí khổng còn thực hiện quá trình thoát hơi nước cho cây.</li>
+        </ul>
+        <p>
+          <button class="try" data-view='{"mode":"photo","hour":12,"water":90}'>Xem quang hợp</button>
+          <button class="try" data-view='{"mode":"resp","hour":12,"water":90}'>Xem hô hấp</button>
+        </p>
+
+        <h3>3. Khí khổng mở khi nào?</h3>
+        <p>Ở hầu hết thực vật, khí khổng mở khi cây được chiếu sáng và được cung cấp đủ nước. Độ mở của khí khổng tăng từ sáng đến trưa, giảm dần về chiều và nhỏ nhất khi trời tối.</p>
+        <p>
+          <button class="try" data-view='{"play":true,"mode":"photo","water":90}'>Chạy một ngày</button>
+          <button class="try" data-view='{"hour":0}'>Ban đêm</button>
+          <button class="try" data-view='{"hour":12,"water":5}'>Thiếu nước</button>
+        </p>
+
+        <h3>4. Vì sao cấu tạo phù hợp với chức năng?</h3>
+        <ul>
+          <li>Hai tế bào hạt đậu tạo ra một khe ở giữa, khí đi qua khe này.</li>
+          <li>Khi tế bào hút nước và trương lên, thành ngoài mỏng giãn nhiều hơn thành trong dày. Tế bào cong ra và khe mở.</li>
+          <li>Khi thiếu nước, tế bào xẹp xuống, thẳng lại và khe khép. Cây vẫn lấy được CO₂ mà bớt mất nước.</li>
+        </ul>
+        <p><button class="try" data-view='{"part":"thin","hour":12,"water":95}'>Quan sát tế bào trương nước</button></p>
+
+        <div class="note">
+          <h3>Gợi ý cho giáo viên</h3>
+          <ul>
+            <li>Cho học sinh dự đoán trước khi kéo thanh trượt: khi nào khe mở rộng nhất?</li>
+            <li>Chuyển giữa Quang hợp và Hô hấp, yêu cầu học sinh gọi tên khí đi vào và đi ra.</li>
+            <li>Dùng “Chạy một ngày” để học sinh vẽ đường biến thiên độ mở trong ngày.</li>
+            <li>Kéo nước về mức thấp rồi hỏi: cây mất gì, được gì khi khép khí khổng?</li>
+            <li>Kết thúc bằng trò chơi ở tab Trắc nghiệm, chia lớp thành các đội.</li>
+          </ul>
+        </div>
+        <details>
+          <summary>Câu hỏi thảo luận</summary>
+          <p style="margin-top:8px">Cấu tạo tế bào khí khổng phù hợp với chức năng trao đổi khí ở thực vật như thế nào? Hãy dùng mô hình để giải thích.</p>
+        </details>
+      </div>
+
+      <div class="pbody" id="p-rev" role="tabpanel" aria-labelledby="t-rev" hidden>
+        <h2>Ôn tập nhanh</h2>
+        <h3 style="margin-top:6px">Ghi nhớ</h3>
+        <ul>
+          <li>Khí khổng nằm ở lá, gồm 2 tế bào hạt đậu áp sát nhau.</li>
+          <li>Thành ngoài mỏng, thành trong dày.</li>
+          <li>Quang hợp: CO₂ vào, O₂ ra.</li>
+          <li>Hô hấp: O₂ vào, CO₂ ra.</li>
+          <li>Mở khi có ánh sáng và đủ nước; lớn nhất vào trưa, nhỏ nhất khi tối.</li>
+        </ul>
+        <h3>Từ khóa</h3>
+        <div class="chips">
+          <span class="chip">khí khổng</span><span class="chip">tế bào hạt đậu</span><span class="chip">khe khí khổng</span>
+          <span class="chip">thành mỏng</span><span class="chip">thành dày</span><span class="chip">trương nước</span>
+          <span class="chip">khuếch tán</span><span class="chip">thoát hơi nước</span>
+        </div>
+        <h3>So sánh hai quá trình</h3>
+        <div class="tblwrap">
+          <table>
+            <tr><th></th><th>Quang hợp</th><th>Hô hấp</th></tr>
+            <tr><td>Khí vào lá</td><td>CO₂</td><td>O₂</td></tr>
+            <tr><td>Khí ra khỏi lá</td><td>O₂</td><td>CO₂</td></tr>
+            <tr><td>Điều kiện</td><td>Cần ánh sáng</td><td>Diễn ra cả ngày lẫn đêm</td></tr>
+            <tr><td>Trên mô hình</td><td>Nửa trên</td><td>Nửa dưới</td></tr>
+          </table>
+        </div>
+        <h3>Thẻ ghi nhớ <span style="font-weight:400;color:var(--muted);font-size:12px">(nhấn để lật)</span></h3>
+        <div id="cards"></div>
+        <h3>Tự luận</h3>
+        <details>
+          <summary>Cấu tạo tế bào khí khổng phù hợp với chức năng trao đổi khí như thế nào?</summary>
+          <p style="margin-top:8px">Hai tế bào hình hạt đậu áp sát nhau tạo ra khe để khí khuếch tán. Thành ngoài mỏng, thành trong dày nên khi trương nước tế bào cong ra làm khe mở, khi mất nước tế bào thẳng lại làm khe khép. Nhờ vậy cây vừa lấy được CO₂ cho quang hợp, vừa điều chỉnh sự thoát hơi nước.</p>
+        </details>
+        <details>
+          <summary>Vì sao ban đêm khí khổng gần như đóng?</summary>
+          <p style="margin-top:8px">Khí khổng mở khi có ánh sáng và đủ nước. Ban đêm không có ánh sáng nên độ mở nhỏ nhất, cây không quang hợp.</p>
+        </details>
+      </div>
+
+      <div class="pbody" id="p-quiz" role="tabpanel" aria-labelledby="t-quiz" hidden></div>
+    </aside>
+  </main>
+</div>
+
+<script>
+(function(){
+'use strict';
+var NS='http://www.w3.org/2000/svg';
+var CX=480, CY=360, H=170, RX=300, RY=285;
+function $(s,r){return (r||document).querySelector(s);}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
+function clamp(v,a,b){return Math.min(b,Math.max(a,v));}
+var state={mode:'photo',hour:11,water:85,labels:false,sound:true,ambient:false,playing:false,o:0.5,sel:null,touched:false};
+
+/* ---------- Thông tin các bộ phận ---------- */
+var PARTS={
+  guard:{n:'Tế bào khí khổng',d:'Hai tế bào hình hạt đậu nằm áp sát nhau, tạo ra khe ở giữa. Khi trương nước hay mất nước, hình dạng của tế bào thay đổi và khe mở ra hoặc khép lại.'},
+  pore:{n:'Khe khí khổng',d:'Khoảng hở giữa hai tế bào khí khổng. CO₂, O₂ và hơi nước đi qua khe này giữa lá và môi trường.'},
+  thick:{n:'Thành trong (dày)',d:'Thành tế bào phía khe khí, dày và ít giãn. Khi tế bào trương nước, thành này giãn ít hơn thành ngoài.'},
+  thin:{n:'Thành ngoài (mỏng)',d:'Thành tế bào phía ngoài, mỏng và dễ giãn. Khi trương nước, thành ngoài giãn nhiều hơn khiến tế bào cong ra, khe mở rộng.'},
+  chloro:{n:'Lục lạp',d:'Bào quan chứa diệp lục, thực hiện quang hợp khi có ánh sáng.'},
+  nucleus:{n:'Nhân tế bào',d:'Chứa vật chất di truyền và điều khiển hoạt động sống của tế bào.'},
+  vacuole:{n:'Không bào',d:'Chứa nước và các chất hòa tan. Khi tế bào hút nước, không bào lớn lên và tế bào trương lên.'},
+  epi:{n:'Tế bào biểu bì',d:'Các tế bào xếp sát nhau bao quanh khí khổng, tạo lớp bảo vệ bề mặt lá.'}
+};
+
+/* ---------- Âm thanh (Web Audio) ---------- */
+var AC=null, master=null, noiseBuf=null, amb=null, birdTimer=null;
+function ensureAudio(){
+  if(!AC){
+    var C=window.AudioContext||window.webkitAudioContext; if(!C) return null;
+    try{ AC=new C(); master=AC.createGain(); master.gain.value=0.55; master.connect(AC.destination);}catch(e){AC=null; return null;}
+  }
+  if(AC.state==='suspended'){ try{AC.resume();}catch(e){} }
+  return AC;
+}
+function canPlay(){ return state.sound && state.touched && !!ensureAudio(); }
+function getNoise(){
+  if(noiseBuf) return noiseBuf;
+  var n=AC.sampleRate*2, b=AC.createBuffer(1,n,AC.sampleRate), d=b.getChannelData(0);
+  for(var i=0;i<n;i++) d[i]=Math.random()*2-1;
+  noiseBuf=b; return b;
+}
+function tone(f,dur,type,vol,when,slideTo){
+  if(!canPlay()) return;
+  var t=AC.currentTime+(when||0), o=AC.createOscillator(), g=AC.createGain();
+  o.type=type||'sine'; o.frequency.setValueAtTime(f,t);
+  if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo,t+dur);
+  g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol||0.15,t+0.015); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t+dur+0.05);
+}
+function whoosh(dur,f0,f1,vol){
+  if(!canPlay()) return;
+  var src=AC.createBufferSource(); src.buffer=getNoise();
+  var bp=AC.createBiquadFilter(); bp.type='bandpass'; bp.Q.value=1.1;
+  var t=AC.currentTime; bp.frequency.setValueAtTime(f0,t); bp.frequency.exponentialRampToValueAtTime(f1,t+dur);
+  var g=AC.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+dur*0.3); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  src.connect(bp); bp.connect(g); g.connect(master); src.start(t); src.stop(t+dur+0.05);
+}
+var sfx={
+  select:function(){tone(660,0.14,'triangle',0.16); tone(990,0.12,'sine',0.08,0.05);},
+  tab:function(){tone(520,0.08,'triangle',0.1);},
+  flip:function(){whoosh(0.18,900,2400,0.12); tone(780,0.07,'sine',0.06);},
+  good:function(){[523,659,784].forEach(function(f,i){tone(f,0.28,'sine',0.17,i*0.09);});},
+  bad:function(){tone(200,0.32,'sawtooth',0.1,0,110);},
+  win:function(){[523,659,784,1047,1319].forEach(function(f,i){tone(f,0.4,'triangle',0.16,i*0.11);});},
+  mode:function(){whoosh(0.35,300,1600,0.14);},
+  opened:function(){tone(440,0.35,'sine',0.09,0,880); whoosh(0.4,500,2200,0.07);},
+  closed:function(){tone(330,0.3,'sine',0.09,0,180); whoosh(0.35,1800,400,0.06);}
+};
+var lastSlide=0;
+function slideSound(){
+  var n=performance.now(); if(n-lastSlide<130) return; lastSlide=n;
+  whoosh(0.16,300+state.o*1500,500+state.o*2200,0.06);
+}
+function currentLight(){ return light(state.hour); }
+function chirp(){
+  if(!amb||!canPlay()) return;
+  if(currentLight()>0.1){
+    var base=2300+Math.random()*1300, n=2+Math.floor(Math.random()*3);
+    for(var i=0;i<n;i++) tone(base+i*140,0.09,'sine',0.045,i*0.11,base*1.35+i*140);
+  } else {
+    for(var j=0;j<4;j++) tone(4300,0.035,'sine',0.03,j*0.07);
+  }
+}
+function scheduleBird(){
+  clearTimeout(birdTimer); if(!amb) return;
+  birdTimer=setTimeout(function(){ chirp(); scheduleBird(); },1800+Math.random()*3500);
+}
+function startAmbient(){
+  if(amb||!canPlay()) return;
+  var src=AC.createBufferSource(); src.buffer=getNoise(); src.loop=true;
+  var lp=AC.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=420;
+  var g=AC.createGain(); g.gain.value=0.05;
+  var lfo=AC.createOscillator(); lfo.frequency.value=0.18;
+  var lg=AC.createGain(); lg.gain.value=0.03;
+  lfo.connect(lg); lg.connect(g.gain); src.connect(lp); lp.connect(g); g.connect(master);
+  src.start(); lfo.start(); amb={src:src,lfo:lfo}; scheduleBird();
+}
+function stopAmbient(){
+  if(amb){ try{amb.src.stop(); amb.lfo.stop();}catch(e){} amb=null; }
+  clearTimeout(birdTimer);
+}
+function touch(){ state.touched=true; }
+document.addEventListener('pointerdown',touch,{capture:true});
+document.addEventListener('keydown',touch,{capture:true});
+
+/* ---------- Ánh sáng và độ mở ---------- */
+function light(h){ return (h>=6&&h<=18)? Math.sin(Math.PI*(h-6)/12):0; }
+function targetOpen(){
+  var L=light(state.hour), wf=clamp((state.water-12)/55,0,1);
+  return clamp(0.04+0.96*Math.pow(L,0.6),0,1)*wf;
+}
+
+/* ---------- Dựng mô hình SVG ---------- */
+var svg=$('#model');
+function mk(tag,attrs,parent){
+  var e=document.createElementNS(NS,tag);
+  for(var k in attrs){ e.setAttribute(k,attrs[k]); }
+  if(parent) parent.appendChild(e);
+  return e;
+}
+var defs=mk('defs',{},svg);
+['co2','o2'].forEach(function(k){
+  var m=mk('marker',{id:'arr-'+k,viewBox:'0 0 12 12',refX:'9',refY:'6',markerWidth:'7',markerHeight:'7',orient:'auto'},defs);
+  mk('path',{d:'M1 1 L11 6 L1 11 z',style:'fill:var(--'+k+')'},m);
+});
+
+mk('ellipse',{cx:CX,cy:CY,rx:RX+4,ry:RY+4,style:'fill:var(--epi-line)'},svg);
+
+var EDGES=[-96,-44,6,59,110,162,213,264].map(function(d){return d*Math.PI/180;});
+var gEpi=mk('g',{},svg), epiPaths=[], epiNuc=[];
+for(var i=0;i<7;i++){
+  epiPaths.push(mk('path',{'class':'part','data-part':'epi',style:'fill:var(--epi-fill);stroke:var(--epi-line);stroke-width:6;stroke-linejoin:round'},gEpi));
+}
+for(var i2=0;i2<7;i2++){
+  var ng=mk('g',{'class':'part','data-part':'nucleus'},gEpi);
+  mk('circle',{r:17,style:'fill:var(--nuc-epi-ring)'},ng);
+  mk('circle',{r:11,style:'fill:var(--nuc-epi)'},ng);
+  epiNuc.push(ng);
+}
+var poreEl=mk('path',{'class':'part','data-part':'pore',style:'fill:var(--pore)'},svg);
+
+var GC={nuc:[-0.36,0.5],vac:[0.3,0.5],chl:[[-0.8,0.5],[-0.62,0.26],[-0.62,0.78],[-0.08,0.28],[-0.06,0.8],[0.72,0.5],[0.6,0.26],[0.62,0.78]]};
+var gcRefs={};
+[-1,1].forEach(function(side){
+  var g=mk('g',{},svg), r={};
+  r.body=mk('path',{'class':'part','data-part':'guard',style:'fill:var(--gc-fill);stroke:var(--gc-wall);stroke-width:3;stroke-linejoin:round'},g);
+  r.vac=mk('ellipse',{'class':'part','data-part':'vacuole',style:'fill:var(--vac);stroke:var(--vac-line);stroke-width:2'},g);
+  r.chl=GC.chl.map(function(){return mk('ellipse',{'class':'part','data-part':'chloro',rx:9,ry:5.2,style:'fill:var(--chl);stroke:var(--gc-wall);stroke-width:1'},g);});
+  r.nuc=mk('g',{'class':'part','data-part':'nucleus'},g);
+  mk('circle',{r:12,style:'fill:var(--nuc);stroke:var(--nuc-ring);stroke-width:2.5'},r.nuc);
+  mk('circle',{r:4,cx:-3,cy:-3,style:'fill:#fff;opacity:.28'},r.nuc);
+  r.thick=mk('path',{'class':'part','data-part':'thick',style:'fill:none;stroke:var(--gc-thick);stroke-width:13;stroke-linecap:round;stroke-linejoin:round'},g);
+  r.thin=mk('path',{'class':'part','data-part':'thin',style:'fill:none;stroke:transparent;stroke-width:16;stroke-linecap:round;stroke-linejoin:round'},g);
+  gcRefs[side]=r;
+});
+
+/* Mũi tên và hạt khí */
+var FLOWS={
+  co2in:{k:'co2',on:'photo',P:[[190,112],[450,118],[478,350]]},
+  o2out:{k:'o2',on:'photo',P:[[485,352],[545,175],[770,98]]},
+  o2in:{k:'o2',on:'resp',P:[[175,640],[450,612],[476,372]]},
+  co2out:{k:'co2',on:'resp',P:[[484,370],[525,565],[770,632]]}
+};
+var gFlow=mk('g',{style:'pointer-events:none'},svg);
+Object.keys(FLOWS).forEach(function(key){
+  var F=FLOWS[key], P=F.P;
+  F.guide=mk('path',{d:'M'+P[0][0]+' '+P[0][1]+' Q'+P[1][0]+' '+P[1][1]+' '+P[2][0]+' '+P[2][1],
+    style:'fill:none;stroke:var(--'+F.k+');stroke-width:4;stroke-linecap:round;opacity:.5','marker-end':'url(#arr-'+F.k+')'},gFlow);
+  F.parts=[];
+  for(var n=0;n<9;n++){
+    F.parts.push({u:n/9,el:mk('circle',{r:F.k==='co2'?7.5:6,cx:-50,cy:-50,style:'fill:var(--'+F.k+');stroke:var(--surface);stroke-width:1.5;opacity:0'},gFlow)});
+  }
+});
+function txt(x,y,s,cls,style,anchor){
+  var t=mk('text',{x:x,y:y,'class':cls,style:style||'','text-anchor':anchor||'middle'},svg); t.textContent=s; t.style.pointerEvents='none'; return t;
+}
+var ttlP=txt(CX,42,'Quang hợp','ttl'), ttlR=txt(CX,708,'Hô hấp','ttl');
+txt(172,112,'CO₂','gas-t','fill:var(--co2)','end');
+txt(790,98,'O₂','gas-t','fill:var(--o2)','start');
+txt(160,652,'O₂','gas-t','fill:var(--o2)','end');
+txt(790,648,'CO₂','gas-t','fill:var(--co2)','start');
+
+/* Chú thích */
+function dIn(t,o){return (2+30*o)*(1-t*t);}
+function dOut(t,o){return dIn(t,o)+(46+26*o)*Math.pow(Math.max(0,1-t*t),0.6);}
+function pt(side,t,d){return [CX+side*d,CY+t*H];}
+function gpos(side,t,s,o){var a=dIn(t,o),b=dOut(t,o);return pt(side,t,a+s*(b-a));}
+var LABELS=[
+  {part:'epi',side:-1,y:190,text:'Tế bào biểu bì',a:function(o){return [CX-215,CY-90];}},
+  {part:'thin',side:-1,y:280,text:'Thành ngoài mỏng',a:function(o){return pt(-1,-0.25,dOut(-0.25,o));}},
+  {part:'chloro',side:-1,y:395,text:'Lục lạp',a:function(o){return gpos(-1,0.72,0.5,o);}},
+  {part:'vacuole',side:-1,y:495,text:'Không bào',a:function(o){return gpos(-1,0.3,0.5,o);}},
+  {part:'guard',side:1,y:230,text:'Tế bào khí khổng',a:function(o){return gpos(1,-0.45,0.88,o);}},
+  {part:'pore',side:1,y:315,text:'Khe khí khổng',a:function(o){return [CX,CY-6];}},
+  {part:'thick',side:1,y:400,text:'Thành trong dày',a:function(o){return pt(1,0.42,dIn(0.42,o));}},
+  {part:'nucleus',side:1,y:495,text:'Nhân',a:function(o){return gpos(1,0.36,0.5,o);}}
+];
+var gLbl=mk('g',{'class':'lbl'},svg); gLbl.setAttribute('hidden','');
+LABELS.forEach(function(L){
+  var g=mk('g',{'data-part':L.part},gLbl);
+  var x0=L.side<0?168:792;
+  L.line=mk('line',{x1:L.side<0?x0+4:x0-4,y1:L.y-6,x2:0,y2:0,style:'stroke:var(--fg);stroke-width:1.6;opacity:.75;pointer-events:none'},g);
+  L.dot=mk('circle',{r:4.5,style:'fill:var(--fg);stroke:var(--surface);stroke-width:1.5;pointer-events:none'},g);
+  var t=mk('text',{x:x0,y:L.y,'text-anchor':L.side<0?'end':'start'},g); t.textContent=L.text;
+});
+
+/* ---------- Vẽ hình học theo độ mở ---------- */
+var N=36;
+function poly(a){
+  var s='';
+  for(var i=0;i<a.length;i++) s+=(i?'L':'M')+a[i][0].toFixed(1)+' '+a[i][1].toFixed(1);
+  return s;
+}
+function draw(o){
+  var rxi=58+56*o, ryi=186, i, k;
+  for(i=0;i<7;i++){
+    var a0=EDGES[i]+0.014, a1=EDGES[i+1]-0.014, d='';
+    for(k=0;k<=14;k++){var a=a0+(a1-a0)*k/14; d+=(k?'L':'M')+(CX+RX*Math.cos(a)).toFixed(1)+' '+(CY+RY*Math.sin(a)).toFixed(1);}
+    for(k=10;k>=0;k--){var b=a0+(a1-a0)*k/10; d+='L'+(CX+rxi*Math.cos(b)).toFixed(1)+' '+(CY+ryi*Math.sin(b)).toFixed(1);}
+    epiPaths[i].setAttribute('d',d+'Z');
+    var am=(EDGES[i]+EDGES[i+1])/2, rxm=(rxi+RX)/2, rym=(ryi+RY)/2;
+    epiNuc[i].setAttribute('transform','translate('+(CX+rxm*Math.cos(am)).toFixed(1)+' '+(CY+rym*Math.sin(am)).toFixed(1)+')');
+  }
+  var li=[],ri=[];
+  for(i=0;i<=N;i++){var t=-1+2*i/N; li.push(pt(-1,t,dIn(t,o))); ri.push(pt(1,t,dIn(t,o)));}
+  poreEl.setAttribute('d',poly(li.concat(ri.slice().reverse()))+'Z');
+  [-1,1].forEach(function(side){
+    var g=gcRefs[side], inner=[], outer=[], sg=-side, j;
+    for(j=0;j<=N;j++){var tt=-1+2*j/N; inner.push(pt(side,tt,dIn(tt,o))); outer.push(pt(side,tt,dOut(tt,o)));}
+    g.body.setAttribute('d',poly(inner.concat(outer.slice().reverse()))+'Z');
+    g.thick.setAttribute('d',poly(inner));
+    g.thin.setAttribute('d',poly(outer));
+    var np=gpos(side,sg*GC.nuc[0],GC.nuc[1],o);
+    g.nuc.setAttribute('transform','translate('+np[0].toFixed(1)+' '+np[1].toFixed(1)+')');
+    var vt=sg*GC.vac[0], vp=gpos(side,vt,GC.vac[1],o), th=dOut(vt,o)-dIn(vt,o);
+    g.vac.setAttribute('cx',vp[0].toFixed(1)); g.vac.setAttribute('cy',vp[1].toFixed(1));
+    g.vac.setAttribute('rx',(0.3*th).toFixed(1)); g.vac.setAttribute('ry',(34*(0.7+0.3*o)).toFixed(1));
+    GC.chl.forEach(function(c,idx){
+      var ct=sg*c[0], cp=gpos(side,ct,c[1],o);
+      g.chl[idx].setAttribute('transform','translate('+cp[0].toFixed(1)+' '+cp[1].toFixed(1)+') rotate('+(side*ct*40).toFixed(0)+')');
+    });
+  });
+  LABELS.forEach(function(L){
+    var p=L.a(o); L.line.setAttribute('x2',p[0].toFixed(1)); L.line.setAttribute('y2',p[1].toFixed(1));
+    L.dot.setAttribute('cx',p[0].toFixed(1)); L.dot.setAttribute('cy',p[1].toFixed(1));
+  });
+}
+
+/* ---------- Chọn bộ phận ---------- */
+var info=$('#info');
+function showInfo(part){
+  if(!part){
+    info.innerHTML='<b>Nhấn vào một bộ phận trên mô hình</b><span>Kéo thanh thời gian và lượng nước để xem khe khí khổng mở hoặc khép.</span>';
+    return;
+  }
+  var p=PARTS[part];
+  info.innerHTML='<b>'+p.n+'</b><span>'+p.d+'</span>';
+}
+function select(part,silent){
+  $$('.sel').forEach(function(e){e.classList.remove('sel');});
+  state.sel=part;
+  if(part){ $$('#model [data-part="'+part+'"]').forEach(function(e){ if(!e.closest('.lbl')) e.classList.add('sel'); }); }
+  showInfo(part);
+  if(!silent) sfx.select();
+}
+svg.addEventListener('click',function(e){
+  var el=e.target.closest('[data-part]'); if(!el) return;
+  select(el.getAttribute('data-part'));
+});
+showInfo(null);
+
+/* ---------- Điều khiển ---------- */
+function setMode(m,silent){
+  state.mode=m;
+  $('#mPhoto').setAttribute('aria-pressed',m==='photo');
+  $('#mResp').setAttribute('aria-pressed',m==='resp');
+  $('#mBoth').setAttribute('aria-pressed',m==='both');
+  if(!silent) sfx.mode();
+  updateGuides();
+}
+$('#mPhoto').onclick=function(){setMode('photo');};
+$('#mResp').onclick=function(){setMode('resp');};
+$('#mBoth').onclick=function(){setMode('both');};
+
+function setLabels(v){
+  state.labels=v;
+  $('#btnLabels').setAttribute('aria-pressed',v);
+  if(v) gLbl.removeAttribute('hidden'); else gLbl.setAttribute('hidden','');
+}
+$('#btnLabels').onclick=function(){setLabels(!state.labels); sfx.tab();};
+
+function fmtHour(h){
+  var hh=Math.floor(h), mm=Math.round((h-hh)*60); if(mm===60){hh++;mm=0;} hh=hh%24;
+  var per=(h<5||h>=19)?'đêm':(h<7?'bình minh':(h<11?'sáng':(h<14?'trưa':(h<17?'chiều':'hoàng hôn'))));
+  return (hh<10?'0':'')+hh+':'+(mm<10?'0':'')+mm+' · '+per;
+}
+function syncInputs(){
+  $('#hour').value=state.hour; $('#water').value=state.water;
+  $('#hourVal').textContent=fmtHour(state.hour); $('#waterVal').textContent=Math.round(state.water)+'%';
+  var day=state.hour>=6&&state.hour<=18;
+  $('#sunIcon').style.display=day?'':'none';
+  if(day) $('#moonIcon').setAttribute('hidden',''); else $('#moonIcon').removeAttribute('hidden');
+}
+$('#hour').addEventListener('input',function(e){
+  stopPlay(); state.hour=parseFloat(e.target.value); syncInputs(); slideSound();
+});
+$('#water').addEventListener('input',function(e){
+  state.water=parseFloat(e.target.value); syncInputs(); slideSound();
+});
+function stopPlay(){ state.playing=false; $('#btnPlay').setAttribute('aria-pressed','false'); $('#btnPlay').textContent='Chạy một ngày'; }
+function startPlay(){
+  state.playing=true; if(state.hour>20.5||state.hour<4) state.hour=4;
+  $('#btnPlay').setAttribute('aria-pressed','true'); $('#btnPlay').textContent='Dừng';
+}
+$('#btnPlay').onclick=function(){ if(state.playing){stopPlay();} else {startPlay(); sfx.tab();} };
+
+$('#btnSound').onclick=function(){
+  state.sound=!state.sound;
+  this.setAttribute('aria-pressed',state.sound); this.textContent='Âm thanh: '+(state.sound?'bật':'tắt');
+  if(!state.sound){ stopAmbient(); } else if(state.ambient){ touch(); startAmbient(); }
+  if(state.sound){ touch(); sfx.select(); }
+};
+$('#btnAmb').onclick=function(){
+  state.ambient=!state.ambient; this.setAttribute('aria-pressed',state.ambient);
+  touch();
+  if(state.ambient){ if(!state.sound){ $('#btnSound').click(); } startAmbient(); } else stopAmbient();
+};
+
+function applyView(v){
+  if(v.mode) setMode(v.mode,true);
+  if('hour' in v){ stopPlay(); state.hour=v.hour; }
+  if('water' in v){ state.water=v.water; }
+  if('labels' in v) setLabels(v.labels);
+  syncInputs();
+  if(v.play) startPlay();
+  if(v.part) select(v.part,true); else if(!v.labels) { /* giữ nguyên lựa chọn */ }
+  sfx.mode();
+}
+document.addEventListener('click',function(e){
+  var b=e.target.closest('.try'); if(!b) return;
+  try{ applyView(JSON.parse(b.getAttribute('data-view'))); }catch(err){}
+});
+
+/* ---------- Hạt khí và vòng lặp ---------- */
+function updateGuides(){
+  Object.keys(FLOWS).forEach(function(k){
+    var F=FLOWS[k], active=(state.mode==='both')||state.mode===F.on;
+    F.guide.style.opacity=active?0.55:0.12;
+  });
+  ttlP.style.opacity=(state.mode==='resp')?0.3:1;
+  ttlR.style.opacity=(state.mode==='photo')?0.3:1;
+}
+function bez(P,u){
+  var a=(1-u)*(1-u), b=2*(1-u)*u, c=u*u;
+  return [a*P[0][0]+b*P[1][0]+c*P[2][0], a*P[0][1]+b*P[1][1]+c*P[2][1]];
+}
+function updateParticles(dt,o,L){
+  Object.keys(FLOWS).forEach(function(k){
+    var F=FLOWS[k], active=(state.mode==='both')||state.mode===F.on;
+    var f=0; if(active){ f=(F.on==='photo')?(L>0.03?o:0):o; }
+    var vis=f>0.05?Math.max(1,Math.round(F.parts.length*f)):0;
+    F.parts.forEach(function(p,i){
+      p.u=(p.u+dt*0.2*(0.35+0.65*f))%1;
+      if(i<vis){
+        var q=bez(F.P,p.u); p.el.setAttribute('cx',q[0].toFixed(1)); p.el.setAttribute('cy',q[1].toFixed(1));
+        p.el.style.opacity=Math.min(1,p.u*6,(1-p.u)*6).toFixed(2);
+      } else p.el.style.opacity=0;
+    });
+  });
+}
+function statusText(L){
+  if(state.water<25) return 'Thiếu nước: tế bào khí khổng xẹp, khe khép lại.';
+  if(L<0.05) return 'Trời tối: khe gần như đóng, quang hợp dừng lại.';
+  if(state.o>0.75) return 'Có ánh sáng và đủ nước: tế bào trương nước, khe mở rộng.';
+  return 'Ánh sáng còn yếu hoặc nước chưa nhiều: khe mở hẹp.';
+}
+
+state.o=targetOpen(); draw(state.o); syncInputs(); updateGuides();
+var last=performance.now(), wasOpen=false, lastTxt='', wrap=$('#wrap');
+function frame(now){
+  var dt=Math.min(0.05,(now-last)/1000); last=now;
+  if(state.playing){
+    state.hour+=dt*1.0;
+    if(state.hour>=21){ state.hour=21; stopPlay(); }
+    syncInputs();
+  }
+  var L=light(state.hour), tgt=targetOpen();
+  var prev=state.o; state.o+=(tgt-state.o)*Math.min(1,dt*3.5);
+  if(Math.abs(state.o-prev)>0.0004 || Math.abs(tgt-state.o)>0.0004) draw(state.o);
+  wrap.style.setProperty('--light',L.toFixed(3));
+  $('#openVal').textContent=Math.round(state.o*100)+'%';
+  $('#openBar').style.width=Math.round(state.o*100)+'%';
+  var st=statusText(L); if(st!==lastTxt){ $('#status').textContent=st; lastTxt=st; }
+  if(!wasOpen && state.o>0.82){ wasOpen=true; if(state.touched) sfx.opened(); }
+  else if(wasOpen && state.o<0.15){ wasOpen=false; if(state.touched) sfx.closed(); }
+  updateParticles(dt,state.o,L);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ---------- Tab ---------- */
+var TABS=['desc','rev','quiz'];
+TABS.forEach(function(t){
+  $('#t-'+t).onclick=function(){
+    TABS.forEach(function(u){
+      var on=(u===t);
+      $('#t-'+u).setAttribute('aria-selected',on);
+      if(on) $('#p-'+u).removeAttribute('hidden'); else $('#p-'+u).setAttribute('hidden','');
+    });
+    sfx.tab();
+  };
+});
+
+/* ---------- Thẻ ghi nhớ ---------- */
+var CARDS=[
+  ['Khí khổng nằm chủ yếu ở đâu?','Ở lá cây. Đây là nơi thực vật trao đổi khí với môi trường.'],
+  ['Mỗi khí khổng gồm mấy tế bào, hình dạng ra sao?','Hai tế bào hình hạt đậu, nằm áp sát nhau, giữa có khe khí khổng.'],
+  ['Đặc điểm thành tế bào khí khổng?','Thành ngoài mỏng, thành trong dày.'],
+  ['Quang hợp: khí nào vào lá, khí nào ra?','CO₂ khuếch tán vào lá, O₂ khuếch tán ra môi trường.'],
+  ['Hô hấp: khí nào vào lá, khí nào ra?','O₂ khuếch tán vào lá, CO₂ khuếch tán ra môi trường.'],
+  ['Khí khổng mở khi nào?','Khi cây được chiếu sáng và được cung cấp đủ nước.'],
+  ['Độ mở khí khổng thay đổi thế nào trong ngày?','Tăng từ sáng đến trưa, giảm dần về chiều và nhỏ nhất khi tối.'],
+  ['Ngoài trao đổi khí, khí khổng còn làm gì?','Thực hiện quá trình thoát hơi nước cho cây.']
+];
+$('#cards').innerHTML=CARDS.map(function(c,i){
+  return '<button class="fc" aria-pressed="false"><span class="fq"><small>Câu '+(i+1)+'</small>'+c[0]+'</span><span class="fa"><small>Đáp án</small>'+c[1]+'</span></button>';
+}).join('');
+$('#cards').addEventListener('click',function(e){
+  var b=e.target.closest('.fc'); if(!b) return;
+  b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true'); sfx.flip();
+});
+
+/* ---------- Trò chơi trắc nghiệm ---------- */
+var QUIZ=[
+  {q:'Thực vật trao đổi khí với môi trường chủ yếu qua bộ phận nào?',o:['Rễ cây','Khí khổng ở lá','Thân gỗ','Hoa'],a:1,w:'Thực vật trao đổi khí chủ yếu qua khí khổng ở lá cây.',v:{part:'guard'}},
+  {q:'Mỗi khí khổng gồm những tế bào nào?',o:['Một tế bào hình tròn','Hai tế bào hình hạt đậu áp sát nhau','Ba tế bào hình thoi','Nhiều tế bào xếp thành vòng'],a:1,w:'Mỗi khí khổng gồm hai tế bào hình hạt đậu nằm áp sát nhau, giữa có khe khí khổng.',v:{part:'guard'}},
+  {q:'Đặc điểm thành của tế bào khí khổng là gì?',o:['Thành ngoài dày, thành trong mỏng','Hai thành đều mỏng','Thành ngoài mỏng, thành trong dày','Hai thành đều dày'],a:2,w:'Thành ngoài mỏng, thành trong dày. Nhờ vậy tế bào có thể cong ra khi trương nước.',v:{part:'thick'}},
+  {q:'Trong quang hợp, khí nào khuếch tán từ môi trường vào lá qua khí khổng?',o:['O₂','CO₂','N₂','Hơi nước'],a:1,w:'Khi quang hợp, CO₂ khuếch tán vào lá còn O₂ khuếch tán ra môi trường.',v:{mode:'photo',hour:12,water:90}},
+  {q:'Trong hô hấp, các khí khuếch tán qua khí khổng theo chiều nào?',o:['O₂ vào lá, CO₂ ra môi trường','CO₂ vào lá, O₂ ra môi trường','Chỉ có O₂ đi ra','Chỉ có CO₂ đi vào'],a:0,w:'Hô hấp diễn ra ngược lại với quang hợp: O₂ khuếch tán vào lá, CO₂ khuếch tán ra môi trường.',v:{mode:'resp',hour:12,water:90}},
+  {q:'Ở hầu hết thực vật, khí khổng mở khi nào?',o:['Khi trời tối và cây thiếu nước','Khi cây được chiếu sáng và cung cấp đủ nước','Chỉ khi trời mưa','Luôn luôn mở'],a:1,w:'Khí khổng mở khi cây được chiếu sáng và được cung cấp đủ nước.',v:{hour:12,water:90}},
+  {q:'Độ mở của khí khổng thay đổi trong ngày như thế nào?',o:['Tăng từ sáng đến trưa, giảm dần và nhỏ nhất khi tối','Lớn nhất vào ban đêm','Không đổi trong cả ngày','Nhỏ nhất vào buổi trưa'],a:0,w:'Độ mở tăng từ sáng đến trưa rồi giảm dần và nhỏ nhất khi trời tối.',v:{play:true,water:90,mode:'photo'}},
+  {q:'Ngoài trao đổi khí, khí khổng còn thực hiện quá trình nào?',o:['Hút nước ở đất','Thoát hơi nước','Tổng hợp tinh bột ở rễ','Vận chuyển chất hữu cơ'],a:1,w:'Khí khổng còn thực hiện quá trình thoát hơi nước cho cây.',v:{part:'pore'}},
+  {q:'Khi cây thiếu nước, tế bào khí khổng xẹp thì khe khí khổng sẽ như thế nào?',o:['Mở rộng hơn','Khép lại','Không thay đổi','Biến mất hoàn toàn'],a:1,w:'Thiếu nước làm tế bào xẹp và thẳng lại, khe khí khổng khép lại.',v:{hour:12,water:5}},
+  {q:'Vì sao thành ngoài mỏng, thành trong dày giúp khí khổng mở được?',o:['Khi trương nước, thành ngoài giãn nhiều hơn nên tế bào cong ra, khe mở','Thành dày làm tế bào thu nhỏ lại','Thành mỏng không cho nước đi vào','Cấu tạo thành không liên quan đến việc đóng mở'],a:0,w:'Khi trương nước, thành ngoài mỏng giãn nhiều hơn thành trong dày, tế bào cong ra và khe mở.',v:{part:'thin',hour:12,water:95}}
+];
+function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t;} return a; }
+var qz={items:[],i:0,score:0,streak:0,right:0,done:false,miss:[],best:0};
+try{ qz.best=parseInt(localStorage.getItem('khikhong-best')||'0',10)||0; }catch(e){}
+var qbox=$('#p-quiz');
+function quizStart(){
+  qz.items=shuffle(QUIZ).map(function(q){
+    var opts=shuffle(q.o.map(function(t,i){return {t:t,c:i===q.a};}));
+    return {q:q.q,opts:opts,w:q.w,v:q.v};
+  });
+  qz.i=0; qz.score=0; qz.streak=0; qz.right=0; qz.done=false; qz.miss=[]; qz.answered=false;
+  quizRender();
+}
+function quizIntro(){
+  qbox.innerHTML='<h2>Trò chơi trắc nghiệm</h2><p>10 câu hỏi về cấu tạo và chức năng của khí khổng. Trả lời đúng liên tiếp để nhận thêm điểm thưởng.</p>'+
+    (qz.best?'<p>Điểm cao nhất của bạn: <b>'+qz.best+'</b></p>':'')+'<button class="btn" id="qGo">Bắt đầu chơi</button>';
+  $('#qGo').onclick=function(){ sfx.select(); quizStart(); };
+}
+function quizRender(){
+  if(qz.done){ return quizResult(); }
+  var it=qz.items[qz.i], letters=['A','B','C','D'];
+  qbox.innerHTML=
+    '<div class="qhead"><span>Câu '+(qz.i+1)+'/'+qz.items.length+'</span><span class="sc">Điểm '+qz.score+(qz.streak>1?' · chuỗi '+qz.streak:'')+'</span></div>'+
+    '<div class="prog"><i style="width:'+(qz.i/qz.items.length*100)+'%"></i></div>'+
+    '<p class="qtext">'+it.q+'</p>'+
+    it.opts.map(function(o,i){return '<button class="opt" data-i="'+i+'"><span class="k">'+letters[i]+'</span><span>'+o.t+'</span></button>';}).join('')+
+    '<div id="qfb"></div>';
+  qz.answered=false;
+  qbox.scrollTop=0;
+}
+qbox.addEventListener('click',function(e){
+  var b=e.target.closest('.opt');
+  if(b && !qz.answered && !qz.done){
+    var it=qz.items[qz.i], idx=parseInt(b.getAttribute('data-i'),10), ok=it.opts[idx].c;
+    qz.answered=true;
+    $$('.opt',qbox).forEach(function(x,i){
+      x.disabled=true;
+      if(it.opts[i].c) x.classList.add('ok'); else if(i===idx) x.classList.add('no'); else x.classList.add('dim');
+    });
+    var gain=0;
+    if(ok){ gain=10+2*Math.min(qz.streak,4); qz.score+=gain; qz.streak++; qz.right++; sfx.good(); }
+    else { qz.streak=0; qz.miss.push(it.q); sfx.bad(); }
+    var last=(qz.i===qz.items.length-1);
+    $('#qfb').innerHTML='<div class="why"><b>'+(ok?'Chính xác! +'+gain+' điểm':'Chưa đúng')+'</b>'+it.w+'</div>'+
+      '<button class="btn alt" id="qView">Xem trên mô hình</button><button class="btn" id="qNext">'+(last?'Xem kết quả':'Câu tiếp theo')+'</button>';
+    $('#qView').onclick=function(){ applyView(it.v); };
+    $('#qNext').onclick=function(){ sfx.tab(); if(last){ qz.done=true; } else qz.i++; quizRender(); };
+    var head=$('.sc',qbox); if(head) head.textContent='Điểm '+qz.score+(qz.streak>1?' · chuỗi '+qz.streak:'');
+    $('#qNext').scrollIntoView({block:'nearest',behavior:'smooth'});
+  }
+});
+function quizResult(){
+  var r=qz.right, n=qz.items.length;
+  var msg=r>=9?'Xuất sắc':(r>=7?'Tốt':(r>=5?'Khá':'Cần ôn thêm'));
+  var isBest=qz.score>qz.best;
+  if(isBest){ qz.best=qz.score; try{ localStorage.setItem('khikhong-best',String(qz.best)); }catch(e){} }
+  sfx.win();
+  qbox.innerHTML='<h2>Kết quả</h2><div class="big">'+qz.score+'</div><p><b>'+msg+'</b> · đúng '+r+'/'+n+' câu'+(isBest?' · kỷ lục mới':'')+'</p>'+
+    '<div class="prog"><i style="width:100%"></i></div>'+
+    (qz.miss.length?'<h3>Các câu cần xem lại</h3>'+qz.miss.map(function(m){return '<p class="miss">• '+m+'</p>';}).join(''):'<p>Bạn trả lời đúng tất cả các câu.</p>')+
+    '<button class="btn" id="qAgain">Chơi lại</button><button class="btn alt" id="qRev">Mở tab Ôn tập</button>';
+  $('#qAgain').onclick=function(){ sfx.select(); quizStart(); };
+  $('#qRev').onclick=function(){ $('#t-rev').click(); };
+}
+quizIntro();
+})();
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Chặn phím tắt: F12, Ctrl+U, Ctrl+Shift+I/J/C, Ctrl+S
+    document.addEventListener('keydown', function(e) {
+      const key = e.key.toLowerCase();
+
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) || 
+        (e.ctrlKey && (key === 'u' || key === 's'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 2. Chặn chuột phải (Context Menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  });
+</script>
+</body></html>

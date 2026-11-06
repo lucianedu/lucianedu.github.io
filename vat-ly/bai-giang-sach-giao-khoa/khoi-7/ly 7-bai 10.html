@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bài 10 – Đồ thị quãng đường – thời gian</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#eaf3f1;--ink:#14283c;--pn:#fff;--gr:#bcd5d1;--rd:#d8392b;--or:#e87d10;--tl:#16737c;--mu:#51677a;--ln:#cfe0dd;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1c24;--ink:#e6eef0;--pn:#16262f;--gr:#2a4650;--rd:#ff6b5a;--or:#ffa94d;--tl:#5cc8d0;--mu:#9bb1bd;--ln:#27404a}}
+:root[data-theme="dark"]{--bg:#0f1c24;--ink:#e6eef0;--pn:#16262f;--gr:#2a4650;--rd:#ff6b5a;--or:#ffa94d;--tl:#5cc8d0;--mu:#9bb1bd;--ln:#27404a}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{font:15px/1.55 'Be Vietnam Pro',system-ui,sans-serif;background:var(--bg);color:var(--ink);overflow:hidden}
+.app{height:100%;display:grid;grid-template-columns:minmax(0,3fr) minmax(310px,1fr)}
+.stage{display:flex;flex-direction:column;min-height:0;padding:12px 16px;gap:8px}
+.hd{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+h1{font-size:19px;font-weight:800;margin:0}
+.seg button,.b,.tab{font:inherit;cursor:pointer}
+.seg{display:flex;border:2px solid var(--tl);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:none;color:var(--tl);padding:5px 12px;font-weight:600}
+.seg button.on{background:var(--tl);color:var(--bg)}
+#gw{flex:1;min-height:0;background:var(--pn);border:1px solid var(--ln);border-radius:12px;padding:4px}
+svg{width:100%;height:100%;display:block}
+.gr{stroke:var(--gr);stroke-width:1}.ax{stroke:var(--ink);stroke-width:2.5;fill:none}
+.tk{fill:var(--mu);font-size:13px}.lb{fill:var(--ink);font-size:14px;font-weight:700}
+.sg{stroke:var(--rd);stroke-width:4;stroke-linecap:round}.sg.rest{stroke:var(--or);stroke-dasharray:9 6}
+.gd{stroke:var(--rd);stroke-width:1.3;stroke-dasharray:4 4;opacity:.75}
+.pt{cursor:pointer}.pt circle{fill:var(--pn);stroke:var(--rd);stroke-width:3}.pt:hover circle{fill:var(--rd)}
+.pt text{fill:var(--ink);font-weight:800;font-size:15px}
+#tr circle{fill:var(--tl);stroke:var(--pn);stroke-width:3}
+.tg{stroke:var(--tl);stroke-width:1.5;stroke-dasharray:3 4}
+#road{position:relative;height:50px;margin:0 22px;border-bottom:4px solid var(--mu)}
+#road small{position:absolute;bottom:-22px;color:var(--mu);font-size:12px}
+#veh{position:absolute;bottom:2px;font-size:30px;transform:translateX(-50%);line-height:1}
+#veh.fl{transform:translateX(-50%) scaleX(-1)}
+.ctl{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:14px}
+.b{border:0;background:var(--tl);color:var(--bg);padding:7px 14px;border-radius:9px;font-weight:600}
+.b.g{background:none;border:2px solid var(--tl);color:var(--tl)}
+#rg{flex:1;min-width:140px;accent-color:var(--rd)}
+#ro{background:var(--pn);border:1px solid var(--ln);border-radius:10px;padding:6px 12px;font-size:14px;min-height:3.2em}
+label{font-size:13px;color:var(--mu);display:flex;gap:5px;align-items:center}
+.side{display:flex;flex-direction:column;min-height:0;background:var(--pn);border-left:1px solid var(--ln)}
+.tabs{display:flex;border-bottom:2px solid var(--ln)}
+.tab{flex:1;border:0;background:none;padding:12px 4px;color:var(--mu);font-weight:600;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tab.on{color:var(--rd);border-color:var(--rd)}
+.pn{flex:1;min-height:0;overflow-y:auto;padding:14px 16px 28px;overscroll-behavior:contain;display:none}
+.pn.on{display:block}
+.pn h2{font-size:16px;margin:18px 0 6px;color:var(--tl)}.pn h2:first-child{margin-top:0}
+.pn h3{font-size:14px;margin:12px 0 4px}.pn p,.pn li{margin:4px 0}.pn ul,.pn ol{padding-left:20px;margin:4px 0}
+table{border-collapse:collapse;width:100%;font-size:13px;text-align:center}td,th{border:1px solid var(--or);padding:4px}th{background:var(--or);color:#fff}
+.q{background:var(--bg);border-left:4px solid var(--or);border-radius:8px;padding:8px 12px;margin:8px 0}
+details{margin:6px 0;border:1px solid var(--ln);border-radius:8px;padding:5px 10px}summary{cursor:pointer;font-weight:600;color:var(--rd)}
+.card{border-radius:10px;padding:8px 12px;margin:8px 0;background:var(--bg)}
+.op{display:block;width:100%;text-align:left;font:inherit;color:var(--ink);background:var(--bg);border:2px solid var(--ln);border-radius:10px;padding:9px 12px;margin:7px 0;cursor:pointer}
+.op:hover{border-color:var(--tl)}.op.done{cursor:default}.op.right{border-color:#1f9d55;background:rgba(31,157,85,.18)}.op.wrong{border-color:var(--rd);background:rgba(216,57,43,.16)}
+.bar{height:6px;background:var(--ln);border-radius:4px}.bar i{display:block;height:100%;background:var(--tl);border-radius:4px;transition:width .3s}
+.qq{font-weight:600;margin:12px 0 6px}.qm{font-size:13px;color:var(--mu);margin-bottom:6px}
+#fb{margin-top:8px;font-size:14px}
+.ft{flex:none;text-align:center;font-size:13px;color:var(--mu);padding-top:2px}.ft b{color:var(--or);font-weight:800}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--or);outline-offset:2px}
+@media(max-width:820px){body{overflow:auto}.app{height:auto;grid-template-columns:1fr}.stage{height:100svh}.side{height:80svh;border:0}}
+</style>
+</head>
+<body>
+<div class="app">
+<main class="stage">
+ <div class="hd"><h1>Bài 10 · Đồ thị quãng đường – thời gian</h1>
+  <div class="seg"><button id="s-car" class="on">Ô tô khách A → B</button><button id="s-walk">Bạn A đi bộ</button></div></div>
+ <div id="gw"><svg id="sv" viewBox="0 0 760 470" role="img" aria-label="Đồ thị quãng đường theo thời gian"></svg></div>
+ <div id="road"><div id="veh">🚌</div><small id="r0" style="left:0">Bến A</small><small id="r1" style="right:0">Bến B</small></div>
+ <div class="ctl">
+  <button class="b" id="pl">▶ Chạy</button><button class="b g" id="st">Vẽ từng điểm</button>
+  <input type="range" id="rg" min="0" value="0" aria-label="Thời gian">
+  <label><input type="checkbox" id="gd" checked>Đường gióng</label>
+  <label><input type="checkbox" id="sn" checked>Âm thanh</label>
+ </div>
+ <div id="ro"></div>
+ <div class="ft">Produced of <b>LucianEdu</b></div>
+</main>
+<aside class="side">
+ <div class="tabs" role="tablist"><button class="tab on" data-p="p1">Mô tả</button><button class="tab" data-p="p2">Ôn tập</button><button class="tab" data-p="p3">Trắc nghiệm</button></div>
+ <section class="pn on" id="p1">
+  <h2>Mục tiêu</h2>
+  <ul><li>Vẽ được đồ thị quãng đường – thời gian cho chuyển động thẳng.</li><li>Từ đồ thị, tìm được quãng đường đi, tốc độ hay thời gian chuyển động của vật.</li></ul>
+  <div class="q">Làm thế nào xác định quãng đường đi được sau những khoảng thời gian khác nhau mà không cần dùng công thức s = v.t?</div>
+  <h2>I. Vẽ đồ thị quãng đường – thời gian</h2>
+  <h3>1. Lập bảng ghi quãng đường theo thời gian</h3>
+  <p>Một ô tô chở khách chạy 6 h từ bến xe A đến bến xe B (Bảng 10.1).</p>
+  <table><tr><th>t (h)</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td></tr><tr><th>s (km)</th><td>0</td><td>60</td><td>120</td><td>180</td><td>180</td><td>220</td><td>260</td></tr></table>
+  <details><summary>Trong 3 h đầu, ô tô chạy với tốc độ bao nhiêu km/h?</summary>v = s : t = 180 : 3 = <b>60 km/h</b>.</details>
+  <details><summary>Ô tô dừng nghỉ trong khoảng thời gian nào?</summary>Từ <b>3 h đến 4 h</b>: quãng đường vẫn là 180 km, không tăng.</details>
+  <h3>2. Vẽ đồ thị</h3>
+  <ol><li>Vẽ hai tia Os và Ot vuông góc tại O. Trục đứng Os biểu diễn quãng đường, trục ngang Ot biểu diễn thời gian, chọn tỉ xích thích hợp.</li>
+  <li>Xác định các điểm A, B, C, D ứng với 1 h, 2 h, 3 h, 4 h. Gốc O có s = 0 khi t = 0.</li>
+  <li>Nối O, A, B, C, D và nhận xét các đường nối. Bấm <b>Vẽ từng điểm</b> trên mô hình để thử.</li></ol>
+  <h3>Nhận xét</h3>
+  <ul><li>Trong 3 h đầu, đồ thị là đoạn thẳng nằm nghiêng: quãng đường tỉ lệ thuận với thời gian đi.</li><li>Đồ thị song song với trục thời gian thì vật không chuyển động.</li></ul>
+  <details><summary>Thử thách: xác định E (5 h), G (6 h)</summary>E(5; 220), G(6; 260). Nối D–E và E–G đều là đoạn nghiêng lên, cùng độ dốc nên D, E, G thẳng hàng: ô tô chạy đều với <b>40 km/h</b> (80 km : 2 h).</details>
+  <h2>II. Sử dụng đồ thị</h2>
+  <h3>Bài 1 (Hình 10.2)</h3>
+  <details><summary>a) Mô tả chuyển động trong 4 h đầu</summary>3 h đầu ô tô chạy đều, mỗi giờ đi 60 km. Sau đó dừng nghỉ 1 h tại vị trí 180 km.</details>
+  <details><summary>b) Tốc độ trong 3 h đầu</summary>180 km : 3 h = <b>60 km/h</b>.</details>
+  <details><summary>c) Quãng đường sau 1 h 30 min</summary>1,5 h × 60 km/h = <b>90 km</b>. Kéo thanh trượt tới 1,5 h để kiểm tra.</details>
+  <h3>Bài 2: bạn A đi bộ đến công viên</h3>
+  <p>6 h: A xuất phát, 15 min đầu đi 1 000 m thì gặp B, đứng nói chuyện 5 min, rồi đi nốt 1 000 m còn lại để tới công viên lúc 6 h 30 min.</p>
+  <p><button class="b g" onclick="go('walk')">Xem đồ thị bài 2 trên mô hình</button></p>
+  <details><summary>a) Đồ thị của bạn A</summary>Các điểm: O(0; 0), M(15; 1 000), N(20; 1 000), K(30; 2 000) với t tính bằng phút, s tính bằng mét. OM nghiêng, MN nằm ngang (nói chuyện), NK nghiêng.</details>
+  <details><summary>b) Tốc độ 15 min đầu và 10 min cuối</summary>15 min đầu: 1 000 m : 15 min ≈ 66,7 m/min ≈ <b>4 km/h</b>.<br>10 min cuối: 1 000 m : 10 min = 100 m/min = <b>6 km/h</b> (đồ thị dốc hơn nên đi nhanh hơn).</details>
+ </section>
+ <section class="pn" id="p2">
+  <h2>Em đã học</h2>
+  <div class="card">Đồ thị của chuyển động có tốc độ không đổi là một đường thẳng.</div>
+  <div class="card">Cách vẽ đồ thị quãng đường – thời gian của chuyển động.</div>
+  <div class="card">Từ đồ thị biết được tốc độ, quãng đường đi được và thời gian đi.</div>
+  <h2>Em có thể</h2>
+  <div class="card">Dùng đồ thị quãng đường – thời gian để mô tả chuyển động, xác định quãng đường đi được, thời gian đi, vị trí của vật ở những thời điểm xác định.</div>
+  <h2>Cách đọc nhanh đồ thị</h2>
+  <ul><li><b>Đoạn nghiêng lên:</b> vật chuyển động đều; v = s : t.</li><li><b>Đoạn càng dốc:</b> vật càng nhanh.</li><li><b>Đoạn nằm ngang:</b> vật đứng yên, v = 0.</li><li><b>Tìm s tại t bất kỳ:</b> từ t trên trục ngang, gióng lên đồ thị, rồi gióng sang trục đứng.</li><li><b>Tìm t khi biết s:</b> làm ngược lại.</li></ul>
+  <h2>Thử trên mô hình</h2>
+  <ul><li>Kéo thanh trượt, quan sát s thay đổi.</li><li>Khi xe dừng, âm thanh im lặng; xe càng nhanh, âm càng cao.</li><li>Bấm vào các điểm O, A, B... để đọc giá trị.</li></ul>
+ </section>
+ <section class="pn" id="p3"><div id="qz"></div></section>
+</aside>
+</div>
+<script>
+const $=s=>document.querySelector(s),fmt=x=>(+x.toFixed(1)).toLocaleString('vi-VN');
+const S={car:{tm:6,sm:300,tx:1,sx:60,tu:'h',su:'km',tl:'t (h)',sl:'s (km)',p:[[0,0],[1,60],[2,120],[3,180],[4,180],[5,220],[6,260]],n:'OABCDEG',ic:'🚌',fl:1,a:'Bến A',b:'Bến B'},
+walk:{tm:30,sm:2000,tx:5,sx:500,tu:'phút',su:'m',tl:'t (phút)',sl:'s (m)',p:[[0,0],[15,1000],[20,1000],[30,2000]],n:'OMNK',ic:'🚶',fl:0,a:'Nhà',b:'Công viên'}};
+let sc='car',t=0,shown=99,playing=0,raf,last=0,ac,osc,og,note='';
+const D=()=>S[sc],P=()=>D().p,W=760,H=470,L=66,R=26,T=34,B=52;
+const X=v=>L+v/D().tm*(W-L-R),Y=v=>H-B-v/D().sm*(H-T-B);
+const snd=()=>$('#sn').checked;
+function A(){if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state=='suspended')ac.resume();return ac}
+function beep(f,d=.15,ty='sine',v=.12,dl=0){if(!snd())return;try{const c=A(),o=c.createOscillator(),g=c.createGain(),n=c.currentTime+dl;o.type=ty;o.frequency.value=f;g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(c.destination);o.start(n);o.stop(n+d)}catch(e){}}
+const ok=()=>[523,659,784,1047].forEach((f,i)=>beep(f,.22,'triangle',.12,i*.09)),bad=()=>[300,220].forEach((f,i)=>beep(f,.25,'sawtooth',.07,i*.13));
+function stopHum(){if(osc){try{osc.stop()}catch(e){}osc=0}}
+function hum(v){if(!snd()||!playing){stopHum();return}try{const c=A();if(!osc){osc=c.createOscillator();og=c.createGain();osc.type='triangle';osc.connect(og);og.connect(c.destination);og.gain.value=0;osc.start()}const n=c.currentTime;osc.frequency.setTargetAtTime(150+v/vm()*260,n,.05);og.gain.setTargetAtTime(v>0?.05:0,n,.05)}catch(e){}}
+function seg(x){const p=P();for(let i=1;i<p.length;i++)if(x<=p[i][0])return i;return p.length-1}
+function val(x){const p=P(),i=seg(x),a=p[i-1],b=p[i];return a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0])}
+const spd=i=>{const p=P();return(p[i][1]-p[i-1][1])/(p[i][0]-p[i-1][0])};
+const vm=()=>Math.max(...P().slice(1).map((_,i)=>spd(i+1)));
+const vt=v=>D().su=='km'?fmt(v)+' km/h':fmt(v)+' m/phút ≈ '+fmt(v*.06)+' km/h';
+function draw(){const d=D(),p=P(),n=Math.min(shown,p.length);let g='';
+for(let x=0;x<=d.tm;x+=d.tx)g+=`<line x1="${X(x)}" x2="${X(x)}" y1="${T}" y2="${H-B}" class="gr"/>`+(x?`<text x="${X(x)}" y="${H-B+20}" class="tk" text-anchor="middle">${x}</text>`:'');
+for(let y=0;y<=d.sm;y+=d.sx)g+=`<line y1="${Y(y)}" y2="${Y(y)}" x1="${L}" x2="${W-R}" class="gr"/>`+(y?`<text x="${L-8}" y="${Y(y)+4}" class="tk" text-anchor="end">${y}</text>`:'');
+g+=`<path d="M${L} ${T-14}V${H-B}H${W-R+8}" class="ax"/><text x="${L+8}" y="${T-16}" class="lb">${d.sl}</text><text x="${W-R}" y="${H-B+42}" class="lb" text-anchor="end">${d.tl}</text><text x="${L-10}" y="${H-B+18}" class="tk" text-anchor="end">O</text>`;
+if($('#gd').checked)for(let i=1;i<n;i++)g+=`<path class="gd" d="M${L} ${Y(p[i][1])}H${X(p[i][0])}V${H-B}" fill="none"/>`;
+for(let i=1;i<n;i++)g+=`<line class="sg${p[i][1]==p[i-1][1]?' rest':''}" x1="${X(p[i-1][0])}" y1="${Y(p[i-1][1])}" x2="${X(p[i][0])}" y2="${Y(p[i][1])}"/>`;
+for(let i=0;i<n;i++)g+=`<g class="pt" onclick="pick(${i})"><circle cx="${X(p[i][0])}" cy="${Y(p[i][1])}" r="7"/><text x="${X(p[i][0])-18}" y="${Y(p[i][1])-12}">${d.n[i]}</text></g>`;
+g+=`<line id="tx" class="tg"/><line id="ty" class="tg"/><g id="tr"><circle r="8"/></g>`;
+$('#sv').innerHTML=g}
+function upd(){const d=D(),s=val(t),v=spd(seg(t));
+$('#tr').setAttribute('transform',`translate(${X(t)} ${Y(s)})`);
+for(const[k,a]of[['tx',[X(t),Y(s),X(t),H-B]],['ty',[L,Y(s),X(t),Y(s)]]]){const e=$('#'+k);['x1','y1','x2','y2'].forEach((q,i)=>e.setAttribute(q,a[i]))}
+$('#ro').innerHTML=`t = <b>${fmt(t)} ${d.tu}</b> · s = <b>${fmt(s)} ${d.su}</b> · `+(v?`đang đi, v = <b>${vt(v)}</b>`:'<b>đang dừng, v = 0</b>')+(note?`<br>${note}`:'');
+$('#veh').style.left=(s/d.sm*100)+'%';$('#rg').value=t;hum(v)}
+function setSc(k){sc=k;t=0;shown=99;note='';playing=0;stopHum();cancelAnimationFrame(raf);const d=D();
+$('#pl').textContent='▶ Chạy';$('#rg').max=d.tm;$('#rg').step=d.tm/300;
+$('#veh').textContent=d.ic;$('#veh').className=d.fl?'fl':'';$('#r0').textContent=d.a;$('#r1').textContent=d.b;
+$('#s-car').classList.toggle('on',k=='car');$('#s-walk').classList.toggle('on',k=='walk');draw();upd()}
+function go(k){setSc(k);beep(660,.12)}
+function play(){if(playing){playing=0;stopHum();$('#pl').textContent='▶ Tiếp tục';return}
+A();if(t>=D().tm-.01)t=0;shown=99;note='';playing=1;last=0;$('#pl').textContent='⏸ Tạm dừng';draw();raf=requestAnimationFrame(tick)}
+function tick(ts){if(!playing)return;if(!last)last=ts;t=Math.min(D().tm,t+(ts-last)/1000*D().tm/10);last=ts;upd();
+if(t>=D().tm){playing=0;stopHum();$('#pl').textContent='▶ Chạy lại';ok();return}raf=requestAnimationFrame(tick)}
+function pick(i){const d=D(),p=P();playing=0;stopHum();$('#pl').textContent='▶ Chạy';t=p[i][0];
+note=`Điểm <b>${d.n[i]}</b>: sau ${p[i][0]} ${d.tu} đi được ${p[i][1]} ${d.su}.`;beep(440+i*70,.18,'triangle');upd()}
+$('#pl').onclick=play;
+$('#st').onclick=()=>{playing=0;stopHum();const p=P();shown=shown>=p.length?1:shown+1;t=p[shown-1][0];note=shown>1?`Vừa vẽ điểm <b>${D().n[shown-1]}</b> rồi nối với điểm trước.`:'Bắt đầu từ gốc O (s = 0, t = 0).';beep(380+shown*70,.18,'triangle');draw();upd()};
+$('#rg').oninput=e=>{playing=0;stopHum();$('#pl').textContent='▶ Chạy';t=+e.target.value;note='';if(shown<P().length){shown=99;draw()}upd()};
+$('#gd').onchange=draw;$('#sn').onchange=()=>{if(!snd())stopHum()};
+$('#s-car').onclick=()=>go('car');$('#s-walk').onclick=()=>go('walk');
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x==b));document.querySelectorAll('.pn').forEach(x=>x.classList.toggle('on',x.id==b.dataset.p));beep(520,.08);if(b.dataset.p=='p3'&&!$('#qz').innerHTML)qz()});
+const Q=[
+['Trên đồ thị quãng đường – thời gian, trục thẳng đứng Os biểu diễn đại lượng nào?',['Quãng đường s','Thời gian t','Tốc độ v','Khối lượng m'],0,'Trục tung Os biểu diễn quãng đường, trục hoành Ot biểu diễn thời gian.'],
+['Đồ thị quãng đường – thời gian của chuyển động đều (xuất phát từ O) có dạng nào?',['Đường thẳng nghiêng đi lên','Đường cong','Đường thẳng song song trục Ot','Đường thẳng đứng'],0,'Quãng đường tỉ lệ thuận với thời gian nên đồ thị là đường thẳng nghiêng đi lên.'],
+['Theo Bảng 10.1, tốc độ của ô tô trong 3 h đầu là bao nhiêu?',['30 km/h','60 km/h','90 km/h','180 km/h'],1,'v = 180 km : 3 h = 60 km/h.'],
+['Ô tô dừng lại cho hành khách nghỉ trong khoảng thời gian nào?',['0 h đến 1 h','2 h đến 3 h','3 h đến 4 h','5 h đến 6 h'],2,'Từ 3 h đến 4 h quãng đường vẫn là 180 km nên đồ thị nằm ngang.'],
+['Đoạn đồ thị song song với trục thời gian cho biết điều gì?',['Vật chuyển động nhanh dần','Vật không chuyển động','Vật quay lại điểm xuất phát','Vật chuyển động rất nhanh'],1,'Quãng đường không đổi theo thời gian nghĩa là vật đứng yên.'],
+['Sau 1 h 30 min kể từ khi khởi hành, ô tô đi được bao nhiêu km?',['60 km','80 km','90 km','120 km'],2,'1,5 h × 60 km/h = 90 km.'],
+['Quãng đường ô tô đi được sau 5 h là bao nhiêu?',['200 km','220 km','240 km','260 km'],1,'Theo Bảng 10.1, tại t = 5 h thì s = 220 km (điểm E).'],
+['Tốc độ của ô tô từ 4 h đến 6 h là bao nhiêu?',['40 km/h','60 km/h','80 km/h','130 km/h'],0,'(260 − 180) km : 2 h = 40 km/h.'],
+['Bạn A đi 1 000 m trong 15 min đầu. Tốc độ xấp xỉ bao nhiêu?',['2 km/h','4 km/h','6 km/h','10 km/h'],1,'1 000 m : 15 min ≈ 66,7 m/min ≈ 4 km/h.'],
+['Bạn A đi 1 000 m cuối trong 10 min. Tốc độ là bao nhiêu?',['3 km/h','4 km/h','6 km/h','10 km/h'],2,'1 000 m : 10 min = 100 m/min = 6 km/h. Đồ thị dốc hơn nên nhanh hơn.']];
+let qi=0,sco=0;
+function qz(){const el=$('#qz');
+if(qi>=Q.length){const r=sco/Q.length;el.innerHTML=`<h2>Kết quả: ${sco}/${Q.length}</h2><p>${r>=.9?'Xuất sắc! 🌟 Em đọc đồ thị rất chắc.':r>=.6?'Khá tốt! Xem lại các câu sai rồi chơi lại nhé.':'Cố lên! Xem lại tab Mô tả và thử lại.'}</p><button class="b" id="rs">Chơi lại</button>`;$('#rs').onclick=()=>{qi=0;sco=0;qz()};r>=.6?ok():bad();return}
+const q=Q[qi],ord=q[1].map((_,i)=>i).sort(()=>Math.random()-.5);
+el.innerHTML=`<div class="qm">Câu ${qi+1}/${Q.length} · Điểm: ${sco}</div><div class="bar"><i style="width:${qi/Q.length*100}%"></i></div><p class="qq">${q[0]}</p>`+ord.map(i=>`<button class="op" data-i="${i}">${q[1][i]}</button>`).join('')+'<div id="fb"></div>'}
+$('#qz').onclick=e=>{const b=e.target.closest('.op');if(!b||$('.op.done'))return;const q=Q[qi],i=+b.dataset.i,good=i==q[2];
+document.querySelectorAll('.op').forEach(x=>{x.classList.add('done');if(+x.dataset.i==q[2])x.classList.add('right')});
+if(good){sco++;ok()}else{b.classList.add('wrong');bad()}
+$('#fb').innerHTML=`<p><b>${good?'Chính xác!':'Chưa đúng.'}</b> ${q[3]}</p><button class="b" id="nx">${qi==Q.length-1?'Xem kết quả':'Câu tiếp theo'}</button>`;
+$('#nx').onclick=()=>{qi++;qz()}};
+setSc('car');
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Chặn phím tắt: F12, Ctrl+U, Ctrl+Shift+I/J/C, Ctrl+S
+    document.addEventListener('keydown', function(e) {
+      const key = e.key.toLowerCase();
+
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) || 
+        (e.ctrlKey && (key === 'u' || key === 's'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 2. Chặn chuột phải (Context Menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  });
+</script>
+</body>
+</html>

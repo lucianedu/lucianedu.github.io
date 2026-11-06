@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Các đới khí hậu trên Trái Đất – Mô hình 3D</title>
+<style>
+:root{--bg:#f4f7fb;--panel:#fff;--tx:#1b2a3a;--mut:#5b6b7c;--line:#d5dee8;--pri:#1f7ae0;--ok:#2e9e5b;--bad:#d9453b;--card:#eef3f9;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1220;--panel:#141d2e;--tx:#e8eef7;--mut:#9fb0c4;--line:#27344a;--pri:#5aa2ff;--card:#1a2639;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b1220;--panel:#141d2e;--tx:#e8eef7;--mut:#9fb0c4;--line:#27344a;--pri:#5aa2ff;--card:#1a2639;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#app{height:100%;display:flex;flex-direction:row}
+#stage{flex:3;position:relative;background:radial-gradient(circle at 50% 40%,#16284a,#050912);min-width:0;overflow:hidden}
+#c{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#hud{position:absolute;left:0;right:0;bottom:24px;padding:10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+#hud button,.btn{border:1px solid var(--line);background:var(--panel);color:var(--tx);border-radius:999px;padding:8px 13px;font-size:14px;cursor:pointer}
+#hud button{background:rgba(20,29,46,.85);color:#fff;border-color:#3a4c6a}
+#hud button:hover,.btn:hover{border-color:var(--pri)}
+#title{position:absolute;top:10px;left:12px;color:#fff;font-weight:700;font-size:clamp(14px,2vw,20px);text-shadow:0 1px 4px #000}
+#tip{position:absolute;top:44px;left:12px;right:12px;color:#cfe0ff;font-size:13px;text-shadow:0 1px 3px #000}
+aside{flex:1;min-width:300px;max-width:460px;background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+nav{display:flex;border-bottom:1px solid var(--line)}
+nav button{flex:1;padding:12px 4px;border:0;background:none;color:var(--mut);font-size:14px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent}
+nav button.on{color:var(--pri);border-color:var(--pri)}
+.pane{display:none;flex:1;overflow-y:auto;padding:14px;min-height:0;line-height:1.55;font-size:15px}
+.pane.on{display:block}
+h2{font-size:18px;margin:4px 0 8px}h3{font-size:16px;margin:12px 0 6px}
+.card{background:var(--card);border-radius:12px;padding:10px 12px;margin:8px 0}
+.zbtns{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.z{flex:1;padding:9px 6px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--tx);cursor:pointer;font-weight:600;font-size:14px}
+.z.on{border-color:var(--pri)}
+.hab{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.hab .e{font-size:28px}
+.opt{display:block;width:100%;text-align:left;margin:6px 0;padding:11px 12px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--tx);font-size:15px;cursor:pointer}
+.opt.ok{border-color:var(--ok);background:rgba(46,158,91,.18)}.opt.bad{border-color:var(--bad);background:rgba(217,69,59,.18)}
+.bar{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin:6px 0 10px}.bar i{display:block;height:100%;background:var(--pri);transition:width .3s}
+.btn.pri{background:var(--pri);color:#fff;border-color:var(--pri)}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{border:1px solid var(--line);padding:6px;text-align:left}
+#search{position:absolute;top:8px;right:10px;display:flex;gap:4px;z-index:2}
+#search input{width:min(230px,45vw);padding:7px 10px;border-radius:999px;border:1px solid #3a4c6a;background:rgba(20,29,46,.9);color:#fff;font-size:14px}
+#search button{border:1px solid #3a4c6a;background:rgba(20,29,46,.9);color:#fff;border-radius:999px;padding:6px 11px;cursor:pointer}
+#res{position:absolute;top:46px;right:10px;max-width:min(320px,70%);background:rgba(10,20,40,.88);color:#fff;border:1px solid #ffd54a;border-radius:12px;padding:8px 12px;font-size:14px;display:none;z-index:2}
+#tip{right:auto;max-width:48%}
+#foot{position:absolute;left:0;right:0;bottom:0;text-align:center;padding:4px 0;font-size:12px;letter-spacing:.3px;color:#cfd8e6;background:rgba(5,9,18,.65);z-index:3;pointer-events:none}
+#foot b{color:#ff8a1f}
+#lvl{display:flex;gap:6px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line);font-size:13px;flex-wrap:wrap}
+#lvl button{flex:1;padding:6px 4px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--tx);cursor:pointer;font-size:13px}
+#lvl button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+@media (max-width:760px){#title{max-width:40%;font-size:13px}}
+@media (max-width:760px){#app{flex-direction:column}#stage{flex:3}aside{flex:2;max-width:none;min-width:0;border-left:0;border-top:1px solid var(--line)}#tip{display:none}}
+</style>
+</head>
+<body>
+<div id="app">
+ <div id="stage">
+  <canvas id="c"></canvas>
+  <div id="title">🌍 Các đới khí hậu trên Trái Đất</div>
+  <div id="search"><input id="q" list="cl" placeholder="Nhập quốc gia hoặc vĩ độ, kinh độ" autocomplete="off"><button id="go">🔍</button><datalist id="cl"></datalist></div><div id="res"></div><div id="tip">Kéo để xoay • Cuộn chuột hoặc chụm hai ngón để phóng to, thu nhỏ • Chạm vào quả địa cầu để biết quốc gia • Chạm vào biểu tượng 🐧🌴🐻‍❄️ để xem sinh cảnh</div>
+  <div id="foot">Produced of <b>LucianEdu</b></div><div id="hud">
+   <button data-f="hb">❄️ Hàn đới Bắc</button><button data-f="on">🌳 Ôn đới</button><button data-f="tn">🌴 Nhiệt đới</button><button data-f="hn">🐧 Hàn đới Nam</button>
+   <button id="zi">➕ Phóng to</button><button id="zo">➖ Thu nhỏ</button><button id="rot">⏸ Tự quay</button><button id="amb">🔈 Âm thanh nền</button>
+  </div>
+ </div>
+ <aside>
+  <div id="lvl"><span>Mức học:</span><button data-l="th">🧒 Tiểu học</button><button data-l="cs" class="on">🎒 THCS</button><button data-l="pt">🎓 THPT</button></div>
+  <nav><button class="on" data-t="desc">📖 Mô tả</button><button data-t="rev">📝 Ôn tập</button><button data-t="game">🎮 Trò chơi</button></nav>
+  <div class="pane on" id="desc"></div>
+  <div class="pane" id="rev"></div>
+  <div class="pane" id="game"></div>
+ </aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ===== Dữ liệu ===== */
+const Z={
+ tn:{n:"Nhiệt đới (đới nóng)",c:"#f0883a",r:"Từ 23°27′B đến 23°27′N (giữa hai chí tuyến)",
+  d:"Quanh năm nhận nhiều ánh sáng và nhiệt, góc chiếu của tia Mặt Trời lớn. Nóng quanh năm, lượng mưa nhiều (nhất là gần Xích đạo). Đây là đới có nhiều loài sinh vật nhất Trái Đất. Việt Nam nằm trong đới này.",
+  h:[{e:"🌴",n:"Rừng mưa nhiệt đới",t:"Rừng rậm nhiều tầng, mưa nhiều quanh năm. Có đười ươi, vẹt, báo, ếch cây, hàng triệu loài côn trùng.",lat:3,lon:-62},
+     {e:"🦁",n:"Xavan",t:"Đồng cỏ cao với cây thưa, có mùa khô và mùa mưa. Sống ở đây có sư tử, hươu cao cổ, voi, ngựa vằn.",lat:-2,lon:35},
+     {e:"🐪",n:"Hoang mạc nóng",t:"Rất khô, ngày nóng đêm lạnh, ít mưa. Cây xương rồng, lạc đà, bọ cạp thích nghi với nắng và thiếu nước.",lat:22,lon:12}]},
+ on:{n:"Ôn đới (đới ôn hòa)",c:"#5cb85c",r:"Từ chí tuyến đến vòng cực (23°27′ – 66°33′ ở mỗi bán cầu)",
+  d:"Khí hậu mát mẻ, có bốn mùa rõ rệt: xuân, hạ, thu, đông. Lượng nhiệt và mưa vừa phải. Phần lớn dân cư thế giới sống ở đới này vì thuận lợi cho trồng trọt và chăn nuôi.",
+  h:[{e:"🍁",n:"Rừng lá rộng",t:"Cây thay lá theo mùa (mùa thu lá vàng, đỏ, mùa đông trụi lá). Có hươu, sóc, gấu nâu, cáo.",lat:45,lon:-75},
+     {e:"🌲",n:"Rừng lá kim (taiga)",t:"Cây thông, tuyết tùng lá hình kim chịu được lạnh. Có nai sừng tấm, sói, gấu nâu.",lat:58,lon:90},
+     {e:"🌾",n:"Thảo nguyên",t:"Đồng cỏ rộng, ít cây, mưa vừa. Có bò rừng bizon, ngựa hoang, chuột đồng.",lat:-36,lon:-62}]},
+ hd:{n:"Hàn đới (đới lạnh)",c:"#8fd0ff",r:"Từ vòng cực (66°33′) đến cực Bắc và cực Nam",
+  d:"Rất lạnh quanh năm, băng tuyết phủ gần như quanh năm. Tia Mặt Trời chiếu rất xiên, có ngày và đêm kéo dài nhiều tháng. Ít người sinh sống, thực vật nghèo nàn.",
+  h:[{e:"🐻‍❄️",n:"Bắc Cực: băng và đồng rêu",t:"Có gấu Bắc Cực, hải cẩu, cáo tuyết, tuần lộc. Mùa hạ ngắn, rêu và địa y mọc trên đất đóng băng.",lat:78,lon:-40},
+     {e:"🐧",n:"Nam Cực: lục địa băng",t:"Lạnh nhất thế giới. Chim cánh cụt, hải cẩu, cá voi sống ở ven biển. Gần như không có thực vật.",lat:-76,lon:20}]}
+};
+const Q=[
+ ["Đới nóng (nhiệt đới) nằm ở đâu?",["Giữa hai chí tuyến","Giữa hai vòng cực","Quanh hai cực","Chỉ ở Xích đạo"],0,"Đới nóng nằm giữa chí tuyến Bắc và chí tuyến Nam."],
+ ["Vĩ độ của chí tuyến là bao nhiêu?",["66°33′","23°27′","0°","90°"],1,"Chí tuyến ở vĩ độ 23°27′ Bắc và Nam."],
+ ["Vòng cực nằm ở vĩ độ nào?",["23°27′","45°","66°33′","0°"],2,"Vòng cực Bắc và Nam ở vĩ độ 66°33′."],
+ ["Mấy đới khí hậu theo vĩ độ trên Trái Đất?",["3","5","7","2"],1,"Có 5 đới: 1 nhiệt đới, 2 ôn đới, 2 hàn đới."],
+ ["Đới nào có bốn mùa rõ rệt?",["Nhiệt đới","Ôn đới","Hàn đới","Không đới nào"],1,"Ôn đới có xuân, hạ, thu, đông."],
+ ["Gấu Bắc Cực sống ở đới nào?",["Nhiệt đới","Ôn đới","Hàn đới","Hoang mạc"],2,"Gấu Bắc Cực sống ở vùng băng tuyết hàn đới."],
+ ["Động vật nào đặc trưng cho xavan?",["Chim cánh cụt","Hươu cao cổ","Gấu trắng","Tuần lộc"],1,"Xavan ở nhiệt đới có hươu cao cổ, sư tử, voi."],
+ ["Rừng mưa nhiệt đới có đặc điểm gì?",["Lạnh, khô","Mưa nhiều, nóng quanh năm","Có tuyết","Cây lá kim"],1,"Rừng mưa nhiệt đới nóng ẩm, rừng rậm nhiều tầng."],
+ ["Nơi nào lạnh nhất thế giới?",["Sahara","Amazon","Nam Cực","Xavan châu Phi"],2,"Nam Cực là lục địa băng, lạnh nhất Trái Đất."],
+ ["Việt Nam nằm trong đới khí hậu nào?",["Hàn đới","Ôn đới","Nhiệt đới","Cận cực"],2,"Việt Nam nằm trong đới nóng (nhiệt đới)."]
+];
+const REV=`<h2>Ghi nhớ nhanh</h2>
+<div class="card"><b>5 đới khí hậu:</b> 1 đới nóng (nhiệt đới), 2 đới ôn hòa (ôn đới), 2 đới lạnh (hàn đới).</div>
+<table><tr><th>Đới</th><th>Vĩ độ</th><th>Đặc điểm</th></tr>
+<tr><td>🌴 Nhiệt đới</td><td>0° – 23°27′</td><td>Nóng quanh năm, mưa nhiều</td></tr>
+<tr><td>🍁 Ôn đới</td><td>23°27′ – 66°33′</td><td>Bốn mùa rõ rệt</td></tr>
+<tr><td>🐧 Hàn đới</td><td>66°33′ – 90°</td><td>Lạnh giá, băng tuyết</td></tr></table>
+<h3>Các đường quan trọng</h3>
+<div class="card">Xích đạo: 0°. Chí tuyến Bắc và Nam: 23°27′. Vòng cực Bắc và Nam: 66°33′.</div>
+<h3>Vì sao có các đới?</h3>
+<div class="card">Trái Đất hình cầu nên tia Mặt Trời chiếu vào mỗi vĩ độ với góc khác nhau. Gần Xích đạo tia chiếu gần thẳng đứng nên nóng. Gần hai cực tia chiếu rất xiên nên lạnh.</div>
+<h3>Sinh cảnh tiêu biểu</h3>
+<div class="card">🌴 Nhiệt đới: rừng mưa, xavan, hoang mạc nóng.<br>🍁 Ôn đới: rừng lá rộng, rừng lá kim, thảo nguyên.<br>🐧 Hàn đới: đồng rêu, băng tuyết.</div>
+<h3>Mẹo nhớ</h3>
+<div class="card">Chí tuyến 23, vòng cực 66. Hai con số này cộng lại bằng 90 độ (23°27′ + 66°33′ = 90°).</div>
+<h3>Câu hỏi suy nghĩ</h3>
+<div class="card">Vì sao nhiều nước ôn đới có người ở đông hơn hàn đới? Hãy thử giải thích theo nhiệt độ và mùa trồng trọt.</div>`;
+
+/* ===== Âm thanh ===== */
+let AC=null;const ac=()=>AC||(AC=new (window.AudioContext||window.webkitAudioContext)());
+function tone(f,d=.12,type="sine",v=.12,delay=0,f2){try{const a=ac(),o=a.createOscillator(),g=a.createGain(),t=a.currentTime+delay;o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(a.destination);o.start(t);o.stop(t+d)}catch(e){}}
+function noise(fq,type,d,v){try{const a=ac(),n=a.sampleRate*d,b=a.createBuffer(1,n,a.sampleRate),x=b.getChannelData(0);for(let i=0;i<n;i++)x[i]=Math.random()*2-1;const s=a.createBufferSource(),fl=a.createBiquadFilter(),g=a.createGain();s.buffer=b;fl.type=type;fl.frequency.value=fq;const t=a.currentTime;g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+d/2);g.gain.linearRampToValueAtTime(.0001,t+d);s.connect(fl).connect(g).connect(a.destination);s.start()}catch(e){}}
+const sClick=()=>tone(660,.08,"triangle",.1),sGood=()=>[523,659,784].forEach((f,i)=>tone(f,.18,"triangle",.14,i*.09)),sBad=()=>tone(200,.3,"sawtooth",.08,0,110),sSwap=()=>tone(300,.25,"sine",.1,0,900);
+let ambOn=false,curZone=null;
+setInterval(()=>{if(!ambOn)return;
+ if(curZone==="tn"){tone(2200,.1,"sine",.05,0,3200);tone(2600,.1,"sine",.05,.15,3400);noise(3000,"bandpass",.6,.015)}
+ else if(curZone==="on"){noise(700,"bandpass",1,.05);tone(1800,.08,"sine",.03,.3,2300)}
+ else if(curZone==="hd"){noise(350,"lowpass",1.4,.09);tone(420,.9,"sine",.02,0,380)}
+ else noise(500,"bandpass",.8,.03)},1300);
+
+/* ===== Đọc nội dung ===== */
+let reading=false;
+function say(t){speechSynthesis.cancel();if(!t)return;const u=new SpeechSynthesisUtterance(t);u.lang="vi-VN";u.rate=.95;u.onend=u.onerror=()=>{reading=false;document.querySelectorAll(".rd").forEach(b=>b.textContent="🔊 Đọc nội dung")};reading=true;speechSynthesis.speak(u)}
+function rdBtn(getText){const b=document.createElement("button");b.className="btn rd";b.textContent="🔊 Đọc nội dung";b.onclick=()=>{sClick();if(reading){speechSynthesis.cancel();reading=false;b.textContent="🔊 Đọc nội dung"}else{say(getText());b.textContent="⏹ Dừng đọc"}};return b}
+
+/* ===== Giao diện các tab ===== */
+const $=s=>document.querySelector(s);
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{sClick();speechSynthesis.cancel();reading=false;document.querySelectorAll("nav button,.pane").forEach(x=>x.classList.remove("on"));b.classList.add("on");$("#"+b.dataset.t).classList.add("on")});
+
+let lastZ=null;function showZone(k,hi){lastZ=k;
+ const p=$("#desc");p.innerHTML="";
+ p.appendChild(rdBtn(()=>p.querySelector(".txt").innerText));
+ const bt=document.createElement("div");bt.className="zbtns";
+ [["tn","🌴 Nhiệt đới"],["on","🍁 Ôn đới"],["hd","🐧 Hàn đới"]].forEach(([id,l])=>{const b=document.createElement("button");b.className="z"+(id===k?" on":"");b.textContent=l;b.onclick=()=>{sSwap();focusZone(id==="hd"?"hb":id)};bt.appendChild(b)});
+ p.appendChild(bt);
+ const t=document.createElement("div");t.className="txt";
+ if(!k){t.innerHTML=`<h2>Các đới khí hậu theo vĩ độ</h2><p>Trái Đất hình cầu nên mỗi nơi nhận được lượng ánh sáng và nhiệt khác nhau. Dựa vào vĩ độ, các nhà khoa học chia bề mặt Trái Đất thành 5 đới khí hậu: một đới nóng, hai đới ôn hòa và hai đới lạnh.</p><div class="card">Mô hình 3D: vùng <b>màu cam</b> là nhiệt đới, <b>màu xanh lá</b> là ôn đới, <b>màu xanh nhạt</b> là hàn đới. Đường đỏ là hai chí tuyến.</div><p>Hãy bấm một đới ở trên hoặc dưới mô hình, hoặc chạm vào các biểu tượng sinh vật trên quả địa cầu để khám phá. Bạn cũng có thể gõ tên quốc gia (hoặc vĩ độ, kinh độ) vào ô tìm kiếm phía trên mô hình, hoặc chạm vào một điểm bất kỳ trên quả địa cầu để biết đó là nước nào.</p>`}
+ else{const z=Z[k];t.innerHTML=`<h2>${z.n}</h2><div class="card"><b>Vị trí:</b> ${z.r}</div><p>${(DL[k]&&DL[k][lv])||z.d}</p><div class="card">💡 ${DX[k][lv]}</div><h3>Sinh cảnh ở ${z.n.split(" (")[0].toLowerCase()}</h3>`+z.h.map((h,i)=>`<div class="card hab ${hi===i?"sel":""}" data-i="${i}"><span class="e">${h.e}</span><div><b>${h.n}</b><br>${h.t}</div></div>`).join("")+`<p style="color:var(--mut);font-size:13px">Chạm vào một sinh cảnh để xoay quả địa cầu tới đó.</p>`}
+ p.appendChild(t);
+ if(!k)t.insertAdjacentHTML("afterbegin",`<div class="card">🎓 ${DX.all[lv]}</div>`);t.querySelectorAll(".hab").forEach(el=>el.onclick=()=>{const h=Z[k].h[+el.dataset.i];sClick();faceTo(h.lat,h.lon)});
+ if(hi!=null){const el=t.querySelector(".sel");if(el)el.style.outline="2px solid var(--pri)"}
+}
+/* ===== Nội dung theo cấp học ===== */
+let lv="cs";
+const DL={
+ tn:{th:"Nhiệt đới là vùng nóng nhất Trái Đất, nằm giữa hai đường chí tuyến. Ở đây trời nắng nóng quanh năm và mưa nhiều nên cây cối xanh tốt, có rất nhiều loài vật. Việt Nam của chúng ta nằm trong đới này!",pt:"Nhiệt đới nhận bức xạ Mặt Trời lớn nhất do tia sáng chiếu gần vuông góc, góc nhập xạ lớn và biên độ nhiệt năm nhỏ. Quanh Xích đạo có áp thấp nên mưa nhiều nhất; gần hai chí tuyến là áp cao cận chí tuyến nên khô hạn, hình thành hoang mạc. Đây là đới có đa dạng sinh học cao nhất."},
+ on:{th:"Ôn đới nằm giữa vùng nóng và vùng lạnh nên khí hậu mát mẻ, dễ chịu. Ở đây có bốn mùa: xuân, hạ, thu, đông. Nhiều người sống ở đới này vì dễ trồng lúa mì, rau và nuôi bò.",pt:"Ôn đới nằm giữa chí tuyến và vòng cực, chịu tác động xen kẽ của khối khí nóng cận chí tuyến và khối khí lạnh vùng cực nên thời tiết biến động, có bốn mùa và biên độ nhiệt năm lớn. Thảm thực vật thay đổi từ rừng lá rộng, rừng hỗn hợp đến rừng lá kim (taiga) theo vĩ độ và mức độ lục địa."},
+ hd:{th:"Hàn đới là vùng lạnh nhất, ở gần Bắc Cực và Nam Cực. Nơi đây có rất nhiều băng tuyết và ít cây cối. Chỉ những loài vật chịu lạnh giỏi như gấu trắng, chim cánh cụt mới sống được.",pt:"Hàn đới có góc chiếu của tia sáng rất nhỏ, lại có hiện tượng ngày hoặc đêm kéo dài nhiều tháng (ngày địa cực, đêm địa cực). Bề mặt băng phản xạ phần lớn bức xạ (suất phản chiếu cao), nhiệt độ trung bình năm dưới 0°C. Thực vật chủ yếu là rêu, địa y trên đất đóng băng vĩnh cửu."}
+};
+const DX={
+ tn:{th:"Em có biết? Rừng mưa Amazon được gọi là “lá phổi xanh” của Trái Đất.",cs:"Nhiệt độ trung bình năm thường trên 20°C; mưa nhiều nhất ở gần Xích đạo.",pt:"Dải hội tụ nhiệt đới dịch chuyển theo Mặt Trời, tạo ra mùa mưa và mùa khô ở nhiều vùng nhiệt đới."},
+ on:{th:"Em có biết? Mùa thu ở ôn đới, lá cây đổi sang màu vàng và đỏ rất đẹp.",cs:"Có ôn đới Bắc ở Bắc bán cầu và ôn đới Nam ở Nam bán cầu; ôn đới Bắc có diện tích đất liền lớn hơn nhiều.",pt:"Bắc bán cầu có nhiều lục địa hơn nên ôn đới Bắc phân hóa phức tạp: ôn đới hải dương, ôn đới lục địa, gió mùa và Địa Trung Hải."},
+ hd:{th:"Em có biết? Gấu Bắc Cực và chim cánh cụt không bao giờ gặp nhau vì sống ở hai đầu đối diện của Trái Đất.",cs:"Nam Cực là lục địa lạnh nhất, nhiệt độ từng xuống dưới -89°C.",pt:"Băng ở hai cực đang tan do biến đổi khí hậu, góp phần làm nước biển dâng và ảnh hưởng đến các đới khí hậu khác."},
+ all:{th:"Mức Tiểu học: nội dung ngắn gọn, dễ hiểu, gắn với các con vật và cây cối quen thuộc.",cs:"Mức THCS: tìm hiểu vị trí, đặc điểm các đới và nguyên nhân hình thành.",pt:"Mức THPT: phân tích nguyên nhân, hoàn lưu khí quyển và sự phân hóa khí hậu."}
+};
+const REVL={cs:REV,
+th:`<h2>Ghi nhớ nhanh</h2><div class="card">Trái Đất có <b>5 đới</b>, chia thành <b>3 loại</b>: vùng <b>nóng</b>, vùng <b>mát</b> và vùng <b>lạnh</b>.</div>
+<div class="card">🌴 <b>Nhiệt đới</b> (màu cam): rất nóng, mưa nhiều.<br>🍁 <b>Ôn đới</b> (màu xanh lá): mát mẻ, có 4 mùa.<br>🐧 <b>Hàn đới</b> (màu xanh nhạt): rất lạnh, nhiều băng tuyết.</div>
+<h3>Bạn nhỏ nhớ nhé</h3><div class="card">Vùng nóng ở giữa. Vùng lạnh ở hai đầu (hai cực). Vùng mát nằm giữa vùng nóng và vùng lạnh.</div>
+<h3>Con vật nào sống ở đâu?</h3><div class="card">🦁 Sư tử, 🐘 voi: nhiệt đới.<br>🦌 Hươu, 🐻 gấu nâu: ôn đới.<br>🐻‍❄️ Gấu trắng, 🐧 chim cánh cụt: hàn đới.</div>
+<h3>Thử nghĩ xem</h3><div class="card">Nơi em sống thuộc vùng nóng, mát hay lạnh? Vì sao em biết?</div>`,
+pt:`<h2>Hệ thống kiến thức</h2><div class="card"><b>Cơ sở phân chia:</b> do Trái Đất hình cầu và trục nghiêng 23°27′ nên góc chiếu của tia Mặt Trời và lượng bức xạ nhận được thay đổi theo vĩ độ.</div>
+<table><tr><th>Đới</th><th>Vĩ độ</th><th>Bức xạ và nhiệt</th></tr><tr><td>Nhiệt đới</td><td>0° – 23°27′</td><td>Lớn nhất, biên độ nhiệt năm nhỏ</td></tr><tr><td>Ôn đới</td><td>23°27′ – 66°33′</td><td>Trung bình, biên độ nhiệt năm lớn</td></tr><tr><td>Hàn đới</td><td>66°33′ – 90°</td><td>Nhỏ nhất, nhiệt độ dưới 0°C</td></tr></table>
+<h3>Vì sao chí tuyến là 23°27′ và vòng cực là 66°33′?</h3><div class="card">Trục Trái Đất nghiêng 23°27′ so với pháp tuyến mặt phẳng quỹ đạo. Mặt Trời lên thiên đỉnh trong khoảng 23°27′B – 23°27′N (chí tuyến). Vòng cực = 90° − 23°27′ = 66°33′, nơi có ngày hoặc đêm dài 24 giờ.</div>
+<h3>Hệ quả</h3><div class="card">Nhiệt đới: nhiệt độ cao quanh năm. Ôn đới: mùa rõ rệt, thời tiết biến động. Hàn đới: ngày đêm dài theo mùa, băng vĩnh cửu.</div>
+<h3>Thảm thực vật và động vật</h3><div class="card">Nhiệt đới: rừng mưa, xavan, hoang mạc. Ôn đới: rừng lá rộng, rừng lá kim, thảo nguyên. Hàn đới: đồng rêu, băng.</div>
+<h3>Câu hỏi vận dụng</h3><div class="card">1) Vì sao hoang mạc lớn thường nằm gần hai chí tuyến?<br>2) Nếu trục Trái Đất nghiêng 30° thì vị trí chí tuyến và vòng cực thay đổi thế nào? (Gợi ý: chí tuyến 30°, vòng cực 60°.)</div>`};
+const QL={cs:Q,
+th:[["Vùng nào nóng nhất Trái Đất?",["Nhiệt đới","Ôn đới","Hàn đới","Cực Nam"],0,"Nhiệt đới nóng nhất vì Mặt Trời chiếu gần thẳng xuống."],
+["Vùng nào có băng tuyết quanh năm?",["Nhiệt đới","Ôn đới","Hàn đới","Xavan"],2,"Hàn đới ở gần hai cực nên rất lạnh, băng tuyết phủ gần như quanh năm."],
+["Con vật nào sống ở vùng lạnh?",["Sư tử","Chim cánh cụt","Voi","Lạc đà"],1,"Chim cánh cụt sống ở Nam Cực rất lạnh."],
+["Vùng nào có bốn mùa: xuân, hạ, thu, đông?",["Ôn đới","Nhiệt đới","Hàn đới","Hoang mạc"],0,"Ôn đới có bốn mùa rõ rệt."],
+["Hươu cao cổ sống ở đâu?",["Bắc Cực","Xavan nóng","Nam Cực","Rừng lá kim"],1,"Hươu cao cổ sống ở xavan, thuộc nhiệt đới."],
+["Việt Nam nằm ở đới nào?",["Hàn đới","Ôn đới","Nhiệt đới","Cực Bắc"],2,"Việt Nam nằm trong đới nóng (nhiệt đới)."]],
+pt:[["Vì sao vĩ độ vòng cực là 66°33′?",["Bằng 90° trừ độ nghiêng trục 23°27′","Do đường Xích đạo","Do sức hút của Mặt Trăng","Do Mặt Trời hình cầu"],0,"Vòng cực = 90° − 23°27′ = 66°33′."],
+["Dải áp thấp xích đạo gây ra điều gì?",["Mưa nhiều","Khô hạn","Tuyết rơi","Gió mùa đông"],0,"Không khí nóng ẩm bốc lên tạo mưa nhiều ở gần Xích đạo."],
+["Vì sao hoang mạc lớn thường nằm gần hai chí tuyến?",["Áp cao cận chí tuyến, không khí chìm xuống nên ít mưa","Gần biển nên ẩm","Có nhiều rừng","Có băng phủ"],0,"Không khí chìm xuống, khô nóng, khó tạo mưa."],
+["Ngày hoặc đêm dài 24 giờ xuất hiện ở đâu?",["Từ vòng cực đến cực","Ở Xích đạo","Ở chí tuyến","Ở mọi nơi"],0,"Trong khoảng từ vòng cực đến cực có hiện tượng ngày hoặc đêm địa cực."],
+["Nơi nào có biên độ nhiệt năm nhỏ nhất?",["Gần Xích đạo","Ôn đới lục địa","Gần vòng cực","Giữa lục địa Á – Âu"],0,"Gần Xích đạo, Mặt Trời luôn cao nên nhiệt độ ít thay đổi trong năm."],
+["Nếu trục Trái Đất nghiêng 30° thì chí tuyến ở vĩ độ nào?",["30°","60°","23°27′","90°"],0,"Chí tuyến có vĩ độ bằng độ nghiêng của trục."],
+["Thực vật ở hàn đới chủ yếu là gì?",["Rêu, địa y","Rừng mưa","Xavan","Rừng lá rộng"],0,"Đất đóng băng và lạnh nên chỉ rêu, địa y phát triển."],
+["Taiga là kiểu rừng nào?",["Rừng lá kim ôn đới lạnh","Rừng mưa nhiệt đới","Xavan","Đồng rêu"],0,"Taiga là rừng lá kim ở vĩ độ cao của ôn đới Bắc."]]};
+let QS=Q;
+function renderRev(){const p=$("#rev");p.innerHTML="";p.appendChild(rdBtn(()=>p.querySelector(".txt").innerText));const t=document.createElement("div");t.className="txt";t.innerHTML=REVL[lv];p.appendChild(t)}
+document.querySelectorAll("#lvl button").forEach(b=>b.onclick=()=>{lv=b.dataset.l;document.querySelectorAll("#lvl button").forEach(x=>x.classList.toggle("on",x===b));speechSynthesis.cancel();reading=false;sClick();showZone(lastZ);renderRev();startGame()});
+
+/* Trò chơi */
+let qi=0,sc=0,order=[];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+function startGame(){QS=QL[lv];order=shuffle(QS.map((_,i)=>i));qi=0;sc=0;renderQ()}
+function renderQ(){
+ const p=$("#game");p.innerHTML="";
+ if(qi>=order.length){const m=sc>=order.length*.9?"Xuất sắc! Bạn là nhà địa lý nhí! 🏆":sc>=order.length*.6?"Giỏi lắm! Ôn thêm chút nữa là hoàn hảo. 👏":"Cố lên! Hãy xem lại tab Ôn tập nhé. 💪";
+  p.innerHTML=`<h2>Kết quả: ${sc}/${order.length}</h2><div class="card">${m}</div>`;const b=document.createElement("button");b.className="btn pri";b.textContent="🔁 Chơi lại";b.onclick=()=>{sClick();startGame()};p.appendChild(b);sGood();return}
+ const q=QS[order[qi]],opts=shuffle(q[1].map((t,i)=>({t,ok:i===q[2]})));
+ p.appendChild(rdBtn(()=>q[0]+". "+opts.map((o,i)=>"Đáp án "+"ABCD"[i]+": "+o.t).join(". ")));
+ p.insertAdjacentHTML("beforeend",`<div style="margin-top:8px;color:var(--mut)">Câu ${qi+1}/${order.length} • Điểm: ${sc}</div><div class="bar"><i style="width:${qi/order.length*100}%"></i></div><h3>${q[0]}</h3>`);
+ const box=document.createElement("div");p.appendChild(box);const fb=document.createElement("div");p.appendChild(fb);
+ let done=false;
+ opts.forEach(o=>{const b=document.createElement("button");b.className="opt";b.textContent=o.t;b.onclick=()=>{if(done)return;done=true;
+  if(o.ok){b.classList.add("ok");sc++;sGood()}else{b.classList.add("bad");[...box.children].find(x=>x.textContent===q[1][q[2]]).classList.add("ok");sBad()}
+  fb.innerHTML=`<div class="card">${o.ok?"✅ Chính xác! ":"❌ Chưa đúng. "}${q[3]}</div>`;
+  const n=document.createElement("button");n.className="btn pri";n.textContent=qi+1<order.length?"Câu tiếp ➡":"Xem kết quả";n.onclick=()=>{sClick();qi++;renderQ()};fb.appendChild(n)};box.appendChild(b)});
+}
+
+/* ===== Mô hình 3D ===== */
+const cv=$("#c"),st=$("#stage");
+const R=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
+const S=new THREE.Scene(),cam=new THREE.PerspectiveCamera(40,1,.1,100);cam.position.set(0,0,4.6);
+S.add(new THREE.AmbientLight(0xffffff,.75));const dl=new THREE.DirectionalLight(0xffffff,.7);dl.position.set(3,2,5);S.add(dl);
+function texture(){
+ const W=1024,H=512,c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d");
+ const y=l=>(90-l)/180*H,band=(a,b,col)=>{x.fillStyle=col;x.fillRect(0,y(a),W,y(b)-y(a))};
+ band(90,66.55,"#bfe6ff");band(66.55,23.45,"#5cb85c");band(23.45,-23.45,"#f0883a");band(-23.45,-66.55,"#5cb85c");band(-66.55,-90,"#bfe6ff");
+ x.strokeStyle="rgba(255,255,255,.25)";x.lineWidth=1;for(let i=0;i<=360;i+=30){x.beginPath();x.moveTo(i/360*W,0);x.lineTo(i/360*W,H);x.stroke()}
+ const line=(l,col,w,dash)=>{x.setLineDash(dash||[]);x.strokeStyle=col;x.lineWidth=w;x.beginPath();x.moveTo(0,y(l));x.lineTo(W,y(l));x.stroke()};
+ line(0,"#5a2a00",2);line(23.45,"#ff2020",4);line(-23.45,"#ff2020",4);line(66.55,"#fff",3,[12,8]);line(-66.55,"#fff",3,[12,8]);x.setLineDash([]);
+ x.textAlign="center";x.font="bold 30px system-ui,sans-serif";
+ for(let k=0;k<4;k++){const cx=W*(k+.5)/4;
+  x.fillStyle="#fff";x.strokeStyle="rgba(0,0,0,.45)";x.lineWidth=4;
+  [["NHIỆT ĐỚI",12],["ÔN ĐỚI",45],["ÔN ĐỚI",-45],["HÀN ĐỚI",79],["HÀN ĐỚI",-79]].forEach(([t,l])=>{x.strokeText(t,cx,y(l)+10);x.fillText(t,cx,y(l)+10)});
+  x.font="bold 20px system-ui,sans-serif";x.fillStyle="#fff";x.strokeText("Xích đạo 0°",cx,y(0)+26);x.fillText("Xích đạo 0°",cx,y(0)+26);
+  x.strokeText("Chí tuyến Bắc 23°27′",cx,y(23.45)-8);x.fillText("Chí tuyến Bắc 23°27′",cx,y(23.45)-8);
+  x.strokeText("Chí tuyến Nam 23°27′",cx,y(-23.45)+22);x.fillText("Chí tuyến Nam 23°27′",cx,y(-23.45)+22);
+  x.strokeText("Vòng cực Bắc 66°33′",cx,y(66.55)-8);x.fillText("Vòng cực Bắc 66°33′",cx,y(66.55)-8);
+  x.strokeText("Vòng cực Nam 66°33′",cx,y(-66.55)+22);x.fillText("Vòng cực Nam 66°33′",cx,y(-66.55)+22);x.font="bold 30px system-ui,sans-serif"}
+ const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t}
+const G=new THREE.Group();S.add(G);
+const earth=new THREE.Mesh(new THREE.SphereGeometry(1,64,48),new THREE.MeshPhongMaterial({map:texture(),shininess:8}));G.add(earth);
+G.add(new THREE.Mesh(new THREE.SphereGeometry(1.04,48,32),new THREE.MeshBasicMaterial({color:0x66aaff,transparent:true,opacity:.12,side:THREE.BackSide})));
+const ax=new THREE.Mesh(new THREE.CylinderGeometry(.008,.008,2.6,8),new THREE.MeshBasicMaterial({color:0xffffff}));G.add(ax);
+G.rotation.x=.35;
+// sao nền
+{const p=[];for(let i=0;i<500;i++){const v=new THREE.Vector3().randomDirection?0:0;const a=Math.random()*6.283,b=Math.acos(2*Math.random()-1),r=30;p.push(r*Math.sin(b)*Math.cos(a),r*Math.cos(b),r*Math.sin(b)*Math.sin(a))}
+ const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(p,3));S.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:.08})))}
+// biểu tượng sinh cảnh
+const sprites=[];
+function pos(lat,lon,r){const la=lat*Math.PI/180,ph=(lon+180)*Math.PI/180;return new THREE.Vector3(-Math.cos(ph)*Math.cos(la)*r,Math.sin(la)*r,Math.sin(ph)*Math.cos(la)*r)}
+Object.keys(Z).forEach(k=>Z[k].h.forEach((h,i)=>{
+ const c=document.createElement("canvas");c.width=c.height=128;const x=c.getContext("2d");
+ x.fillStyle="rgba(255,255,255,.92)";x.beginPath();x.arc(64,64,58,0,7);x.fill();x.strokeStyle=Z[k].c;x.lineWidth=8;x.stroke();
+ x.font="70px serif";x.textAlign="center";x.textBaseline="middle";x.fillText(h.e,64,70);
+ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c)}));s.scale.set(.2,.2,1);s.position.copy(pos(h.lat,h.lon,1.08));s.userData={k,i,h};G.add(s);sprites.push(s)}));
+
+let auto=true,tgt=null,drag=null,moved=0,pinch=0,zoom=(st.clientWidth/Math.max(st.clientHeight,1))<.8?6.4:4.6;const ptrs=new Map();const clampZ=z=>Math.max(2.1,Math.min(9,z));
+function faceTo(lat,lon){const p=pos(lat,lon,1);let ty=-Math.atan2(p.x,p.z);const cur=G.rotation.y;ty=cur+((ty-cur+Math.PI*3)%(Math.PI*2)-Math.PI);tgt={x:Math.max(-1.2,Math.min(1.2,lat*Math.PI/180)),y:ty};auto=false;syncRot()}
+function focusZone(f){const m={hb:[75,-40,"hd"],on:[45,-75,"on"],tn:[0,30,"tn"],hn:[-75,20,"hd"]}[f];curZone=m[2];faceTo(m[0],m[1]);showZone(m[2]);document.querySelectorAll("nav button")[0].click()}
+document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{sSwap();focusZone(b.dataset.f)});
+function syncRot(){$("#rot").textContent=auto?"⏸ Tự quay":"▶ Tự quay"}
+$("#rot").onclick=()=>{sClick();auto=!auto;tgt=null;syncRot()};
+$("#amb").onclick=()=>{ambOn=!ambOn;ac();sClick();$("#amb").textContent=ambOn?"🔊 Tắt âm thanh nền":"🔈 Âm thanh nền"};
+cv.addEventListener("pointerdown",e=>{ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch=Math.hypot(a.x-b.x,a.y-b.y);drag=null;moved=99;return}drag={x:e.clientX,y:e.clientY};moved=0;cv.setPointerCapture(e.pointerId);cv.style.cursor="grabbing"});
+cv.addEventListener("pointercancel",e=>{ptrs.delete(e.pointerId);pinch=0;drag=null});
+cv.addEventListener("wheel",e=>{e.preventDefault();zoom=clampZ(zoom*(1+Math.sign(e.deltaY)*.1))},{passive:false});
+$("#zi").onclick=()=>{sClick();zoom=clampZ(zoom*.8)};$("#zo").onclick=()=>{sClick();zoom=clampZ(zoom*1.25)};
+cv.addEventListener("pointermove",e=>{if(ptrs.has(e.pointerId))ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});if(ptrs.size===2){const [a,b]=[...ptrs.values()],d=Math.hypot(a.x-b.x,a.y-b.y);if(pinch)zoom=clampZ(zoom*pinch/d);pinch=d;return}if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag={x:e.clientX,y:e.clientY};moved+=Math.abs(dx)+Math.abs(dy);if(moved>4){tgt=null;G.rotation.y+=dx*.007;G.rotation.x=Math.max(-1.3,Math.min(1.3,G.rotation.x+dy*.005))}});
+cv.addEventListener("pointerup",e=>{ptrs.delete(e.pointerId);pinch=0;cv.style.cursor="grab";if(drag&&moved<6){const r=cv.getBoundingClientRect(),m=new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),rc=new THREE.Raycaster();rc.setFromCamera(m,cam);let hit=rc.intersectObjects(sprites)[0];const eh0=rc.intersectObject(earth)[0];if(hit&&eh0&&eh0.distance<hit.distance-.01)hit=null;
+ if(hit){const {k,i,h}=hit.object.userData;sSwap();curZone=k;faceTo(h.lat,h.lon);showZone(k,i);document.querySelectorAll("nav button")[0].click();say(h.n+". "+h.t)}else if(eh0){pickPoint(G.worldToLocal(eh0.point.clone()))}}drag=null});
+function resize(){const w=st.clientWidth,h=st.clientHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+new ResizeObserver(resize).observe(st);resize();
+(function loop(){requestAnimationFrame(loop);
+ if(tgt){G.rotation.x+=(tgt.x-G.rotation.x)*.08;G.rotation.y+=(tgt.y-G.rotation.y)*.08;if(Math.abs(tgt.x-G.rotation.x)+Math.abs(tgt.y-G.rotation.y)<.01)tgt=null}
+ else if(auto&&!drag)G.rotation.y+=.003;
+ cam.position.z+=(zoom-cam.position.z)*.15;R.render(S,cam)})();
+/* ===== Tra cứu quốc gia ===== */
+const C=[["Việt Nam",16,107,4],["Lào",19,103,3],["Campuchia",12.5,105,3],["Thái Lan",15,101,5],["Myanmar",21,96,5],["Malaysia",4,102,4],["Singapore",1.3,103.8,1],["Indonesia",-2,115,12],["Philippines",12,122,5],["Trung Quốc",35,103,18],["Nhật Bản",36,138,5],["Hàn Quốc",36,128,3],["Triều Tiên",40,127,3],["Mông Cổ",46,103,10],["Ấn Độ",22,79,10],["Pakistan",30,70,6],["Bangladesh",24,90,3],["Nepal",28,84,3],["Kazakhstan",48,67,12],["Nga",60,95,28],["Iran",32,53,8],["Iraq",33,44,5],["Ả Rập Xê Út",24,45,9],["Thổ Nhĩ Kỳ",39,35,7],["Israel",31,35,2],["Ai Cập",26,30,7],["Libya",27,17,9],["Algeria",28,3,11],["Maroc",32,-6,5],["Nigeria",9,8,6],["Ethiopia",9,40,6],["Kenya",0,38,5],["Tanzania",-6,35,6],["CHDC Congo",-3,23,10],["Angola",-12,18,8],["Nam Phi",-29,24,8],["Madagascar",-19,47,5],["Sudan",15,30,8],["Niger",17,9,7],["Mali",17,-3,8],["Anh",54,-2,4],["Pháp",46.5,2,5],["Đức",51,10,4],["Tây Ban Nha",40,-4,5],["Ý",42.5,12.5,4],["Ba Lan",52,19,4],["Ukraine",49,32,6],["Thụy Điển",62,15,7],["Na Uy",62,10,7],["Phần Lan",64,26,6],["Iceland",65,-18,3],["Hy Lạp",39,22,3],["Hoa Kỳ",39,-98,18],["Canada",58,-100,20],["Mexico",23,-102,9],["Cuba",21.5,-79,4],["Colombia",4,-73,6],["Venezuela",7,-66,6],["Peru",-9,-75,7],["Brazil",-10,-52,17],["Bolivia",-17,-65,6],["Chile",-33,-71,8],["Argentina",-38,-65,11],["Úc",-25,134,18],["New Zealand",-42,172,6],["Papua New Guinea",-6,144,5],["Greenland (Đan Mạch)",72,-40,12],["Châu Nam Cực (chưa có quốc gia)",-82,0,15]];
+$("#cl").innerHTML=C.map(c=>`<option value="${c[0]}">`).join("");
+const zn=l=>{l=Math.abs(l);return l<=23.45?"nhiệt đới":l<=66.55?"ôn đới":"hàn đới"};
+const norm=s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").trim();
+const ang=(a,b,c,d)=>{const r=Math.PI/180;return Math.acos(Math.max(-1,Math.min(1,Math.sin(a*r)*Math.sin(c*r)+Math.cos(a*r)*Math.cos(c*r)*Math.cos((b-d)*r))))/r};
+function near(lat,lon){let b=null,bs=999;C.forEach(c=>{const s=ang(lat,lon,c[1],c[2])/c[3];if(s<bs){bs=s;b=c}});return bs<=1.15?b:null}
+let pin=null;
+function showPin(lat,lon,txt){if(pin){G.remove(pin);pin.material.map.dispose();pin.material.dispose()}
+ const c=document.createElement("canvas");c.width=420;c.height=110;const x=c.getContext("2d");
+ x.font="bold 34px system-ui,sans-serif";const w=Math.min(410,x.measureText(txt).width+40);
+ x.fillStyle="rgba(10,20,40,.9)";x.strokeStyle="#ffd54a";x.lineWidth=4;x.fillRect(210-w/2,6,w,56);x.strokeRect(210-w/2,6,w,56);
+ x.beginPath();x.moveTo(200,62);x.lineTo(220,62);x.lineTo(210,84);x.fill();
+ x.fillStyle="#ffd54a";x.textAlign="center";x.textBaseline="middle";x.fillText(txt,210,36,400);
+ x.fillStyle="#ff3b30";x.beginPath();x.arc(210,94,9,0,7);x.fill();x.strokeStyle="#fff";x.lineWidth=3;x.stroke();
+ pin=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c)}));pin.center.set(.5,.15);pin.scale.set(.9,.236,1);pin.position.copy(pos(lat,lon,1.01));G.add(pin)}
+function reveal(lat,lon,c,rot){const z=zn(lat),nm=c?c[0]:"Đại dương hoặc vùng chưa có tên";
+ showPin(lat,lon,nm);
+ const f=(v,p,n)=>Math.abs(v).toFixed(1)+"°"+(v>=0?p:n);
+ const r=$("#res");r.style.display="block";r.innerHTML=`📍 <b>${nm}</b><br>${f(lat,"B","N")}, ${f(lon,"Đ","T")} • thuộc ${z}`;
+ sSwap();if(rot){faceTo(lat,lon);zoom=clampZ(Math.min(zoom,3.4))}else{auto=false;syncRot()}
+ say((c?"Quốc gia: "+nm:"Vị trí này thuộc đại dương hoặc vùng chưa có tên")+", nằm trong đới "+z)}
+function pickPoint(v){const lat=Math.asin(v.y/v.length())*180/Math.PI;let lon=Math.atan2(v.z,-v.x)*180/Math.PI-180;lon=((lon+540)%360)-180;reveal(lat,lon,near(lat,lon),false)}
+function search(){const s=$("#q").value,m=s.match(/^\s*(-?\d+(?:\.\d+)?)\s*[,; ]\s*(-?\d+(?:\.\d+)?)\s*$/);
+ if(m){const la=+m[1],lo=+m[2];if(Math.abs(la)<=90&&Math.abs(lo)<=180)return reveal(la,lo,near(la,lo),true)}
+ const n=norm(s);if(!n)return;const c=C.find(c=>norm(c[0])===n)||C.find(c=>norm(c[0]).includes(n));
+ if(c)return reveal(c[1],c[2],c,true);
+ const r=$("#res");r.style.display="block";r.innerHTML="Không tìm thấy. Hãy thử tên khác, hoặc nhập toạ độ dạng: 21, 105 (vĩ độ Bắc dương, kinh độ Đông dương)."}
+$("#go").onclick=search;$("#q").addEventListener("keydown",e=>{if(e.key==="Enter")search()});
+renderRev();showZone(null);startGame();
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Chặn phím tắt: F12, Ctrl+U, Ctrl+Shift+I/J/C, Ctrl+S
+    document.addEventListener('keydown', function(e) {
+      const key = e.key.toLowerCase();
+
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) || 
+        (e.ctrlKey && (key === 'u' || key === 's'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 2. Chặn chuột phải (Context Menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  });
+</script>
+</body>
+</html>

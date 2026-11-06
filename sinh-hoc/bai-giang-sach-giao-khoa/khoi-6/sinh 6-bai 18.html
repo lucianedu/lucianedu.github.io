@@ -1,0 +1,599 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Tế bào LucianEdu</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Be+Vietnam+Pro:wght@400;500;600&display=swap">
+<style>
+/* Layout: mô hình 3/4 bên trái (tiêu đề, thẻ chế độ, sân khấu SVG, bảng thông số, chân trang cố định); 1/4 bên phải là 3 tab có cuộn riêng */
+:root{
+  --bg:#eef3ef; --panel:#ffffff; --ink:#1d2b2a; --muted:#566867; --line:#d3dfdb;
+  --teal:#00606f; --green:#5fa21f; --lime:#8dc63f; --yellow:#ffe94a; --orange:#f26a10;
+  --paper:#ffffff; --paper-ink:#1d2b2a; --soft:#e5f1e0; --warn:#c0392b; --ok:#2e8b3d;
+  --f-head:'Baloo 2','Be Vietnam Pro',system-ui,sans-serif; --f-body:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1a19; --panel:#172524; --ink:#e6f0ec; --muted:#9db3ae; --line:#2b3f3c; --soft:#1f3a2a; --teal:#2aa3b5; --green:#8dc63f; --paper:#f6f9f4; --paper-ink:#1d2b2a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1a19; --panel:#172524; --ink:#e6f0ec; --muted:#9db3ae; --line:#2b3f3c; --soft:#1f3a2a; --teal:#2aa3b5; --green:#8dc63f; --paper:#f6f9f4; --paper-ink:#1d2b2a; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5;overflow:hidden;
+  padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+button{font:inherit;color:inherit;cursor:pointer}
+.app{height:100%;display:grid;grid-template-columns:3fr 1fr;gap:10px;padding:10px 12px}
+.model{display:flex;flex-direction:column;min-height:0;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.titlebar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:linear-gradient(90deg,var(--teal),#0b7f6c 70%,var(--green));color:#fff}
+.titlebar .course{font-family:var(--f-head);font-weight:600;font-size:clamp(13px,1.35vw,18px);line-height:1.2;text-align:left;flex:1;min-width:0}
+.titlebar .course b{color:var(--yellow);font-weight:700}
+.iconbtn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:8px;padding:3px 10px;font-size:12px}
+.iconbtn:hover{background:rgba(255,255,255,.3)}
+.modes{display:flex;gap:6px;padding:8px 12px 0;flex-wrap:wrap}
+.modes button{border:1px solid var(--line);background:var(--panel);padding:5px 12px;border-radius:999px;font-size:13px;font-weight:500}
+.modes button[aria-selected="true"]{background:var(--teal);border-color:var(--teal);color:#fff}
+.stage{flex:1;min-height:0;margin:8px 12px;background:var(--paper);border:1px solid var(--line);border-radius:10px;position:relative;display:flex}
+.stage svg{width:100%;height:100%;display:block}
+.stage svg[hidden]{display:none}
+.stage svg text{font-family:Arial,Helvetica,sans-serif;user-select:none}
+.item{cursor:pointer}
+.item .outline{fill:none;stroke:#f26a10;stroke-width:2.2;stroke-dasharray:6 4;opacity:0;rx:8}
+.item:hover .outline{opacity:.45}
+.item.sel .outline{opacity:1}
+.item:focus{outline:none}
+.item:focus-visible .outline{opacity:1;stroke:#0b7f6c}
+.vline{stroke:#2b2b2b;stroke-width:1.4;cursor:pointer}
+.vline.sel{stroke:#f26a10;stroke-width:3}
+.vhit{stroke:transparent;stroke-width:14;cursor:pointer}
+.band{transition:opacity .25s}
+.controls{border-top:1px solid var(--line);padding:8px 14px;max-height:34%;min-height:84px;overflow-y:auto;overscroll-behavior:contain;background:var(--panel)}
+.ctrl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px 18px;align-items:end}
+.ctrl label,.ctrl .lab{display:flex;justify-content:space-between;gap:8px;font-weight:600;font-size:12.5px;color:var(--muted)}
+.ctrl output{color:var(--ink);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--orange)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{background:var(--soft);border-radius:8px;padding:3px 9px;font-size:12.5px}
+.chip b{font-variant-numeric:tabular-nums}
+.chip.good{background:#d6efd9;color:#1f6b2c}.chip.bad{background:#f8d9d4;color:#8f2418}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .chip.good{background:#1f4a2b;color:#bdf0c6}:root:not([data-theme="light"]) .chip.bad{background:#59251f;color:#ffc8bf}}
+:root[data-theme="dark"] .chip.good{background:#1f4a2b;color:#bdf0c6}:root[data-theme="dark"] .chip.bad{background:#59251f;color:#ffc8bf}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:var(--panel);padding:4px 12px;font-size:12.5px}
+.seg button[aria-pressed="true"]{background:var(--orange);color:#fff}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:4px 12px;font-size:12.5px;font-weight:500}
+.btn:hover{border-color:var(--teal)}
+.foot{flex:none;text-align:center;padding:5px 10px 6px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);background:var(--panel);letter-spacing:.02em}
+.foot b{color:#ff7a00;font-weight:700;font-family:var(--f-head);font-size:14px}
+.side{display:flex;flex-direction:column;min-height:0;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.tabs{display:flex;flex:none;border-bottom:1px solid var(--line);background:var(--soft)}
+.tabs button{flex:1;border:0;background:transparent;padding:9px 4px;font-weight:600;font-size:13px;border-bottom:3px solid transparent;color:var(--muted)}
+.tabs button[aria-selected="true"]{color:var(--teal);border-bottom-color:var(--orange);background:var(--panel)}
+.pane{flex:1;min-height:0;overflow-y:auto;padding:12px 14px 18px;scroll-behavior:smooth;overscroll-behavior:contain;scrollbar-width:thin}
+.pane[hidden]{display:none}
+.pane::-webkit-scrollbar{width:8px}.pane::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+h2,h3,h4{font-family:var(--f-head);margin:0;line-height:1.2;text-wrap:balance}
+h3{font-size:17px;color:var(--teal);margin:14px 0 6px}
+h4{font-size:15px;margin:10px 0 4px}
+p{margin:0 0 8px}
+.pane ul{margin:0 0 8px;padding-left:18px}
+.sel-card{background:var(--soft);border-radius:12px;padding:10px 12px;border-left:5px solid var(--orange)}
+.sel-card h2{font-size:19px}
+.sel-card .kv{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:2px 0;border-bottom:1px dashed var(--line)}
+.sel-card .kv:last-of-type{border:0}
+.q{background:var(--soft);border-radius:10px;padding:8px 10px;margin:8px 0;font-weight:500}
+details{border:1px solid var(--line);border-radius:10px;padding:6px 10px;margin:6px 0}
+summary{cursor:pointer;font-weight:600}
+.fc-grid{display:grid;gap:8px}
+.fc{border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:left;background:var(--panel);min-height:58px}
+.fc .t{font-weight:600}.fc .b{display:none;color:var(--green);margin-top:4px}
+.fc.flip{background:var(--soft)}.fc.flip .b{display:block}
+.opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:8px 10px;margin:6px 0}
+.opt:hover:not([disabled]){border-color:var(--teal)}
+.opt.right{background:#d6efd9;border-color:#2e8b3d;color:#17501f}.opt.wrong{background:#f8d9d4;border-color:#c0392b;color:#7d1d12}
+.opt[disabled]{cursor:default}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .opt.right{color:#bdf0c6;background:#1f4a2b}:root:not([data-theme="light"]) .opt.wrong{color:#ffc8bf;background:#59251f}}
+:root[data-theme="dark"] .opt.right{color:#bdf0c6;background:#1f4a2b}:root[data-theme="dark"] .opt.wrong{color:#ffc8bf;background:#59251f}
+.progress{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin-bottom:8px}.progress i{display:block;height:100%;background:var(--orange);transition:width .3s}
+.expl{background:var(--soft);border-radius:10px;padding:8px 10px;margin-top:8px;font-size:13px}
+.score{font-family:var(--f-head);font-size:34px;color:var(--teal)}
+@media (max-width:860px){
+  body{overflow:auto}
+  .app{grid-template-columns:1fr;grid-template-rows:auto auto;height:auto;padding:8px max(10px,env(safe-area-inset-left,0px))}
+  .model{height:calc(100vh - 12px)}
+  .side{height:70vh}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+
+<div class="app">
+  <section class="model" aria-label="Mô hình tương tác">
+    <div class="titlebar">
+      <div class="course">Sinh học 6 - 2026-2027 – <b>Bài 18: Tế bào – Đơn vị cơ bản của sự sống</b></div>
+      <button class="iconbtn" id="muteBtn" aria-pressed="false" title="Bật/tắt âm thanh">🔊 Âm thanh</button>
+    </div>
+    <div class="modes" role="tablist" aria-label="Chọn mô hình">
+      <button role="tab" id="m-scale" aria-selected="true">Hình 18.2 · Thang kích thước</button>
+      <button role="tab" id="m-shape" aria-selected="false">Hình 18.1 · Hình dạng tế bào</button>
+      <button role="tab" id="m-sv" aria-selected="false">Em có biết · Tỉ lệ S/V</button>
+    </div>
+    <div class="stage">
+      <svg id="svgScale" viewBox="110 330 1090 480" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Hình 18.2 Kích thước các bậc cấu trúc của thế giới sống"></svg>
+      <svg id="svgShape" viewBox="100 1262 1050 345" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Hình 18.1 Hình dạng một số loại tế bào" hidden></svg>
+      <svg id="svgSV" viewBox="0 0 1000 720" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Mô phỏng tỉ lệ diện tích bề mặt trên thể tích" hidden></svg>
+    </div>
+    <div class="controls ctrl" id="controls">
+      <div id="c-scale">
+        <div class="ctrl-grid">
+          <div><label for="sizeRange">Kích thước vật thể (thước log) <output id="sizeOut">–</output></label><input type="range" id="sizeRange" min="0" max="1000" value="450"></div>
+          <div><label for="zoomRange">Phóng to thang đo <output id="zoomOut">1×</output></label><input type="range" id="zoomRange" min="1" max="5" step="0.1" value="1"></div>
+          <div><span class="lab">Hiện dải quan sát</span>
+            <div class="chips">
+              <label class="chip"><input type="checkbox" id="bandEye" checked> Mắt thường</label>
+              <label class="chip"><input type="checkbox" id="bandOpt" checked> KHV quang học</label>
+              <label class="chip"><input type="checkbox" id="bandEle" checked> KHV điện tử</label>
+            </div></div>
+        </div>
+        <div class="chips" id="scaleChips"></div>
+      </div>
+      <div id="c-shape" hidden>
+        <div class="ctrl-grid">
+          <div><label for="cellZoom">Phóng to ảnh tế bào đang chọn <output id="cellZoomOut">1×</output></label><input type="range" id="cellZoom" min="1" max="3" step="0.1" value="1"></div>
+          <div><span class="lab">Hiển thị</span><div class="chips"><label class="chip"><input type="checkbox" id="showFn" checked> Gợi ý chức năng trên hình</label></div></div>
+        </div>
+        <div class="chips" id="shapeChips"><span class="chip">Bấm vào từng hình tròn để xem hình dạng ↔ chức năng.</span></div>
+      </div>
+      <div id="c-sv" hidden>
+        <div class="ctrl-grid">
+          <div><span class="lab">Hình dạng tế bào</span><div class="seg" id="shapeSeg"><button aria-pressed="true" data-s="cube">Khối lập phương</button><button aria-pressed="false" data-s="sphere">Khối cầu</button></div></div>
+          <div><label for="svL"><span id="svLname">Cạnh L</span> <output id="svLout">3</output></label><input type="range" id="svL" min="1" max="10" step="0.5" value="3"></div>
+          <div><label for="svNeed">Ngưỡng S/V tối thiểu cần có <output id="svNeedOut">1,0</output></label><input type="range" id="svNeed" min="0.3" max="3" step="0.1" value="1"></div>
+          <div><span class="lab">Thao tác nhanh</span><div class="chips"><button class="btn" id="svDouble">Tế bào lớn gấp đôi ×2</button><button class="btn" id="svHalf">Nhỏ đi một nửa ÷2</button></div></div>
+        </div>
+        <div class="chips" id="svChips"></div>
+      </div>
+    </div>
+    <div class="foot">Produced of <b>LucianEdu</b></div>
+  </section>
+
+  <aside class="side" aria-label="Nội dung học tập">
+    <div class="tabs" role="tablist">
+      <button role="tab" id="t-desc" aria-selected="true">Nội dung mô tả</button>
+      <button role="tab" id="t-rev" aria-selected="false">Ôn tập</button>
+      <button role="tab" id="t-quiz" aria-selected="false">Trắc nghiệm</button>
+    </div>
+    <div class="pane" id="p-desc"></div>
+    <div class="pane" id="p-rev" hidden></div>
+    <div class="pane" id="p-quiz" hidden></div>
+  </aside>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ===== Âm thanh (Web Audio API) ===== */
+var ac=null,muted=false,lastTick=0;
+function AC(){ if(muted)return null; try{ if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)(); if(ac.state==='suspended')ac.resume(); }catch(e){return null} return ac; }
+function tone(f,t0,d,type,v,f2){ var c=AC(); if(!c)return; var o=c.createOscillator(),g=c.createGain(); var t=c.currentTime+t0;
+  o.type=type||'sine'; o.frequency.setValueAtTime(f,t); if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);
+  g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(v||.12,t+.01); g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+d+.02); }
+var sfx={
+  click:function(){tone(700,0,.06,'square',.06,520)},
+  select:function(){tone(520,0,.09,'triangle',.12);tone(780,.08,.14,'triangle',.12)},
+  good:function(){tone(523,0,.13,'sine',.16);tone(659,.11,.13,'sine',.16);tone(784,.22,.26,'sine',.18)},
+  bad:function(){tone(240,0,.22,'sawtooth',.09,150);tone(160,.16,.28,'sawtooth',.09,100)},
+  tick:function(){var n=performance.now(); if(n-lastTick<70)return; lastTick=n; tone(900,0,.03,'sine',.04)}
+};
+var muteBtn=document.getElementById('muteBtn');
+muteBtn.onclick=function(){muted=!muted;muteBtn.setAttribute('aria-pressed',muted);muteBtn.textContent=muted?'🔇 Đã tắt':'🔊 Âm thanh'; if(!muted)sfx.click()};
+
+/* ===== Tiện ích ===== */
+var $=function(id){return document.getElementById(id)};
+function esc(s){return String(s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
+function num(v,d){return (Math.round(v*Math.pow(10,d))/Math.pow(10,d)).toString().replace('.',',')}
+function sig(v){var p=Math.pow(10,Math.floor(Math.log10(v))-1);return Math.round(v/p)*p}
+function fmtNm(nm){ var v,u; nm=sig(nm);
+  if(nm<1e3){v=nm;u='nm'} else if(nm<1e6){v=nm/1e3;u='µm'} else if(nm<1e7){v=nm/1e6;u='mm'} else if(nm<1e9){v=nm/1e7;u='cm'} else if(nm<1e12){v=nm/1e9;u='m'} else {v=nm/1e12;u='km'}
+  return num(+v.toPrecision(2),2)+' '+u; }
+
+/* ===== HÌNH 18.2 · toạ độ lấy trực tiếp từ ảnh trang 65 (1255×1794 px) ===== */
+var X0=158.5, DEC=75.2;              // 0,1 nm tại x=158,5 ; mỗi bậc 10 lần = 75,2 px
+var xOfNm=function(nm){return X0+DEC*(Math.log10(nm)+1)};
+var nmOfX=function(x){return Math.pow(10,(x-X0)/DEC-1)};
+var TOOLS=[
+  {id:'ele',name:'Kính hiển vi điện tử',a:182,b:619.5,yc:474,hf:37,hs:23,fill:'#ee6fb4',tx:422},
+  {id:'opt',name:'Kính hiển vi quang học',a:404.6,b:729,yc:442,hf:35,hs:19,fill:'#ffe600',tx:576},
+  {id:'eye',name:'Mắt thường',a:627.6,b:1148.7,yc:411,hf:39,hs:25,fill:'#4db8ee',tx:894}
+];
+function water(x,y){return '<g transform="translate('+x+' '+y+')"><circle cx="-7" cy="-4" r="4.2" fill="#f7b9c0" stroke="#c95a66" stroke-width=".6"/><circle cx="7" cy="-5" r="4.2" fill="#f7b9c0" stroke="#c95a66" stroke-width=".6"/><circle r="6.6" fill="#d8323a" stroke="#8d1a22" stroke-width=".7"/><circle cx="-2" cy="-2.5" r="2" fill="#fff" opacity=".5"/></g>'}
+var ART={
+ pt:water(203.7,653)+water(224,671)+water(198,685),
+ lip:(function(){var s='';[235,246.5,258].forEach(function(x){s+='<path d="M'+(x-2)+' 596 q3 4 0 8 t0 8 t0 5 M'+(x+2)+' 596 q-3 4 0 8 t0 8 t0 5" stroke="#e0434d" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="'+x+'" cy="590" r="5.8" fill="url(#gHead)" stroke="#126c88" stroke-width=".6"/>'});return s})(),
+ pro:'<path d="M262 660C255 640 285 636 292 648C300 660 270 672 266 664C262 656 296 650 300 666C302 678 270 684 262 672" stroke="#4b2a22" stroke-width="8" stroke-linecap="round" fill="none"/><path d="M262 660C255 640 285 636 292 648C300 660 270 672 266 664" stroke="#9a6650" stroke-width="2" stroke-linecap="round" fill="none"/>',
+ vir:'<g stroke="#7b7f8a" stroke-width="1.5" fill="none" stroke-linecap="round"><path d="M344 636L324 640L306 649M344 636L330 642L316 649M344 636L358 642L372 649M344 636L364 640L383 649"/></g><rect x="339.5" y="620" width="9" height="5" fill="#8d8d9a"/><rect x="340.5" y="625" width="7" height="11" fill="#6e8fb0"/><polygon points="344,591 357,598 357,613 344,621 331,613 331,598" fill="#f0b83a" stroke="#b27e12" stroke-width="1"/><path d="M344 591L344 621M331 598L357 613M357 598L331 613" stroke="#b27e12" stroke-width=".8"/>',
+ luc:'<path d="M418 612C416 588 440 574 462 580C468 590 466 612 450 626C436 634 420 630 418 612Z" fill="#245f2a" stroke="#143a19" stroke-width="1"/><path d="M425 608C425 592 440 585 456 588C458 598 454 612 444 620C434 624 427 620 425 608Z" fill="#4f9a3c"/><circle cx="436" cy="600" r="3" fill="#c7d44a"/><circle cx="448" cy="606" r="3.4" fill="#c7d44a"/><circle cx="440" cy="614" r="2.6" fill="#c7d44a"/>',
+ bac:(function(){var s='';for(var i=0;i<8;i++){var x=456+i*6.9,y=676-i*3.9;s+='<ellipse cx="'+x+'" cy="'+y+'" rx="5.2" ry="3.3" transform="rotate(-29 '+x+' '+y+')" fill="#2f9a8a" stroke="#1b6358" stroke-width=".8"/>'}
+   s+='<ellipse cx="511.5" cy="670" rx="3" ry="6" fill="#b5452e" transform="rotate(-14 511.5 670)"/><ellipse cx="506" cy="683" rx="2.6" ry="5.4" fill="#b5452e" transform="rotate(10 506 683)"/><ellipse cx="476" cy="686" rx="3.4" ry="2.6" fill="#b5452e"/><circle cx="487" cy="681" r="1.7" fill="#b5452e"/><circle cx="495" cy="686" r="1.4" fill="#b5452e"/><circle cx="469" cy="679" r="1.6" fill="#b5452e"/>';return s})(),
+ tb:'<ellipse cx="572" cy="617" rx="29" ry="27" fill="#a8433a"/><circle cx="568" cy="613" r="28" fill="#d96a5a" stroke="#8b2f2f" stroke-width="1"/><circle cx="568" cy="613" r="23" fill="#ebdff0"/><circle cx="565" cy="612" r="11" fill="#5a5aa5" stroke="#3b3b7d" stroke-width="1"/><circle cx="563" cy="610" r="4" fill="#8f8fd0"/><circle cx="580" cy="626" r="2.6" fill="#b78bb8"/><circle cx="553" cy="626" r="2.2" fill="#b78bb8"/><circle cx="580" cy="600" r="2.2" fill="#b78bb8"/>'
+   +'<path d="M578 652L612 650L618 690L588 702L568 690Z" fill="#c5cf3a" stroke="#74801b" stroke-width="1"/><path d="M584 662L606 660L610 684L590 692Z" fill="#8fa9c6"/><circle cx="598" cy="674" r="5" fill="#5d6fa8"/><path d="M568 690L588 702L588 694L572 686Z" fill="#9aa62a"/>',
+ egg:'<circle cx="693" cy="607" r="13.5" fill="#5a3d12"/><circle cx="693" cy="607" r="11.5" fill="url(#gEgg)"/><circle cx="690" cy="603" r="3.4" fill="#fff" opacity=".55"/>',
+ bird:'<path d="M776 590C752 585 740 565 736 552C752 556 770 568 786 584Z" fill="#b3c43a" stroke="#6d7d1c" stroke-width=".8"/><path d="M772 596C748 596 738 580 740 570C756 574 768 584 778 592Z" fill="#8aa82e" stroke="#5f7a1f" stroke-width=".8"/><path d="M742 556L778 588M748 566L774 592" stroke="#5f7a1f" stroke-width=".8"/><path d="M764 642C772 624 790 606 812 600C822 598 826 606 818 614C804 624 792 634 778 648Z" fill="#3d8f4a" stroke="#235e2e" stroke-width=".8"/><path d="M764 642L750 652L776 644Z" fill="#2a6b3a"/><circle cx="815" cy="598" r="8.5" fill="#2f7a45"/><ellipse cx="817" cy="605" rx="6" ry="4.8" fill="#c4232f"/><path d="M822 594L846 592L823 599Z" fill="#2b2b2b"/><circle cx="817" cy="596" r="1.4" fill="#111"/>',
+ man:'<rect x="916.5" y="585" width="5" height="8" fill="#e0b894"/><path d="M906 600L897 631M932 600L941 631" stroke="#e0b894" stroke-width="4.5" stroke-linecap="round"/><rect x="906" y="594" width="26" height="36" rx="5" fill="#e0343e"/><rect x="908" y="610" width="22" height="3" fill="#fff" opacity=".4"/><rect x="908" y="628" width="22" height="22" fill="#d9c9a0"/><rect x="910" y="650" width="7" height="58" fill="#e8c2a0"/><rect x="921" y="650" width="7" height="58" fill="#e8c2a0"/><rect x="908" y="706" width="10" height="5" rx="2" fill="#7a5a3a"/><rect x="920" y="706" width="10" height="5" rx="2" fill="#7a5a3a"/><circle cx="919" cy="581" r="7" fill="#eac7a6"/><path d="M911.5 581C910 568 928 568 926.5 581C925 575 913 575 911.5 581Z" fill="#5a3a22"/>',
+ whale:'<path d="M966 698C960 676 972 640 990 610C1008 580 1022 552 1030 536L1034 527C1040 530 1040 540 1036 548C1030 560 1030 574 1024 596C1016 630 996 672 975 698C972 702 968 702 966 698Z" fill="#3f87c0" stroke="#24608f" stroke-width="1"/><path d="M1028 570L1020 600L1010 640L996 676M1024 560L1012 596L1000 636" stroke="#dbe9f5" stroke-width="2.2" fill="none"/><path d="M998 604L1022 594L1008 626Z" fill="#2f74a8"/><path d="M1030 530L1042 536L1034 528Z" fill="#2f74a8"/>',
+ tree:'<path d="M1057 500L1065 500L1066.5 712L1054.5 712Z" fill="#b5502e" stroke="#7d2f15" stroke-width=".8"/><path d="M1060 469L1052 498L1046 528L1056 520L1052 548L1060 538L1068 548L1065 520L1073 528L1068 498Z" fill="#1f5a2b" stroke="#12381a" stroke-width=".8"/>'
+};
+var ITEMS=[
+ {id:'nt',name:'Nguyên tử',x:163.2,y2:589,box:[130,583,214,636],labels:[['Nguyên',172,605,21,'#111'],['tử',176,632,21,'#111']],art:'',
+  info:'Nguyên tử là hạt vô cùng nhỏ, cấu tạo nên các phân tử. Trên Hình 18.2 nguyên tử nằm ở vạch ≈ 0,1 nm, ngoài dải quan sát của các loại kính được vẽ trong hình.'},
+ {id:'pt',name:'Phân tử nhỏ',x:216.7,y2:636,box:[186,640,244,764],labels:[['Phân tử',199,730,21,'#111'],['nhỏ',202,757,21,'#111']],art:ART.pt,
+  info:'Phân tử nhỏ (như nước, đường glucose) có kích thước cỡ vài phần mười đến 1 nm. Cần kính hiển vi điện tử mới quan sát được.'},
+ {id:'lip',name:'Lipid',x:256.6,y2:576,box:[224,580,270,642],labels:[['Lipid',245,634,17,'#555']],art:ART.lip,
+  info:'Phân tử lipid (chất béo) cỡ vài nm. Lipid là thành phần cấu tạo nên màng tế bào.'},
+ {id:'pro',name:'Protein',x:290.6,y2:632,box:[250,632,318,710],labels:[['Protein',290,707,20,'#4a4a4a']],art:ART.pro,
+  info:'Phân tử protein (chất đạm) cỡ vài nm đến hơn 10 nm. Protein tham gia cấu tạo và hoạt động của tế bào.'},
+ {id:'vir',name:'Virus',x:365.2,y2:568,box:[300,588,392,684],labels:[['Virus',355,677,20,'#666']],art:ART.vir,
+  info:'Virus có kích thước cỡ vài chục đến vài trăm nm, nhỏ hơn tế bào rất nhiều và không có cấu tạo tế bào. Phải dùng kính hiển vi điện tử.'},
+ {id:'luc',name:'Lục lạp',x:468.3,y2:554,box:[412,572,474,664],labels:[['Lục lạp',440,655,18,'#666']],art:ART.luc,
+  info:'Lục lạp là bào quan chứa chất diệp lục trong tế bào thực vật, cỡ vài µm; quan sát được bằng kính hiển vi quang học.'},
+ {id:'bac',name:'Vi khuẩn',x:495.3,y2:649,box:[450,640,522,730],labels:[['Vi khuẩn',502,721,21,'#666']],art:ART.bac,
+  info:'Tế bào vi khuẩn rất nhỏ, cỡ vài µm; chỉ quan sát thấy bằng kính hiển vi (quang học hoặc điện tử). Mắt thường không nhìn thấy.'},
+ {id:'tb',name:'Tế bào động vật và thực vật',x:570.4,y2:584,box:[536,512,724,708],labels:[],art:ART.tb,
+  info:'Tế bào động vật và thực vật cỡ vài chục µm. Trên thước, vạch này nằm trong dải của kính hiển vi quang học và nằm trước dải mắt thường, nên phải dùng kính hiển vi để quan sát.'},
+ {id:'egg',name:'Trứng cá',x:700,y2:586,box:[672,590,716,650],labels:[['Trứng cá',687,643,20,'#666']],art:ART.egg,
+  info:'Trứng cá là một tế bào rất lớn, cỡ milimét (mm), nên có thể quan sát bằng mắt thường. Đây là ví dụ tế bào nhìn thấy được không cần kính.'},
+ {id:'bird',name:'Chim ruồi',x:810.7,y2:565,box:[730,548,852,704],labels:[['Chim',798,671,22,'#444'],['ruồi',798,696,22,'#444']],art:ART.bird,
+  info:'Chim ruồi là sinh vật nhỏ nhất trong hình, kích thước cơ thể cỡ vài cm (khoảng 5 cm). Cơ thể gồm rất nhiều tế bào.'},
+ {id:'man',name:'Người',x:928.4,y2:570,box:[886,570,950,750],labels:[['Người',914,739,20,'#555']],art:ART.man,
+  info:'Cơ thể người cao cỡ 1–2 m, được cấu tạo từ hàng nghìn tỉ tế bào rất nhỏ.'},
+ {id:'whale',name:'Cá voi xanh',x:1019,y2:527,box:[954,522,1046,772],labels:[['Cá voi',991,738,22,'#222'],['xanh',990,764,22,'#222']],art:ART.whale,
+  info:'Cá voi xanh là động vật lớn nhất, dài khoảng 25–30 m. Dù rất lớn, cơ thể vẫn do các tế bào có kích thước nhỏ tạo nên.'},
+ {id:'tree',name:'Cây thông gỗ đỏ khổng lồ',x:1060.7,y2:468,box:[1042,466,1148,718],labels:[['Cây thông',1116,571,21,'#111'],['gỗ đỏ',1116,597,21,'#111'],['khổng lồ',1116,622,21,'#111']],art:ART.tree,
+  info:'Cây thông gỗ đỏ khổng lồ cao khoảng 100 m, thuộc loại sinh vật lớn nhất, nhưng vẫn được cấu tạo từ các tế bào.'}
+];
+var byId={}; ITEMS.forEach(function(it){it.nm=nmOfX(it.x);byId[it.id]=it});
+
+function buildScale(){
+  var s='<defs><radialGradient id="gEgg" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#f1d16a"/><stop offset=".6" stop-color="#b8861c"/><stop offset="1" stop-color="#7a5510"/></radialGradient><linearGradient id="gHead" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6fd3e8"/><stop offset="1" stop-color="#1f8fb0"/></linearGradient></defs>';
+  s+='<rect x="110" y="330" width="1090" height="480" fill="#fff"/>';
+  // thước
+  s+='<line x1="147" y1="370.5" x2="1154" y2="370.5" stroke="#333" stroke-width="1.5"/>';
+  var t='';
+  [0.08,0.09].forEach(function(m){var x=X0+DEC*Math.log10(m*10)+0;x=X0+DEC*(Math.log10(m)+1)-0;t+='<line x1="'+x+'" x2="'+x+'" y1="364.5" y2="370.5"/>'});
+  for(var d=-1;d<=12;d++){
+    var xm=X0+DEC*(d+1);
+    t+='<line class="maj" x1="'+xm+'" x2="'+xm+'" y1="360" y2="370.5" stroke-width="1.5"/>';
+    if(d<12) for(var m=2;m<=9;m++){var x=xm+DEC*Math.log10(m);if(x<1154)t+='<line x1="'+x+'" x2="'+x+'" y1="364.5" y2="370.5"/>'}
+  }
+  s+='<g stroke="#333" stroke-width="1">'+t+'</g>';
+  var L=[['0,1 nm',174.5,55],['1 nm',240.4,42],['10 nm',312.8,51],['100 nm',387.8,60],['1 µm',459.7,42],['10 µm',531.5,51],['100 µm',607.6,59],['1 mm',682,47.5],['1 cm',755,39],['0,1 m',827.4,43],['1 m',902.5,31],['10 m',973.7,34],['100 m',1054,48.6],['1 km',1126,41.6]];
+  L.forEach(function(l){s+='<text x="'+(l[1]-l[2]/2)+'" y="353" font-size="19" fill="#222" textLength="'+l[2]+'" lengthAdjust="spacingAndGlyphs">'+l[0]+'</text>'});
+  // dải công cụ
+  TOOLS.slice().reverse().forEach(function(T){
+    var hl=30,a=T.a,b=T.b,y=T.yc,hf=T.hf/2,hs=T.hs/2;
+    var p=[[a,y],[a+hl,y-hf],[a+hl,y-hs],[b-hl,y-hs],[b-hl,y-hf],[b,y],[b-hl,y+hf],[b-hl,y+hs],[a+hl,y+hs],[a+hl,y+hf]].map(function(q){return q.join(',')}).join(' ');
+    s+='<g class="band" id="band-'+T.id+'"><polygon points="'+p+'" fill="'+T.fill+'" stroke="#333" stroke-width=".9"/><text x="'+T.tx+'" y="'+(y+5.5)+'" font-size="15.5" text-anchor="middle" fill="#14264a">'+T.name.replace('Kính hiển vi quang học','Kính hiển vi quang học')+'</text></g>';
+  });
+  // vạch đứng
+  ITEMS.forEach(function(it){
+    s+='<g data-id="'+it.id+'"><line class="vhit" x1="'+it.x+'" x2="'+it.x+'" y1="372" y2="'+it.y2+'"/><line class="vline" id="vl-'+it.id+'" x1="'+it.x+'" x2="'+it.x+'" y1="372" y2="'+it.y2+'"/></g>';
+  });
+  // ô cam
+  s+='<rect x="558" y="513" width="164" height="64" fill="#f9c9a6"/><text x="641" y="539" font-size="16" text-anchor="middle" fill="#2b2b2b">Tế bào động vật</text><text x="641" y="561" font-size="16" text-anchor="middle" fill="#2b2b2b">và thực vật</text>';
+  // hình + nhãn
+  ITEMS.forEach(function(it){
+    var b=it.box;
+    s+='<g class="item" data-id="'+it.id+'" id="it-'+it.id+'" tabindex="0" role="button" aria-label="'+it.name+'"><rect x="'+b[0]+'" y="'+b[1]+'" width="'+(b[2]-b[0])+'" height="'+(b[3]-b[1])+'" fill="transparent"/>'+it.art;
+    it.labels.forEach(function(l){s+='<text x="'+l[1]+'" y="'+l[2]+'" font-size="'+l[3]+'" text-anchor="middle" fill="'+l[4]+'">'+l[0]+'</text>'});
+    s+='<rect class="outline" x="'+b[0]+'" y="'+b[1]+'" width="'+(b[2]-b[0])+'" height="'+(b[3]-b[1])+'" rx="8"/></g>';
+  });
+  // chú thích hình
+  s+='<rect x="285" y="768" width="136" height="28" rx="14" fill="#8dc63f"/><text x="353" y="788" font-size="17" font-weight="bold" font-style="italic" text-anchor="middle" fill="#fff">Hình 18.2</text><text x="433" y="789" font-size="20" font-style="italic" fill="#333">Kích thước các bậc cấu trúc của thế giới sống</text>';
+  // dấu chọn + con trỏ thước
+  s+='<g id="mk" pointer-events="none"><line id="mkLine" y1="340" y2="800" stroke="#e0245e" stroke-width="1.6" stroke-dasharray="5 4"/><polygon id="mkTri" fill="#e0245e" points="-7,358 7,358 0,372"/><g id="mkTag"><rect id="mkRect" y="800" height="0" rx="5" fill="#e0245e"/><text id="mkTxt" y="0" font-size="15" font-weight="bold" fill="#fff" text-anchor="middle"></text></g></g>';
+  $('svgScale').innerHTML=s;
+}
+buildScale();
+
+var sel=null, markX=null;
+function toolsAt(x){return TOOLS.filter(function(T){return x>=T.a&&x<=T.b}).map(function(T){return T.name})}
+function setMarker(x,fromSlider){
+  x=Math.max(X0,Math.min(1136,x)); markX=x;
+  var nm=nmOfX(x), txt='≈ '+fmtNm(nm);
+  $('mkLine').setAttribute('x1',x);$('mkLine').setAttribute('x2',x);
+  $('mkTri').setAttribute('transform','translate('+x+' 0)');
+  var tw=txt.length*9+16, tx=Math.max(120+tw/2,Math.min(1190-tw/2,x));
+  $('mkRect').setAttribute('x',tx-tw/2);$('mkRect').setAttribute('width',tw);$('mkRect').setAttribute('y',796);$('mkRect').setAttribute('height',22);
+  $('mkTxt').setAttribute('x',tx);$('mkTxt').setAttribute('y',812);$('mkTxt').textContent=txt;
+  if(!fromSlider)$('sizeRange').value=Math.round((x-X0)/(1136-X0)*1000);
+  $('sizeOut').textContent=txt;
+  var tl=toolsAt(x), near=ITEMS.slice().sort(function(a,b){return Math.abs(a.x-x)-Math.abs(b.x-x)})[0];
+  var h='<span class="chip">Vị trí thước: <b>'+txt+'</b></span>';
+  h+='<span class="chip '+(tl.length?'good':'bad')+'">Quan sát được bằng: <b>'+(tl.length?tl.join(' · '):'không thuộc dải nào trong hình')+'</b></span>';
+  h+='<span class="chip">Gần vạch: <b>'+near.name+'</b>'+(Math.abs(near.x-x)<8?' ✔':'')+'</span>';
+  $('scaleChips').innerHTML=h;
+  applyZoom();
+}
+function applyZoom(){
+  var z=+$('zoomRange').value; $('zoomOut').textContent=num(z,1)+'×';
+  var w=1090/z,h=480/z,cx=markX==null?655:markX,cy=460;
+  var vx=Math.max(110,Math.min(1200-w,cx-w/2)), vy=Math.max(330,Math.min(810-h,cy-h/2));
+  $('svgScale').setAttribute('viewBox',vx+' '+vy+' '+w+' '+h);
+}
+function selectItem(id,silent){
+  var it=byId[id]; if(!it)return; sel=id;
+  ITEMS.forEach(function(o){var g=$('it-'+o.id),l=$('vl-'+o.id);if(g)g.classList.toggle('sel',o.id===id);if(l)l.classList.toggle('sel',o.id===id)});
+  setMarker(it.x); if(!silent)sfx.select(); renderDesc();
+}
+$('svgScale').addEventListener('click',function(e){var g=e.target.closest('[data-id]');if(g)selectItem(g.getAttribute('data-id'))});
+$('svgScale').addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){var g=e.target.closest('[data-id]');if(g){e.preventDefault();selectItem(g.getAttribute('data-id'))}}});
+$('sizeRange').addEventListener('input',function(){sfx.tick();setMarker(X0+(+this.value)/1000*(1136-X0),true);var n=ITEMS.slice().sort(function(a,b){return Math.abs(a.x-markX)-Math.abs(b.x-markX)})[0]; if(Math.abs(n.x-markX)<4&&sel!==n.id){sel=n.id;ITEMS.forEach(function(o){$('it-'+o.id).classList.toggle('sel',o.id===sel);$('vl-'+o.id).classList.toggle('sel',o.id===sel)});renderDesc()}});
+$('zoomRange').addEventListener('input',function(){sfx.tick();applyZoom()});
+[['bandEye','eye'],['bandOpt','opt'],['bandEle','ele']].forEach(function(p){$(p[0]).addEventListener('change',function(){sfx.click();$('band-'+p[1]).style.opacity=this.checked?1:.12})});
+
+/* ===== HÌNH 18.1 · toạ độ theo ảnh trang 64 ===== */
+var CELLS=[
+ {id:'da',name:'Tế bào da ở người',cx:231.5,cy:1391.5,r:116.5,cap:'a) Tế bào da ở người',capx:214,fn:'Bảo vệ cơ thể',shape:'Dẹt, nhiều góc (đa giác), xếp sát nhau thành lớp.',info:'Tế bào da có dạng dẹt, nhiều cạnh, xếp khít nhau tạo thành lớp che phủ nên có chức năng bảo vệ cơ thể.'},
+ {id:'tk',name:'Tế bào thần kinh ở người',cx:504,cy:1391.5,r:116.5,cap:'b) Tế bào thần kinh ở người',capx:487,fn:'Dẫn truyền xung thần kinh',shape:'Thân hình sao, có nhiều nhánh dài.',info:'Tế bào thần kinh có thân tế bào và nhiều sợi nhánh dài toả ra, giúp nhận và truyền thông tin đi xa trong cơ thể.'},
+ {id:'vk',name:'Tế bào vi khuẩn',cx:760.5,cy:1391.5,r:116.5,cap:'c) Tế bào vi khuẩn',capx:764,fn:'Cơ thể đơn bào, sống tự do',shape:'Hình que ngắn, rất nhỏ.',info:'Vi khuẩn là cơ thể đơn bào, thường có dạng que (hoặc cầu, xoắn), rất nhỏ nên chỉ thấy khi dùng kính hiển vi.'},
+ {id:'la',name:'Tế bào ở lá cây',cx:1014,cy:1391.5,r:116.5,cap:'d) Tế bào ở lá cây',capx:1012,fn:'Quang hợp tạo chất hữu cơ',shape:'Dạng hộp chữ nhật, xếp thành hàng, chứa nhiều lục lạp.',info:'Tế bào lá cây có dạng hình hộp xếp cạnh nhau, chứa nhiều lục lạp (hạt xanh) để quang hợp.'}
+];
+function rnd(seed){var s=seed;return function(){s=(s*16807)%2147483647;return (s-1)/2147483646}}
+function cellArt(c){
+  var R=rnd(c.id.charCodeAt(0)*977+13), s='', cx=c.cx, cy=c.cy;
+  if(c.id==='da'){
+    s+='<rect x="'+(cx-130)+'" y="'+(cy-130)+'" width="260" height="260" fill="#b9664f"/>';
+    for(var row=-4;row<=4;row++)for(var col=-4;col<=4;col++){
+      var px=cx+col*62+(row%2?31:0)+(R()-.5)*12, py=cy+row*54+(R()-.5)*10, pts=[];
+      for(var k=0;k<6;k++){var a=Math.PI/3*k+Math.PI/6, rr=36+(R()-.5)*8; pts.push((px+Math.cos(a)*rr).toFixed(1)+','+(py+Math.sin(a)*rr).toFixed(1))}
+      var sh=Math.round(200+R()*30);
+      s+='<polygon points="'+pts.join(' ')+'" fill="rgb('+sh+','+(sh-62)+','+(sh-92)+')" stroke="#9a4a37" stroke-width="2.2"/><circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="'+(5+R()*4).toFixed(1)+'" fill="#b4543f" opacity=".55"/>';
+    }
+  } else if(c.id==='tk'){
+    s+='<rect x="'+(cx-130)+'" y="'+(cy-130)+'" width="260" height="260" fill="#0a0a0a"/>';
+    var br=[[-105,-70,-40,-30],[-108,30,-50,10],[-30,-118,-5,-50],[55,-118,30,-45],[112,-45,52,-20],[108,70,45,28],[10,118,5,55],[-60,110,-30,50]];
+    br.forEach(function(b){s+='<path d="M'+(cx+b[2])+' '+(cy+b[3])+' Q'+(cx+(b[0]+b[2])/2+12)+' '+(cy+(b[1]+b[3])/2-10)+' '+(cx+b[0])+' '+(cy+b[1])+'" stroke="#c9b92f" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M'+(cx+(b[0]+b[2])/2)+' '+(cy+(b[1]+b[3])/2)+' l14 -16 M'+(cx+(b[0]+b[2])/2)+' '+(cy+(b[1]+b[3])/2)+' l-10 -18" stroke="#b8a828" stroke-width="3" fill="none" stroke-linecap="round"/>'});
+    s+='<path d="M'+(cx-52)+' '+(cy-12)+' C'+(cx-40)+' '+(cy-48)+' '+(cx+20)+' '+(cy-58)+' '+(cx+52)+' '+(cy-22)+' C'+(cx+66)+' '+(cy+4)+' '+(cx+30)+' '+(cy+44)+' '+(cx-14)+' '+(cy+42)+' C'+(cx-50)+' '+(cy+36)+' '+(cx-60)+' '+(cy+12)+' '+(cx-52)+' '+(cy-12)+'Z" fill="#d7c63a" stroke="#8d7f14" stroke-width="2"/><circle cx="'+(cx-5)+'" cy="'+(cy-6)+'" r="20" fill="#eadd6a" opacity=".7"/>';
+  } else if(c.id==='vk'){
+    s+='<rect x="'+(cx-130)+'" y="'+(cy-130)+'" width="260" height="260" fill="#f08a1c"/>';
+    for(var i=0;i<22;i++){var x=cx+(R()-.5)*250,y=cy+(R()-.5)*250,a=R()*180,l=44+R()*30;
+      s+='<g transform="translate('+x.toFixed(1)+' '+y.toFixed(1)+') rotate('+a.toFixed(0)+')"><rect x="'+(-l/2)+'" y="-14" width="'+l+'" height="28" rx="14" fill="#f6a826" stroke="#d96d0c" stroke-width="2"/><rect x="'+(-l/2+7)+'" y="-9" width="'+(l-24)+'" height="8" rx="4" fill="#ffd36a" opacity=".8"/></g>'}
+  } else {
+    s+='<rect x="'+(cx-130)+'" y="'+(cy-130)+'" width="260" height="260" fill="#1a8f4a"/>';
+    for(var c2=-3;c2<=3;c2++){var wx=cx+c2*42-14+(R()-.5)*6;
+      s+='<rect x="'+wx.toFixed(1)+'" y="'+(cy-122)+'" width="38" height="244" fill="#2fb260" stroke="#0d6b35" stroke-width="3"/>';
+      for(var r2=0;r2<5;r2++){var wy=cy-112+r2*50+(R()-.5)*10; s+='<rect x="'+(wx+4).toFixed(1)+'" y="'+wy.toFixed(1)+'" width="30" height="'+(24+R()*14).toFixed(0)+'" rx="6" fill="'+(R()>.5?'#e9f6ea':'#79d79b')+'" opacity=".85"/><circle cx="'+(wx+9+R()*18).toFixed(1)+'" cy="'+(wy+8+R()*20).toFixed(1)+'" r="3.6" fill="#0a5a2c"/><circle cx="'+(wx+9+R()*18).toFixed(1)+'" cy="'+(wy+8+R()*20).toFixed(1)+'" r="3.2" fill="#0a5a2c"/>'}}
+  }
+  return s;
+}
+function buildShape(){
+  var s='<defs>'+CELLS.map(function(c){return '<clipPath id="cp-'+c.id+'"><circle cx="'+c.cx+'" cy="'+c.cy+'" r="'+c.r+'"/></clipPath>'}).join('')+'</defs><rect x="100" y="1262" width="1050" height="345" fill="#fff"/>';
+  CELLS.forEach(function(c){
+    s+='<g class="item" data-id="'+c.id+'" id="ci-'+c.id+'" tabindex="0" role="button" aria-label="'+c.name+'"><circle cx="'+c.cx+'" cy="'+c.cy+'" r="'+(c.r+8)+'" fill="transparent"/><g clip-path="url(#cp-'+c.id+')"><g id="cz-'+c.id+'">'+cellArt(c)+'</g></g>'
+      +'<circle class="outline" cx="'+c.cx+'" cy="'+c.cy+'" r="'+(c.r+5)+'" style="stroke-width:4"/>'
+      +'<text x="'+c.capx+'" y="1543" font-size="20" font-style="italic" text-anchor="middle" fill="#444">'+c.cap+'</text>'
+      +'<g class="fn" id="fn-'+c.id+'"><rect x="'+(c.cx-(c.fn.length*7.6+26)/2)+'" y="'+(c.cy+74)+'" width="'+(c.fn.length*7.6+26)+'" height="28" rx="14" fill="#000" opacity=".66"/><text x="'+c.cx+'" y="'+(c.cy+93)+'" font-size="14" text-anchor="middle" fill="#fff" textLength="'+(c.fn.length*7.6)+'" lengthAdjust="spacingAndGlyphs">'+c.fn+'</text></g></g>';
+  });
+  s+='<rect x="400" y="1568" width="136" height="30" rx="15" fill="#8dc63f"/><text x="468" y="1589" font-size="18" font-weight="bold" font-style="italic" text-anchor="middle" fill="#fff">Hình 18.1</text><text x="550" y="1590" font-size="21" fill="#333">Hình dạng một số loại tế bào</text>';
+  $('svgShape').innerHTML=s;
+}
+buildShape();
+var selCell=null;
+function selectCell(id,silent){
+  var c=CELLS.filter(function(x){return x.id===id})[0]; selCell=c; if(!silent)sfx.select();
+  CELLS.forEach(function(o){$('ci-'+o.id).classList.toggle('sel',o.id===id)});
+  $('cellZoom').value=1; applyCellZoom();
+  $('shapeChips').innerHTML='<span class="chip"><b>'+c.name+'</b></span><span class="chip">Hình dạng: <b>'+c.shape+'</b></span><span class="chip good">Chức năng: <b>'+c.fn+'</b></span>';
+  renderDesc();
+}
+function applyCellZoom(){
+  var z=+$('cellZoom').value; $('cellZoomOut').textContent=num(z,1)+'×';
+  CELLS.forEach(function(c){var k=(selCell&&selCell.id===c.id)?z:1;$('cz-'+c.id).setAttribute('transform','translate('+c.cx+' '+c.cy+') scale('+k+') translate('+(-c.cx)+' '+(-c.cy)+')')});
+}
+$('svgShape').addEventListener('click',function(e){var g=e.target.closest('[data-id]');if(g)selectCell(g.getAttribute('data-id'))});
+$('svgShape').addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){var g=e.target.closest('[data-id]');if(g){e.preventDefault();selectCell(g.getAttribute('data-id'))}}});
+$('cellZoom').addEventListener('input',function(){sfx.tick();if(!selCell)selectCell('da',true);applyCellZoom()});
+$('showFn').addEventListener('change',function(){sfx.click();CELLS.forEach(function(c){$('fn-'+c.id).style.display=$('showFn').checked?'':'none'})});
+
+/* ===== S/V: mô phỏng ===== */
+var SV={shape:'cube',L:3,need:1},parts=[],raf=null,CX=250,CY=340,PX=17;
+function svCalc(L,shape){shape=shape||SV.shape; if(shape==='cube')return {S:6*L*L,V:L*L*L,R:6/L}; return {S:4*Math.PI*L*L,V:4/3*Math.PI*L*L*L,R:3/L}}
+function svMax(shape){return svCalc(10,shape)}
+function svRatioMax(shape){return svCalc(1,shape).R}
+function svDraw(){
+  var c=svCalc(SV.L), f=Math.min(1,c.R/SV.need), ok=c.R>=SV.need, cube=SV.shape==='cube';
+  var s='<rect width="1000" height="720" fill="#fff"/>';
+  s+='<text x="24" y="46" font-size="40" font-weight="bold" fill="#00606f">Tế bào lớn lên: nguyên liệu vào qua</text><text x="24" y="92" font-size="40" font-weight="bold" fill="#00606f">bề mặt (S), nhu cầu theo thể tích (V)</text>';
+  var half;
+  if(cube){
+    var sd=PX*SV.L, d=.35*sd, fx=CX-sd/2-d/2, fy=CY-sd/2+d/2; half=sd/2;
+    s+='<polygon points="'+fx+','+fy+' '+(fx+d)+','+(fy-d)+' '+(fx+sd+d)+','+(fy-d)+' '+(fx+sd)+','+fy+'" fill="#e3f2d6" stroke="#3d7a2e" stroke-width="2"/>'
+     +'<polygon points="'+(fx+sd)+','+fy+' '+(fx+sd+d)+','+(fy-d)+' '+(fx+sd+d)+','+(fy+sd-d)+' '+(fx+sd)+','+(fy+sd)+'" fill="#a9cf98" stroke="#3d7a2e" stroke-width="2"/>'
+     +'<rect x="'+fx+'" y="'+fy+'" width="'+sd+'" height="'+sd+'" fill="#cfe8c0" stroke="#3d7a2e" stroke-width="2"/>'
+     +'<circle cx="'+(fx+sd/2)+'" cy="'+(fy+sd/2)+'" r="'+((1-f)*sd/2*.88)+'" fill="#5b4a6a" opacity=".55"/>'
+     +'<circle cx="'+(fx+sd/2)+'" cy="'+(fy+sd/2)+'" r="'+Math.max(3,sd*.07)+'" fill="#6a6aa8"/>'
+     +'<text x="'+(fx+sd/2)+'" y="'+(fy+sd+34)+'" font-size="22" font-weight="bold" text-anchor="middle" fill="#222">cạnh L = '+num(SV.L,1)+'</text>';
+  } else {
+    var r=PX*SV.L; half=r;
+    s+='<defs><radialGradient id="gSph" cx=".38" cy=".35" r=".85"><stop offset="0" stop-color="#e6f5d8"/><stop offset="1" stop-color="#8fc47a"/></radialGradient></defs><circle cx="'+CX+'" cy="'+CY+'" r="'+r+'" fill="url(#gSph)" stroke="#3d7a2e" stroke-width="2"/>'
+     +'<circle cx="'+CX+'" cy="'+CY+'" r="'+((1-f)*r*.9)+'" fill="#5b4a6a" opacity=".55"/><circle cx="'+CX+'" cy="'+CY+'" r="'+Math.max(3,r*.1)+'" fill="#6a6aa8"/>'
+     +'<text x="'+CX+'" y="'+(CY+r+34)+'" font-size="22" font-weight="bold" text-anchor="middle" fill="#222">bán kính r = '+num(SV.L,1)+'</text>';
+  }
+  s+='<g id="parts"></g>';
+  s+='<text x="24" y="654" font-size="20" fill="#333">● Chấm xanh: oxygen, chất dinh dưỡng vào qua bề mặt</text><text x="24" y="686" font-size="20" fill="#5b4a6a">● Vùng tím: phần tế bào bị thiếu cung cấp</text>';
+  var mx=svMax(SV.shape), bx=520, bw=280;
+  function bar(y,label,val,max,col,txt){return '<text x="'+bx+'" y="'+(y-9)+'" font-size="20" fill="#222">'+label+'</text><rect x="'+bx+'" y="'+y+'" width="'+bw+'" height="26" rx="5" fill="#e6ece6"/><rect x="'+bx+'" y="'+y+'" width="'+Math.max(2,bw*val/max)+'" height="26" rx="5" fill="'+col+'"/><text x="'+(bx+bw+10)+'" y="'+(y+21)+'" font-size="20" font-weight="bold" fill="#111">'+txt+'</text>'}
+  s+=bar(162,'Bề mặt S (nguyên liệu vào ∝ S)',c.S,mx.S,'#2f9a8a','S = '+num(c.S,1));
+  s+=bar(224,'Thể tích V (nhu cầu ∝ V)',c.V,mx.V,'#d9772b','V = '+num(c.V,1));
+  s+=bar(286,'Tỉ lệ S/V (bề mặt trên mỗi đơn vị thể tích)',c.R,svRatioMax(SV.shape),ok?'#2e8b3d':'#c0392b','S/V = '+num(c.R,2));
+  var gx0=570,gx1=950,gy0=420,gy1=610,ym=svRatioMax(SV.shape)*1.05;
+  var X=function(L){return gx0+(L-1)/9*(gx1-gx0)}, Y=function(v){return gy1-v/ym*(gy1-gy0)};
+  s+='<text x="'+bx+'" y="350" font-size="22" font-weight="bold" fill="'+(ok?'#1f6b2c':'#8f2418')+'">'+(ok?'✔ Đủ trao đổi chất':'✘ Thiếu trao đổi chất')+'</text>';
+  s+='<text x="'+bx+'" y="392" font-size="20" font-weight="bold" fill="#00606f">S/V giảm khi tế bào lớn lên</text>';
+  var need=Math.min(SV.need,ym), Lmax=(SV.shape==='cube'?6:3)/SV.need;
+  if(Lmax<10){var xl=X(Math.max(1,Lmax)); s+='<rect x="'+xl+'" y="'+gy0+'" width="'+(gx1-xl)+'" height="'+(gy1-gy0)+'" fill="#f8d9d4" opacity=".7"/>'}
+  s+='<line x1="'+gx0+'" y1="'+gy1+'" x2="'+gx1+'" y2="'+gy1+'" stroke="#333" stroke-width="1.5"/><line x1="'+gx0+'" y1="'+gy0+'" x2="'+gx0+'" y2="'+gy1+'" stroke="#333" stroke-width="1.5"/>';
+  for(var L=1;L<=10;L++)s+='<line x1="'+X(L)+'" y1="'+gy1+'" x2="'+X(L)+'" y2="'+(gy1+5)+'" stroke="#333"/><text x="'+X(L)+'" y="'+(gy1+26)+'" font-size="20" text-anchor="middle" fill="#222">'+L+'</text>';
+  var rm=svRatioMax(SV.shape);
+  [0,rm/2,rm].forEach(function(t){s+='<line x1="'+(gx0-5)+'" y1="'+Y(t)+'" x2="'+gx0+'" y2="'+Y(t)+'" stroke="#333"/><text x="'+(gx0-9)+'" y="'+(Y(t)+7)+'" font-size="20" text-anchor="end" fill="#222">'+num(t,1)+'</text>'});
+  var pts=[];for(var l=1;l<=10.001;l+=.25)pts.push(X(l).toFixed(1)+','+Y(svCalc(l).R).toFixed(1));
+  s+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="#2f9a8a" stroke-width="3.5"/>';
+  s+='<line x1="'+gx0+'" y1="'+Y(need)+'" x2="'+gx1+'" y2="'+Y(need)+'" stroke="#c0392b" stroke-width="2" stroke-dasharray="6 4"/><text x="'+(gx1-4)+'" y="'+(Y(need)-8)+'" font-size="20" text-anchor="end" fill="#c0392b">ngưỡng = '+num(SV.need,1)+'</text>';
+  s+='<circle cx="'+X(SV.L)+'" cy="'+Y(c.R)+'" r="8" fill="'+(ok?'#2e8b3d':'#c0392b')+'" stroke="#fff" stroke-width="2"/>';
+  s+='<text x="'+((gx0+gx1)/2)+'" y="'+(gy1+56)+'" font-size="20" text-anchor="middle" fill="#222">'+(cube?'Cạnh L':'Bán kính r')+' (đơn vị)</text>';
+  var o=$('svgSV'); o.innerHTML=s;
+  $('svLname').textContent=cube?'Cạnh L':'Bán kính r'; $('svLout').textContent=num(SV.L,1); $('svNeedOut').textContent=num(SV.need,1);
+  $('svChips').innerHTML='<span class="chip">S = <b>'+num(c.S,1)+'</b></span><span class="chip">V = <b>'+num(c.V,1)+'</b></span><span class="chip">S/V = <b>'+num(c.R,2)+'</b></span><span class="chip '+(ok?'good':'bad')+'"><b>'+(ok?'Đủ trao đổi chất':'Thiếu trao đổi chất')+'</b></span><span class="chip">Kích thước tối đa để đủ: <b>'+num((cube?6:3)/SV.need,1)+'</b></span>';
+  SV._half=half; SV._cube=cube; SV._flux=Math.round(4+(c.S/mx.S)*26);
+  renderDescSV();
+}
+function svParticles(){
+  var g=$('parts'); if(!g)return; var half=SV._half, cube=SV._cube;
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  while(parts.length<SV._flux){var a=Math.random()*Math.PI*2,d=195+Math.random()*35;parts.push({x:CX+Math.cos(a)*d,y:CY+Math.sin(a)*d,v:.8+Math.random()*1.2})}
+  while(parts.length>SV._flux)parts.pop();
+  var h='';
+  parts.forEach(function(p){
+    if(!reduce){var dx=CX-p.x,dy=CY-p.y,dist=Math.hypot(dx,dy);p.x+=dx/dist*p.v;p.y+=dy/dist*p.v;
+      var inside=cube?(Math.abs(dx)<half+8&&Math.abs(dy)<half+8):dist<half;
+      if(inside){var a=Math.random()*Math.PI*2,d=195+Math.random()*35;p.x=CX+Math.cos(a)*d;p.y=CY+Math.sin(a)*d}}
+    h+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="4" fill="#22a65a" stroke="#fff" stroke-width="1"/>';
+  });
+  g.innerHTML=h;
+}
+function svLoop(){ if(mode!=='sv'){raf=null;return} svParticles(); raf=requestAnimationFrame(svLoop) }
+$('shapeSeg').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;SV.shape=b.dataset.s;Array.prototype.forEach.call(this.children,function(x){x.setAttribute('aria-pressed',x===b)});sfx.click();svDraw()});
+$('svL').addEventListener('input',function(){SV.L=+this.value;sfx.tick();svDraw()});
+$('svNeed').addEventListener('input',function(){SV.need=+this.value;sfx.tick();svDraw()});
+$('svDouble').onclick=function(){SV.L=Math.min(10,SV.L*2);$('svL').value=SV.L;sfx.click();svDraw()};
+$('svHalf').onclick=function(){SV.L=Math.max(1,SV.L/2);$('svL').value=SV.L;sfx.click();svDraw()};
+svDraw();
+
+/* ===== Chế độ ===== */
+var mode='scale';
+function setMode(m){
+  mode=m; sfx.click();
+  [['scale','svgScale','c-scale','m-scale'],['shape','svgShape','c-shape','m-shape'],['sv','svgSV','c-sv','m-sv']].forEach(function(a){
+    var on=a[0]===m; $(a[1]).toggleAttribute('hidden',!on); $(a[2]).toggleAttribute('hidden',!on); $(a[3]).setAttribute('aria-selected',on)});
+  if(m==='sv'&&!raf)raf=requestAnimationFrame(svLoop);
+  renderDesc();
+}
+$('m-scale').onclick=function(){setMode('scale')};$('m-shape').onclick=function(){setMode('shape')};$('m-sv').onclick=function(){setMode('sv')};
+
+/* ===== Tab bên phải ===== */
+function setTab(t){
+  sfx.click();
+  [['desc','t-desc','p-desc'],['rev','t-rev','p-rev'],['quiz','t-quiz','p-quiz']].forEach(function(a){var on=a[0]===t;$(a[1]).setAttribute('aria-selected',on);$(a[2]).hidden=!on});
+}
+$('t-desc').onclick=function(){setTab('desc')};$('t-rev').onclick=function(){setTab('rev')};$('t-quiz').onclick=function(){setTab('quiz')};
+
+/* ===== Nội dung mô tả ===== */
+var LESSON='<h3>Mục tiêu bài học</h3><ul><li>Nêu được khái niệm, chức năng của tế bào.</li><li>Nhận biết được tế bào là đơn vị cấu trúc của sự sống.</li><li>Nêu được hình dạng và kích thước của một số loại tế bào.</li></ul>'
++'<h3>I. Tế bào là gì?</h3><p>Tất cả các cơ thể sinh vật (thực vật, động vật, con người,…) đều được cấu tạo từ những đơn vị rất nhỏ bé, gọi là <b>tế bào</b>.</p><p>Tuy có kích thước nhỏ nhưng tế bào có thể thực hiện đầy đủ các quá trình sống cơ bản như sinh trưởng (lớn lên), hấp thụ chất dinh dưỡng, hô hấp, cảm ứng, bài tiết và sinh sản.</p><div class="q">❓ Tại sao tế bào được coi là đơn vị cơ bản của các cơ thể sống?</div>'
++'<h3>II. Hình dạng và kích thước tế bào</h3><h4>1. Hình dạng tế bào</h4><p>Có nhiều loại tế bào. Hình dạng các loại tế bào thường phản ánh chức năng khác nhau của chúng. (Hình 18.1: tế bào da, tế bào thần kinh, tế bào vi khuẩn, tế bào lá cây.)</p>'
++'<h4>2. Kích thước tế bào</h4><p>Kích thước tế bào khác nhau giữa các nhóm sinh vật và giữa các cơ quan trong một cơ thể.</p><p>Có rất ít tế bào đủ lớn để quan sát được bằng mắt thường, hầu hết tế bào đều rất nhỏ và chỉ có thể quan sát thấy bằng kính hiển vi.</p><div class="q">❓ Quan sát kích thước tế bào vi khuẩn, tế bào động vật và thực vật trong Hình 18.2, cho biết tế bào nào phải quan sát bằng kính hiển vi, tế bào nào có thể quan sát bằng mắt thường?</div>'
++'<h3>Em có biết?</h3><h4>Tế bào đầu tiên được nhìn thấy và mô tả như thế nào?</h4><p>Năm 1665, nhà khoa học người Anh Robert Hooke dùng kính hiển vi đơn giản (Hình 18.3a) quan sát một mẫu vỏ cây và thấy nó được tạo nên từ hàng trăm cấu trúc giống những hộp nhỏ mà ông gọi là “tế bào”. Ông vẽ hình ảnh đầu tiên về tế bào (Hình 18.3b): đó là những tế bào chết của vỏ cây, ngày nay quan sát rõ hơn bằng kính hiển vi có độ phóng đại 300 lần (Hình 18.3c).</p>'
++'<h4>Tại sao hầu hết các tế bào có kích thước rất nhỏ?</h4><p>Kích thước tế bào bị hạn chế bởi mối quan hệ giữa diện tích bề mặt (S) và thể tích (V), tức tỉ lệ S/V. Khi tế bào lớn lên, thể tích tăng nhanh hơn nhiều so với diện tích bề mặt.</p><p>Oxygen, chất dinh dưỡng và chất thải (như carbon dioxide) phải đi vào, đi ra qua bề mặt tế bào, nên nếu tế bào quá lớn thì các chất ra vào không đủ về lượng và tốc độ theo yêu cầu của các quá trình sống. Vì vậy, hầu hết tế bào có kích thước rất nhỏ.</p>';
+function renderDesc(){
+  var h='';
+  if(mode==='scale'){
+    if(sel){var it=byId[sel],tl=toolsAt(it.x);
+      h+='<div class="sel-card"><h2>'+it.name+'</h2><div class="kv"><span>Vị trí trên thước</span><b>≈ '+fmtNm(it.nm)+'</b></div><div class="kv"><span>Quan sát bằng</span><b>'+(tl.length?tl.join(', '):'không thuộc dải nào trong hình')+'</b></div><p style="margin:6px 0 0">'+it.info+'</p></div>';}
+    else h+='<div class="sel-card"><h2>Hình 18.2</h2><p style="margin:0">Bấm vào một sinh vật, tế bào hoặc phân tử trên thước để xem kích thước và dụng cụ quan sát. Kéo thanh “Kích thước vật thể” để xem vật có kích thước đó cần kính nào.</p></div>';
+  } else if(mode==='shape'){
+    if(selCell)h+='<div class="sel-card"><h2>'+selCell.name+'</h2><div class="kv"><span>Hình dạng</span><b>'+selCell.shape+'</b></div><div class="kv"><span>Chức năng</span><b>'+selCell.fn+'</b></div><p style="margin:6px 0 0">'+selCell.info+'</p></div>';
+    else h+='<div class="sel-card"><h2>Hình 18.1</h2><p style="margin:0">Hình dạng các loại tế bào thường phản ánh chức năng khác nhau của chúng. Bấm vào từng hình tròn để xem chi tiết.</p></div>';
+  } else h+='<div id="svCard"></div>';
+  h+=LESSON; var p=$('p-desc'),st=p.scrollTop; p.innerHTML=h; p.scrollTop=st; if(mode==='sv')renderDescSV();
+}
+function renderDescSV(){
+  var el=$('svCard'); if(!el||mode!=='sv')return; var c=svCalc(SV.L),ok=c.R>=SV.need;
+  el.innerHTML='<div class="sel-card"><h2>Mô phỏng tỉ lệ S/V</h2><div class="kv"><span>S (diện tích bề mặt)</span><b>'+num(c.S,1)+'</b></div><div class="kv"><span>V (thể tích)</span><b>'+num(c.V,1)+'</b></div><div class="kv"><span>S/V</span><b>'+num(c.R,2)+'</b></div><p style="margin:6px 0 0">'+(ok?'Bề mặt còn đủ lớn so với thể tích: oxygen, chất dinh dưỡng vào kịp, chất thải ra kịp.':'Thể tích tăng nhanh hơn bề mặt: vùng giữa tế bào thiếu chất, nên hầu hết tế bào phải có kích thước rất nhỏ.')+'</p><p style="margin:6px 0 0;font-size:12.5px;color:var(--muted)">Thử bấm “Tế bào lớn gấp đôi ×2”: S tăng 4 lần, V tăng 8 lần, S/V giảm một nửa.</p></div>';
+}
+
+/* ===== Ôn tập ===== */
+var CARDS=[
+ ['Tế bào là gì?','Đơn vị rất nhỏ cấu tạo nên mọi cơ thể sinh vật; là đơn vị cơ bản của sự sống.'],
+ ['Tế bào thực hiện được những quá trình sống nào?','Sinh trưởng, hấp thụ chất dinh dưỡng, hô hấp, cảm ứng, bài tiết, sinh sản.'],
+ ['Hình dạng tế bào phản ánh điều gì?','Chức năng khác nhau của từng loại tế bào.'],
+ ['Tế bào thần kinh có hình dạng thế nào?','Thân có nhiều nhánh dài, giúp truyền thông tin.'],
+ ['Tế bào nào quan sát được bằng mắt thường (Hình 18.2)?','Tế bào trứng cá (cỡ mm). Tế bào vi khuẩn, động vật, thực vật phải dùng kính hiển vi.'],
+ ['Ai là người đầu tiên mô tả tế bào, vào năm nào?','Robert Hooke, năm 1665, quan sát vỏ cây (tế bào chết) bằng kính hiển vi đơn giản.'],
+ ['Vì sao hầu hết tế bào rất nhỏ?','Kích thước bị giới hạn bởi tỉ lệ S/V: tế bào lớn thì S/V giảm, chất ra vào không đủ nhu cầu.'],
+ ['Khi tế bào lớn lên, S/V thay đổi thế nào?','Giảm, vì thể tích tăng nhanh hơn nhiều so với diện tích bề mặt.']
+];
+function renderRev(){
+  var h='<h3 style="margin-top:0">Em đã học</h3><ul><li>Mọi cơ thể sống đều được cấu tạo từ tế bào, vì vậy tế bào được xem là “đơn vị cơ bản của sự sống”.</li><li>Các loại tế bào khác nhau về hình dạng và kích thước.</li></ul><div class="q">Em có thể: giải thích được vì sao mỗi loại tế bào lại có hình dạng khác nhau.</div>';
+  h+='<h3>Thẻ ôn tập (bấm để lật)</h3><div class="fc-grid">'+CARDS.map(function(c,i){return '<button class="fc" data-i="'+i+'"><div class="t">'+esc(c[0])+'</div><div class="b">'+esc(c[1])+'</div></button>'}).join('')+'</div>';
+  h+='<h3>Gợi ý trả lời câu hỏi trong bài</h3>'
+   +'<details><summary>Tại sao tế bào được coi là đơn vị cơ bản của các cơ thể sống?</summary><p>Vì mọi cơ thể sống đều cấu tạo từ tế bào và tế bào thực hiện đầy đủ các quá trình sống cơ bản.</p></details>'
+   +'<details><summary>Quan sát Hình 18.1, nhận xét về hình dạng tế bào.</summary><p>Tế bào có nhiều hình dạng: dẹt nhiều góc (da), nhiều nhánh (thần kinh), hình que (vi khuẩn), hình hộp (lá cây). Hình dạng phản ánh chức năng.</p></details>'
+   +'<details><summary>Tế bào nào phải quan sát bằng kính hiển vi, tế bào nào quan sát bằng mắt thường?</summary><p>Vi khuẩn, tế bào động vật và thực vật phải quan sát bằng kính hiển vi. Chỉ rất ít tế bào đủ lớn để nhìn bằng mắt thường, ví dụ trứng cá.</p></details>'
+   +'<details><summary>Phát biểu của bạn nào đúng?</summary><p><b>Bạn D</b> đúng: các loại tế bào khác nhau thường có kích thước và hình dạng khác nhau. A, B, C sai: tế bào có thể giống nhau về hình dạng (vd. nhiều tế bào lá cây đều hộp chữ nhật) nhưng kích thước vẫn khác nhau, và không phải loại nào cũng cùng kích thước (vd. trứng cá lớn hơn tế bào vi khuẩn rất nhiều). Ví dụ tế bào thần kinh nhiều nhánh khác hẳn tế bào da dẹt, nên hình dạng không giống nhau.</p></details>';
+  var p=$('p-rev'); p.innerHTML=h;
+  p.querySelectorAll('.fc').forEach(function(b){b.onclick=function(){b.classList.toggle('flip');sfx.click()}});
+}
+
+/* ===== Trắc nghiệm ===== */
+var QS=[
+ {q:'Đơn vị cơ bản cấu tạo nên cơ thể sinh vật là gì?',o:['Mô','Tế bào','Cơ quan','Hệ cơ quan'],a:1,e:'Mọi cơ thể sinh vật đều được cấu tạo từ tế bào.'},
+ {q:'Tế bào có thể thực hiện đầy đủ các quá trình sống nào sau đây?',o:['Chỉ sinh trưởng','Chỉ hô hấp và bài tiết','Sinh trưởng, hấp thụ dinh dưỡng, hô hấp, cảm ứng, bài tiết, sinh sản','Chỉ sinh sản'],a:2,e:'Tế bào thực hiện đầy đủ các quá trình sống cơ bản nên là đơn vị cơ bản của sự sống.'},
+ {q:'Hình dạng của các loại tế bào thường phản ánh điều gì?',o:['Tuổi của tế bào','Màu sắc của tế bào','Chức năng khác nhau của chúng','Vị trí trong không gian'],a:2,e:'Hình dạng tế bào gắn với chức năng, ví dụ tế bào thần kinh nhiều nhánh để truyền thông tin.'},
+ {q:'Tế bào nào có hình dạng nhiều nhánh dài?',o:['Tế bào da ở người','Tế bào thần kinh ở người','Tế bào vi khuẩn','Tế bào ở lá cây'],a:1,e:'Tế bào thần kinh có thân và nhiều sợi nhánh dài (Hình 18.1b).'},
+ {q:'Theo Hình 18.2, loại tế bào nào có thể quan sát bằng mắt thường?',o:['Tế bào vi khuẩn','Virus','Tế bào trứng cá','Tế bào động vật và thực vật'],a:2,e:'Trứng cá cỡ mm nằm trong dải “Mắt thường”; các tế bào còn lại phải dùng kính hiển vi.'},
+ {q:'Muốn quan sát tế bào vi khuẩn cần dùng dụng cụ nào?',o:['Mắt thường','Kính lúp cầm tay','Kính hiển vi','Ống nhòm'],a:2,e:'Vi khuẩn rất nhỏ (cỡ µm), chỉ thấy bằng kính hiển vi.'},
+ {q:'Trong 4 ý kiến A, B, C, D ở bài, phát biểu nào đúng?',o:['A','B','C','D'],a:3,e:'D: các loại tế bào khác nhau thường có kích thước và hình dạng khác nhau.'},
+ {q:'Ai là người đầu tiên quan sát và mô tả tế bào vào năm 1665?',o:['Robert Hooke','Louis Pasteur','Charles Darwin','Gregor Mendel'],a:0,e:'Robert Hooke quan sát vỏ cây bằng kính hiển vi đơn giản và gọi các “hộp nhỏ” là tế bào.'},
+ {q:'Vì sao hầu hết các tế bào có kích thước rất nhỏ?',o:['Vì tế bào không thể lớn lên','Vì tỉ lệ S/V giảm khi tế bào lớn, chất ra vào không đủ nhu cầu','Vì tế bào không có thể tích','Vì mắt thường không nhìn thấy'],a:1,e:'Chất ra vào qua bề mặt, nhu cầu theo thể tích; tế bào lớn thì S/V giảm.'},
+ {q:'Khi tế bào lớn lên, thể tích và diện tích bề mặt thay đổi thế nào?',o:['Cả hai tăng như nhau','Diện tích tăng nhanh hơn thể tích','Thể tích tăng nhanh hơn nhiều so với diện tích bề mặt','Cả hai không đổi'],a:2,e:'Với khối lập phương: S = 6L², V = L³ nên V tăng nhanh hơn S.'}
+];
+var qs={i:0,score:0,ans:false,order:[]};
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function quizStart(){qs={i:0,score:0,ans:false,order:shuffle(QS.map(function(_,i){return i}))};renderQuiz()}
+function renderQuiz(){
+  var p=$('p-quiz'),h='';
+  if(qs.i>=QS.length){
+    var pct=Math.round(qs.score/QS.length*100);
+    h='<div class="sel-card" style="text-align:center"><div class="score">'+qs.score+' / '+QS.length+'</div><p>'+(pct>=80?'Xuất sắc! Em đã nắm vững bài học.':pct>=50?'Khá tốt! Hãy xem lại phần Ôn tập để chắc hơn.':'Cố lên! Em hãy đọc lại bài và thử lần nữa.')+'</p><button class="btn" id="qRetry">Làm lại</button></div>';
+    p.innerHTML=h; $('qRetry').onclick=function(){sfx.click();quizStart()}; return;
+  }
+  var q=QS[qs.order[qs.i]];
+  h='<div class="progress"><i style="width:'+(qs.i/QS.length*100)+'%"></i></div><p style="color:var(--muted);font-size:12.5px;margin-bottom:4px">Câu '+(qs.i+1)+'/'+QS.length+' · Điểm: '+qs.score+'</p><h4 style="margin-top:0">'+esc(q.q)+'</h4>';
+  var order=q._o||(q._o=(q.o.length===4&&q.q.indexOf('A, B, C, D')>0?[0,1,2,3]:shuffle(q.o.map(function(_,i){return i}))));
+  order.forEach(function(oi){h+='<button class="opt" data-o="'+oi+'">'+esc(q.o[oi])+'</button>'});
+  h+='<div id="qFb"></div>'; p.innerHTML=h;
+  p.querySelectorAll('.opt').forEach(function(b){b.onclick=function(){
+    if(qs.ans)return; qs.ans=true; var o=+b.dataset.o, ok=o===q.a;
+    p.querySelectorAll('.opt').forEach(function(x){x.disabled=true;if(+x.dataset.o===q.a)x.classList.add('right')});
+    if(ok){qs.score++;sfx.good()}else{b.classList.add('wrong');sfx.bad()}
+    $('qFb').innerHTML='<div class="expl"><b>'+(ok?'Chính xác! ':'Chưa đúng. ')+'</b>'+esc(q.e)+'</div><p style="margin-top:10px"><button class="btn" id="qNext">'+(qs.i+1<QS.length?'Câu tiếp theo →':'Xem kết quả')+'</button></p>';
+    $('qNext').onclick=function(){sfx.click();qs.i++;qs.ans=false;QS.forEach(function(x){delete x._o});renderQuiz()};
+  }});
+}
+
+/* ===== Khởi động ===== */
+renderRev(); quizStart();
+selectItem('egg',true);
+document.addEventListener('pointerdown',function f(){AC();document.removeEventListener('pointerdown',f)},{once:true});
+})();
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Chặn phím tắt: F12, Ctrl+U, Ctrl+Shift+I/J/C, Ctrl+S
+    document.addEventListener('keydown', function(e) {
+      const key = e.key.toLowerCase();
+
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) || 
+        (e.ctrlKey && (key === 'u' || key === 's'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 2. Chặn chuột phải (Context Menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  });
+</script>
+</body>
+</html>

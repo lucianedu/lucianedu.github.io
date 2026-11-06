@@ -1,0 +1,759 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Tốc độ và An toàn giao thông</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: mô hình tương tác chiếm 3/4 bên trái, bảng tab cuộn riêng chiếm 1/4 bên phải. Phong cách biển báo đường bộ. */
+:root{
+  --bg:#e9edf1; --surface:#ffffff; --surface2:#f1f4f7; --ink:#13202b; --muted:#566676; --line:#d2dae1;
+  --accent:#e8731a; --accent-ink:#ffffff; --blue:#0d5a8c; --blue-soft:#d9eaf5; --good:#16874a; --good-soft:#d8f0e2;
+  --bad:#cf3329; --bad-soft:#fbe0dd; --road:#2b3640; --road-line:#f2f4f6; --grass:#cfe3c4; --sky:#dcecf7;
+  --display:'Barlow Condensed','Arial Narrow',sans-serif; --body:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0c1319; --surface:#16212a; --surface2:#1d2b36; --ink:#e8eef3; --muted:#9fb0bd; --line:#2b3a46;
+  --accent:#f08a35; --accent-ink:#1a1006; --blue:#6bb8ea; --blue-soft:#17384e; --good:#4cc582; --good-soft:#143a28;
+  --bad:#ff7a6e; --bad-soft:#47201d; --road:#1e272f; --road-line:#d8dee3; --grass:#1f3a2a; --sky:#14283a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c1319; --surface:#16212a; --surface2:#1d2b36; --ink:#e8eef3; --muted:#9fb0bd; --line:#2b3a46;
+  --accent:#f08a35; --accent-ink:#1a1006; --blue:#6bb8ea; --blue-soft:#17384e; --good:#4cc582; --good-soft:#143a28;
+  --bad:#ff7a6e; --bad-soft:#47201d; --road:#1e272f; --road-line:#d8dee3; --grass:#1f3a2a; --sky:#14283a; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.55;
+  padding-block:10px;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));overflow:hidden}
+button,select,input{font-family:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.app{height:100%;display:grid;grid-template-columns:minmax(0,3fr) minmax(300px,1fr);gap:12px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;min-height:0;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+/* header */
+.top{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.badge{font-family:var(--display);font-weight:700;background:var(--accent);color:var(--accent-ink);padding:0 10px;border-radius:6px;font-size:22px;line-height:34px}
+.top h1{font-family:var(--display);font-size:22px;line-height:1.1;margin:0;font-weight:700;letter-spacing:.01em;text-wrap:balance;flex:1;min-width:160px}
+.iconbtn{border:1px solid var(--line);background:var(--surface2);border-radius:8px;padding:6px 10px;font-size:13px;font-weight:600}
+.iconbtn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.modes{display:flex;gap:6px;padding:8px 12px;border-bottom:1px solid var(--line);overflow-x:auto;flex:none}
+.mode{white-space:nowrap;border:1px solid var(--line);background:var(--surface2);padding:7px 12px;border-radius:999px;font-weight:600;font-size:13px}
+.mode[aria-selected="true"]{background:var(--blue);color:#fff;border-color:var(--blue)}
+:root[data-theme="dark"] .mode[aria-selected="true"]{color:#06151f}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .mode[aria-selected="true"]{color:#06151f}}
+.stage{flex:1;min-height:0;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+.view{display:none;flex-direction:column;gap:10px;flex:1;min-height:0}
+.view.on{display:flex}
+canvas{width:100%;display:block;border-radius:8px;border:1px solid var(--line);background:var(--sky);flex:none;height:clamp(250px,44vh,380px)}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.ctl{background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+.ctl label{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:600;color:var(--muted)}
+.ctl output{color:var(--ink);font-variant-numeric:tabular-nums;font-weight:700}
+.ctl input[type=range]{width:100%;accent-color:var(--accent)}
+.seg{display:flex;gap:6px;margin-top:4px}
+.seg button{flex:1;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:6px;font-weight:600;font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border:0;background:var(--accent);color:var(--accent-ink);font-weight:700;border-radius:8px;padding:9px 16px;font-size:14px}
+.btn.alt{background:var(--surface2);color:var(--ink);border:1px solid var(--line)}
+.btn:active{transform:translateY(1px)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.stat{border-radius:8px;padding:8px 10px;background:var(--surface2);border:1px solid var(--line);min-width:0}
+.stat small{display:block;color:var(--muted);font-size:11px;font-weight:600}
+.stat b{font-family:var(--display);font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat.r b{color:var(--accent)} .stat.b b{color:var(--blue)}
+.verdict{border-radius:8px;padding:9px 12px;font-weight:600;border:1px solid var(--line);background:var(--surface2)}
+.verdict.ok{background:var(--good-soft);border-color:var(--good)}
+.verdict.no{background:var(--bad-soft);border-color:var(--bad)}
+.hint{color:var(--muted);font-size:12.5px;margin:0}
+.credit{flex:none;text-align:center;padding:7px 12px;border-top:1px solid var(--line);background:var(--surface2);font-family:var(--display);font-size:16px;font-weight:600;letter-spacing:.06em;color:var(--muted)}
+.credit b{color:var(--accent)}
+/* sign / table views */
+.signboard{background:#0d5a8c;color:#fff;border-radius:8px;padding:10px;font-family:var(--display);font-size:17px;text-align:center;letter-spacing:.02em}
+.veh{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:6px}
+.veh button{display:flex;align-items:center;gap:10px;text-align:left;border:2px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 10px;font-weight:600}
+.veh button[aria-pressed="true"]{border-color:var(--accent);background:var(--surface2)}
+.veh .sp{font-family:var(--display);font-size:24px;font-weight:700;color:#fff;background:#0d5a8c;border-radius:8px;min-width:52px;height:38px;display:grid;place-items:center}
+.signs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.hw{background:#2f7ba8;border-radius:8px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;overflow:hidden}
+.disc{width:84px;height:84px;border-radius:50%;background:#fff;border:9px solid #d3202a;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:34px;color:#111;transition:transform .2s}
+.disc.pulse{transform:scale(1.12)}
+.rainbox{position:absolute;inset:0;height:100%;pointer-events:none;opacity:0;transition:opacity .3s}
+.rainbox.on{opacity:1}
+.bars{display:flex;align-items:flex-end;gap:12px;height:230px;padding:8px 6px 0;border-bottom:2px solid var(--line)}
+.bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;min-width:0;border:0;background:none;padding:0}
+.bar i{display:block;width:100%;max-width:90px;background:var(--blue);border-radius:6px 6px 0 0;transition:height .5s}
+.bar.sel i{background:var(--accent)}
+.bar span{font-size:11px;font-variant-numeric:tabular-nums;font-weight:700;margin-bottom:3px}
+.years{display:flex;gap:12px;padding:4px 6px}
+.years div{flex:1;text-align:center;font-size:12px;font-weight:600;color:var(--muted)}
+table{border-collapse:collapse;width:100%}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:center;font-variant-numeric:tabular-nums}
+th{background:var(--accent);color:var(--accent-ink);font-size:12.5px}
+td.hl{background:var(--surface2);font-weight:700}
+.scrollx{overflow-x:auto}
+/* side tabs */
+.tabs{display:flex;border-bottom:1px solid var(--line);flex:none}
+.tabs button{flex:1;border:0;background:var(--surface2);padding:10px 4px;font-weight:700;font-size:13px;border-bottom:3px solid transparent}
+.tabs button[aria-selected="true"]{background:var(--surface);border-bottom-color:var(--accent)}
+.tabbody{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 14px 20px;scrollbar-width:thin}
+.tabbody[hidden]{display:none}
+.tabbody h2{font-family:var(--display);font-size:22px;margin:16px 0 6px;line-height:1.15;color:var(--blue)}
+.tabbody h2:first-child{margin-top:0}
+.tabbody h3{font-size:14px;margin:12px 0 4px}
+.tabbody p,.tabbody li{margin:0 0 8px}
+.tabbody ul{padding-left:18px;margin:0 0 8px}
+.callout{background:var(--blue-soft);border-radius:8px;padding:9px 11px;margin:8px 0}
+.formula{font-family:var(--display);font-size:19px;background:var(--surface2);border:1px dashed var(--accent);border-radius:8px;padding:8px;text-align:center;margin:8px 0}
+details{border:1px solid var(--line);border-radius:8px;margin-bottom:8px;background:var(--surface)}
+summary{padding:9px 11px;font-weight:600;cursor:pointer}
+details .ans{padding:0 11px 9px;color:var(--ink)}
+.flash{border:2px solid var(--accent);border-radius:10px;padding:16px;min-height:120px;width:100%;text-align:left;background:var(--surface2);font-size:14px}
+.flash small{color:var(--accent);font-weight:700;display:block;margin-bottom:6px}
+/* quiz */
+.qhead{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:13px;margin-bottom:8px;flex-wrap:wrap}
+.pbar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-bottom:10px}
+.pbar i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.qtext{font-weight:700;font-size:15px;margin:0 0 10px}
+.opt{display:block;width:100%;text-align:left;border:2px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 11px;margin-bottom:7px;font-size:13.5px}
+.opt:hover:not(:disabled){border-color:var(--blue)}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default;color:var(--ink)}
+.expl{border-radius:8px;padding:9px 11px;background:var(--surface2);border:1px solid var(--line);margin:8px 0}
+.result{text-align:center}
+.result .big{font-family:var(--display);font-size:56px;color:var(--accent);line-height:1}
+.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:999px;font-weight:600;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:20}
+.toast.on{opacity:1}
+@media (max-width:900px){
+  body{overflow:auto;height:auto}
+  html{height:auto}
+  .app{height:auto;grid-template-columns:minmax(0,1fr)}
+  .panel.model{min-height:0}
+  .stage{overflow:visible}
+  canvas{height:270px}
+  .panel.side{height:78vh}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+<div class="app">
+<main class="panel model" aria-label="Mô hình tương tác">
+  <div class="top">
+    <span class="badge">Bài 11</span>
+    <h1>Ảnh hưởng của tốc độ trong an toàn giao thông</h1>
+    <button class="iconbtn" id="mute" aria-pressed="false" title="Bật hoặc tắt âm thanh">🔊 Âm thanh</button>
+  </div>
+  <div class="modes" role="tablist" aria-label="Chọn mô hình">
+    <button class="mode" role="tab" aria-selected="true" data-v="sim">Khoảng cách an toàn</button>
+    <button class="mode" role="tab" aria-selected="false" data-v="s3">Quy tắc 3 giây</button>
+    <button class="mode" role="tab" aria-selected="false" data-v="sign">Tốc độ tối đa</button>
+    <button class="mode" role="tab" aria-selected="false" data-v="stat">Thống kê tai nạn</button>
+  </div>
+  <div class="stage">
+
+  <section class="view on" id="v-sim">
+    <p class="hint">Tình huống: xe phía trước dừng đột ngột. Xe sau có thời gian phản ứng rồi mới phanh. Hãy chỉnh các thông số và bấm Chạy mô phỏng.</p>
+    <canvas id="cv" width="1000" height="300" aria-label="Mô phỏng hai xe trên đường"></canvas>
+    <div class="controls">
+      <div class="ctl"><label for="spd">Tốc độ xe sau <output id="spdO">60 km/h</output></label><input type="range" id="spd" min="20" max="120" step="5" value="60"></div>
+      <div class="ctl"><label for="rt">Thời gian phản ứng <output id="rtO">0,9 s</output></label><input type="range" id="rt" min="0.5" max="2.5" step="0.1" value="0.9"></div>
+      <div class="ctl"><label for="gap">Khoảng cách giữa hai xe <output id="gapO">35 m</output></label><input type="range" id="gap" min="5" max="150" step="1" value="35"></div>
+      <div class="ctl"><label>Mặt đường</label><div class="seg"><button id="dry" aria-pressed="true">☀️ Khô</button><button id="wet" aria-pressed="false">🌧️ Mưa</button></div></div>
+    </div>
+    <div class="stats">
+      <div class="stat r"><small>Quãng đường phản ứng</small><b id="sR">0 m</b></div>
+      <div class="stat b"><small>Quãng đường phanh</small><b id="sB">0 m</b></div>
+      <div class="stat"><small>Tổng quãng đường dừng</small><b id="sT">0 m</b></div>
+      <div class="stat"><small>Bảng 11.1 quy định tối thiểu</small><b id="sTab">0 m</b></div>
+    </div>
+    <div class="verdict" id="verdict">Bấm Chạy mô phỏng để xem kết quả.</div>
+    <div class="row">
+      <button class="btn" id="run">▶ Chạy mô phỏng</button>
+      <button class="btn alt" id="useTab">Đặt theo Bảng 11.1</button>
+      <button class="btn alt" id="slow" aria-pressed="false">Quay chậm ×0,5</button>
+      <button class="btn alt" id="reset">↺ Đặt lại</button>
+    </div>
+    <div class="scrollx"><table id="tab111"><caption style="text-align:left;font-weight:700;padding:4px 0">Bảng 11.1. Khoảng cách an toàn tối thiểu</caption>
+      <tr><th>Tốc độ lưu hành v (km/h)</th><th>Khoảng cách an toàn tối thiểu (m)</th></tr>
+      <tr data-k="0"><td>v = 60</td><td>35</td></tr>
+      <tr data-k="1"><td>60 &lt; v ≤ 80</td><td>55</td></tr>
+      <tr data-k="2"><td>80 &lt; v ≤ 100</td><td>70</td></tr>
+      <tr data-k="3"><td>100 &lt; v ≤ 120</td><td>100</td></tr></table></div>
+    <p class="hint">Mô hình dùng gia tốc phanh 7 m/s² (đường khô) và 4 m/s² (đường mưa). Đây là mô hình gần đúng để so sánh, không thay cho quy định pháp luật.</p>
+  </section>
+
+  <section class="view" id="v-s3">
+    <p class="hint">Quy tắc 3 giây: khoảng cách an toàn (m) = tốc độ (m/s) × 3 (s). Khi xe trước đi qua một mốc cố định, xe sau đếm "một, hai, ba" và chỉ được đến mốc đó sau khi đếm xong.</p>
+    <canvas id="cv3" width="1000" height="260" aria-label="Minh hoạ quy tắc 3 giây"></canvas>
+    <div class="controls">
+      <div class="ctl"><label for="spd3">Tốc độ <output id="spd3O">68 km/h</output></label><input type="range" id="spd3" min="20" max="120" step="1" value="68"></div>
+      <div class="ctl"><label>Chọn nhanh</label><div class="seg"><button data-s="40">40</button><button data-s="68">68</button><button data-s="90">90</button><button data-s="120">120</button></div></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><small>Tốc độ đổi ra m/s</small><b id="m3v">0</b></div>
+      <div class="stat r"><small>Khoảng cách an toàn</small><b id="m3d">0 m</b></div>
+    </div>
+    <div class="verdict" id="m3text"></div>
+    <div class="row"><button class="btn" id="run3">▶ Đếm 3 giây</button></div>
+  </section>
+
+  <section class="view" id="v-sign">
+    <div class="signboard">TỐC ĐỘ TỐI ĐA CHO PHÉP XE CƠ GIỚI THAM GIA GIAO THÔNG TRÊN ĐƯỜNG BỘ KHÔNG CÓ GIẢI PHÂN CÁCH CỨNG, NGOÀI KHU VỰC ĐÔNG DÂN CƯ</div>
+    <p class="hint">Hình 11.1. Chọn một loại xe để xem tốc độ tối đa. Xe càng lớn, càng nặng hoặc chở nhiều người thì tốc độ cho phép càng thấp.</p>
+    <div class="veh" id="vehList"></div>
+    <div class="verdict" id="vehWhy"></div>
+    <p class="hint" style="margin-top:6px">Hình 11.2. Biển báo trên đường cao tốc: bật mưa để xem tốc độ tối đa thay đổi.</p>
+    <div class="signs">
+      <div class="hw" id="hw">
+        <canvas id="rain" class="rainbox" width="300" height="200" style="border:0;background:transparent;min-height:0" aria-hidden="true"></canvas>
+        <div class="disc" id="hwDisc">120</div>
+        <div class="seg" style="width:100%"><button id="hwDry" aria-pressed="true">Không mưa</button><button id="hwWet" aria-pressed="false">Có mưa</button></div>
+      </div>
+      <div class="verdict" id="hwWhy">Trời không mưa: tối đa 120 km/h.</div>
+    </div>
+  </section>
+
+  <section class="view" id="v-stat">
+    <p class="hint">Số liệu của Ủy ban An toàn giao thông Quốc gia, năm 2016 đến 2020. Chọn một cột để xem chi tiết.</p>
+    <div class="seg" style="max-width:420px"><button id="mAcc" aria-pressed="true">Số vụ tai nạn</button><button id="mDie" aria-pressed="false">Số người chết</button></div>
+    <div class="bars" id="bars"></div>
+    <div class="years" id="years"></div>
+    <div class="verdict" id="statTxt"></div>
+    <div class="scrollx"><table><tr><th>Năm</th><th>Số vụ tai nạn giao thông</th><th>Số người chết</th></tr>
+      <tr><td>2016</td><td>21 589</td><td>8 685</td></tr><tr><td>2017</td><td>20 080</td><td>8 279</td></tr>
+      <tr><td>2018</td><td>18 232</td><td>8 125</td></tr><tr><td>2019</td><td>17 626</td><td>7 624</td></tr>
+      <tr><td>2020</td><td>14 510</td><td>6 700</td></tr></table></div>
+    <p class="hint">Nguyên nhân chủ yếu: đi không đúng làn đường hoặc phần đường quy định, không chấp hành tín hiệu đèn giao thông, chạy quá tốc độ, chuyển hướng không đúng quy định.</p>
+  </section>
+
+  </div>
+  <footer class="credit">Produced of <b>LucianEdu</b></footer>
+</main>
+
+<aside class="panel side" aria-label="Nội dung học tập">
+  <div class="tabs" role="tablist">
+    <button role="tab" id="t-desc" aria-selected="true" data-t="desc">Mô tả</button>
+    <button role="tab" id="t-rev" aria-selected="false" data-t="rev">Ôn tập</button>
+    <button role="tab" id="t-quiz" aria-selected="false" data-t="quiz">Trắc nghiệm</button>
+  </div>
+  <div class="tabbody" id="b-desc" role="tabpanel">
+    <h2>Mục tiêu</h2>
+    <p>Dựa vào tranh ảnh hoặc học liệu điện tử, thảo luận để nêu được ảnh hưởng của tốc độ trong an toàn giao thông.</p>
+    <div class="callout"><b>Câu hỏi mở đầu.</b> Theo em, nguyên nhân gây ra tai nạn giao thông đường bộ có phải chủ yếu là do vi phạm quy định về tốc độ giới hạn không?</div>
+    <h2>I. Yêu cầu</h2>
+    <p>Sưu tầm tài liệu, tranh ảnh, video để trình bày và thảo luận về ảnh hưởng của tốc độ trong an toàn giao thông.</p>
+    <h2>II. Nguồn tư liệu</h2>
+    <h3>1. Sưu tầm tư liệu</h3>
+    <p>Bài viết, hình ảnh, video trên truyền hình, báo chí và internet liên quan đến:</p>
+    <ul>
+      <li>Quy định về tốc độ giới hạn (tối đa và tối thiểu) của các phương tiện khác nhau, nhằm bảo đảm an toàn cho người điều khiển và người tham gia giao thông.</li>
+      <li>Quy định về khoảng cách an toàn tối thiểu giữa các phương tiện ứng với các tốc độ khác nhau, giúp người lái có đủ thời gian phanh, tránh va chạm.</li>
+      <li>Tình hình vi phạm tốc độ gây tai nạn giao thông, ảnh hưởng đến sức khoẻ, tính mạng của người tham gia giao thông ở địa phương mình.</li>
+    </ul>
+    <h3>2. Một số ví dụ về tư liệu cần sưu tầm</h3>
+    <p><b>a) Biển báo giao thông đường bộ.</b> Hình 11.1: tốc độ tối đa trên đường không có giải phân cách cứng, ngoài khu vực đông dân cư.</p>
+    <div class="scrollx"><table><tr><th>Loại xe cơ giới</th><th>Tối đa (km/h)</th></tr>
+      <tr><td>Ô tô chở người đến 30 chỗ; ô tô tải dưới 3,5 tấn (trừ ô tô buýt)</td><td>80</td></tr>
+      <tr><td>Ô tô chở người trên 30 chỗ; ô tô tải trên 3,5 tấn (trừ ô tô buýt)</td><td>70</td></tr>
+      <tr><td>Ô tô buýt; ô tô tải; ô tô chuyên dùng; mô tô</td><td>60</td></tr>
+      <tr><td>Ô tô kéo rơ moóc; ô tô kéo xe khác; xe gắn máy</td><td>50</td></tr></table></div>
+    <p style="margin-top:8px">Hình 11.2: trên đường cao tốc, tốc độ tối đa là 120 km/h khi không có mưa và 100 km/h khi có mưa.</p>
+    <p><b>b) Khoảng cách an toàn giữa hai xe</b> (Bảng 11.1): v = 60 km/h thì 35 m; 60 &lt; v ≤ 80 thì 55 m; 80 &lt; v ≤ 100 thì 70 m; 100 &lt; v ≤ 120 thì 100 m.</p>
+    <p>Hình 11.3: biển báo khoảng cách trên đường cao tốc (0 m, 50 m, 100 m) giúp lái xe ước lượng khoảng cách giữa các xe. Khi chạy dưới 60 km/h, người lái phải chủ động giữ khoảng cách phù hợp với xe phía trước, tuỳ mật độ phương tiện và tình hình giao thông thực tế.</p>
+    <p><b>c) Quy tắc "3 giây"</b> trên đường cao tốc, vì khó nhớ đầy đủ bảng quy định:</p>
+    <div class="formula">Khoảng cách an toàn (m) = tốc độ (m/s) × 3 (s)</div>
+    <p><b>d) Thống kê của Ủy ban An toàn giao thông Quốc gia, 2016 đến 2020.</b></p>
+    <div class="scrollx"><table><tr><th>Năm</th><th>Số vụ</th><th>Số người chết</th></tr>
+      <tr><td>2016</td><td>21 589</td><td>8 685</td></tr><tr><td>2017</td><td>20 080</td><td>8 279</td></tr>
+      <tr><td>2018</td><td>18 232</td><td>8 125</td></tr><tr><td>2019</td><td>17 626</td><td>7 624</td></tr>
+      <tr><td>2020</td><td>14 510</td><td>6 700</td></tr></table></div>
+    <p style="margin-top:8px">Tai nạn giao thông đường bộ chủ yếu xuất phát từ các lỗi vi phạm trật tự an toàn giao thông: đi không đúng làn đường, phần đường quy định, không chấp hành tín hiệu đèn, chạy quá tốc độ, chuyển hướng không đúng quy định.</p>
+    <h2>III. Thảo luận</h2>
+    <p>Sử dụng các tư liệu đã sưu tầm và tư liệu tham khảo trong bài. Có 5 nội dung (xem tab Ôn tập để xem gợi ý trả lời).</p>
+    <ul>
+      <li><b>Nội dung 1.</b> Tại sao phải quy định tốc độ giới hạn khác nhau cho các phương tiện, trên những cung đường khác nhau? So sánh tốc độ tối đa trong Hình 11.1 và giải thích sự khác biệt.</li>
+      <li><b>Nội dung 2.</b> Giải thích sự khác biệt tốc độ tối đa khi trời mưa và không mưa ở biển báo Hình 11.2.</li>
+      <li><b>Nội dung 3.</b> Tại sao phải quy định khoảng cách an toàn ứng với các tốc độ khác nhau (Bảng 11.1)? Tìm cách chứng tỏ tốc độ càng lớn thì người lái càng không đủ thời gian và khoảng cách để tránh va chạm.</li>
+      <li><b>Nội dung 4.</b> Các biển báo khoảng cách trên đường cao tốc dùng để làm gì? Dùng quy tắc "3 giây" ước tính khoảng cách an toàn khi xe chạy 68 km/h.</li>
+      <li><b>Nội dung 5.</b> Người tham gia giao thông phải có ý thức tôn trọng quy định về an toàn giao thông và có hiểu biết về ảnh hưởng của tốc độ. Thảo luận tầm quan trọng của hai yếu tố này.</li>
+    </ul>
+    <h2>Em đã học</h2>
+    <ul>
+      <li>Cần tuân thủ các quy định về tốc độ khi tham gia giao thông để bảo đảm an toàn.</li>
+      <li>Người tham gia giao thông vừa phải có ý thức thực hiện an toàn giao thông vừa phải có hiểu biết về ảnh hưởng của tốc độ trong an toàn giao thông.</li>
+    </ul>
+    <h2>Em có thể</h2>
+    <p>Tham gia thảo luận được về ảnh hưởng của tốc độ trong an toàn giao thông.</p>
+  </div>
+
+  <div class="tabbody" id="b-rev" role="tabpanel" hidden>
+    <h2>Ghi nhớ nhanh</h2>
+    <ul>
+      <li>Tốc độ càng lớn, quãng đường dừng xe càng dài.</li>
+      <li>Quãng đường dừng = quãng đường phản ứng + quãng đường phanh.</li>
+      <li>Quãng đường phản ứng: s₁ = v · t (tỉ lệ với v).</li>
+      <li>Quãng đường phanh: s₂ = v² / (2a) (tỉ lệ với v², nên tăng rất nhanh).</li>
+      <li>Đường mưa trơn thì a nhỏ, quãng đường phanh dài hơn.</li>
+    </ul>
+    <div class="formula">s = v·t + v² / (2a)</div>
+    <div class="formula">Quy tắc 3 giây: d = v (m/s) × 3 s</div>
+    <div class="callout">Đổi đơn vị: v (m/s) = v (km/h) ÷ 3,6. Ví dụ 68 km/h ≈ 18,9 m/s, nên d ≈ 18,9 × 3 ≈ 56,7 m.</div>
+    <h2>Gợi ý thảo luận</h2>
+    <details><summary>Nội dung 1: Vì sao giới hạn tốc độ khác nhau?</summary><div class="ans">Xe có khối lượng và kích thước khác nhau thì quán tính, khả năng phanh và mức nguy hiểm khi va chạm khác nhau. Xe tải, xe khách lớn, xe kéo rơ moóc khó dừng hơn và gây thiệt hại nặng hơn. Đường cao tốc có thiết kế an toàn, ít giao cắt nên cho chạy nhanh hơn; đường trong khu dân cư đông người nên phải chạy chậm. Vì vậy Hình 11.1 cho xe nhỏ chạy nhanh hơn (80 km/h) và xe có rơ moóc, xe gắn máy chạy chậm hơn (50 km/h).</div></details>
+    <details><summary>Nội dung 2: Vì sao trời mưa phải chạy chậm hơn?</summary><div class="ans">Khi mưa, mặt đường trơn, ma sát giữa lốp và đường giảm nên gia tốc phanh nhỏ hơn, quãng đường phanh dài hơn. Tầm nhìn cũng bị hạn chế. Do đó tốc độ tối đa giảm từ 120 xuống 100 km/h.</div></details>
+    <details><summary>Nội dung 3: Vì sao cần khoảng cách an toàn?</summary><div class="ans">Từ lúc thấy nguy hiểm đến lúc phanh có thời gian phản ứng t, xe vẫn chạy được s₁ = v·t. Sau đó xe còn trượt thêm s₂ = v²/(2a) mới dừng. Tốc độ gấp đôi thì s₁ gấp đôi, s₂ gấp bốn. Nếu khoảng cách nhỏ hơn s₁ + s₂ thì xe sẽ va chạm. Hãy dùng mô hình bên trái để kiểm chứng.</div></details>
+    <details><summary>Nội dung 4: Biển khoảng cách và tính 68 km/h</summary><div class="ans">Biển báo khoảng cách (0 m, 50 m, 100 m) giúp lái xe ước lượng khoảng cách tới xe phía trước để giữ khoảng cách an toàn. Với 68 km/h = 18,9 m/s: d = 18,9 × 3 ≈ 56,7 m (khoảng 57 m).</div></details>
+    <details><summary>Nội dung 5: Ý thức và hiểu biết</summary><div class="ans">Ý thức giúp người lái tự giác chấp hành quy định ngay cả khi không có người giám sát. Hiểu biết về ảnh hưởng của tốc độ giúp họ biết vì sao phải chấp hành và biết điều chỉnh tốc độ theo thời tiết, mật độ xe. Thiếu một trong hai yếu tố đều dễ gây tai nạn.</div></details>
+    <details><summary>Có phải nguyên nhân chủ yếu là chạy quá tốc độ?</summary><div class="ans">Chạy quá tốc độ là một nguyên nhân quan trọng, nhưng không phải duy nhất. Tai nạn còn do đi sai làn đường, phần đường, không chấp hành đèn tín hiệu, chuyển hướng sai. Nhìn chung nguyên nhân chủ yếu là các lỗi vi phạm trật tự an toàn giao thông.</div></details>
+    <h2>Thẻ ôn nhanh</h2>
+    <button class="flash" id="flash" aria-live="polite"></button>
+    <div class="row" style="margin-top:8px"><button class="btn alt" id="fPrev">← Trước</button><button class="btn alt" id="fNext">Sau →</button><span class="hint" id="fCount"></span></div>
+    <p class="hint">Bấm vào thẻ để lật.</p>
+  </div>
+
+  <div class="tabbody" id="b-quiz" role="tabpanel" hidden>
+    <div id="quiz"></div>
+  </div>
+</aside>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const fmt=(n,d=1)=>n.toFixed(d).replace('.',',');
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let toastT;
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),1800)}
+
+/* ===== Âm thanh (Web Audio) ===== */
+let AC=null,muted=false,eng=null;
+function ac(){
+  if(muted)return null;
+  if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return null}}
+  if(AC.state==='suspended')AC.resume();
+  return AC;
+}
+function tone(f,d,type,vol,delay,f2){
+  const a=ac();if(!a)return;const t=a.currentTime+(delay||0);
+  const o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);
+  if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol||.15,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  o.connect(g).connect(a.destination);o.start(t);o.stop(t+d+.05);
+}
+function noise(d,vol,freq,q,delay,sweepTo){
+  const a=ac();if(!a)return;const t=a.currentTime+(delay||0);
+  const n=Math.max(1,Math.floor(a.sampleRate*d)),buf=a.createBuffer(1,n,a.sampleRate),ch=buf.getChannelData(0);
+  for(let i=0;i<n;i++)ch[i]=Math.random()*2-1;
+  const s=a.createBufferSource();s.buffer=buf;
+  const f=a.createBiquadFilter();f.type=q>1?'bandpass':'lowpass';f.frequency.setValueAtTime(freq,t);f.Q.value=q||1;
+  if(sweepTo)f.frequency.exponentialRampToValueAtTime(sweepTo,t+d);
+  const g=a.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  s.connect(f).connect(g).connect(a.destination);s.start(t);
+}
+const SFX={
+  click(){tone(520,.07,'triangle',.1)},
+  tick(){tone(880,.09,'square',.06)},
+  beep(n){tone(500+n*160,.18,'sine',.18)},
+  good(){tone(523,.14,'triangle',.18);tone(659,.14,'triangle',.18,.12);tone(784,.25,'triangle',.18,.24)},
+  bad(){tone(180,.3,'sawtooth',.14,0,90)},
+  skid(){noise(.9,.22,2400,6,0,900)},
+  crash(){noise(.7,.5,900,1,0,120);tone(90,.5,'sine',.4,0,40);noise(.25,.25,3500,2,.05)},
+  win(){[523,659,784,1047].forEach((f,i)=>tone(f,.22,'triangle',.18,i*.12))},
+  rain(){noise(.4,.08,4000,2)},
+  horn(){tone(400,.35,'square',.07);tone(500,.35,'square',.07)}
+};
+function engStart(kmh){
+  const a=ac();if(!a||eng)return;
+  const o=a.createOscillator(),f=a.createBiquadFilter(),g=a.createGain();
+  o.type='sawtooth';f.type='lowpass';f.frequency.value=420;g.gain.value=.05;
+  o.connect(f).connect(g).connect(a.destination);o.start();eng={o,g,a};engSet(kmh);
+}
+function engSet(kmh){if(eng)eng.o.frequency.setTargetAtTime(45+kmh*1.5,eng.a.currentTime,.05)}
+function engStop(){if(!eng)return;const e=eng;eng=null;try{e.g.gain.setTargetAtTime(0,e.a.currentTime,.1);e.o.stop(e.a.currentTime+.4)}catch(x){}}
+$('mute').addEventListener('click',()=>{
+  muted=!muted;$('mute').setAttribute('aria-pressed',muted);$('mute').textContent=muted?'🔇 Đã tắt':'🔊 Âm thanh';
+  if(muted)engStop();else SFX.click();
+});
+
+/* ===== Tab bên trái (mô hình) ===== */
+const modes=document.querySelectorAll('.mode');
+modes.forEach(b=>b.addEventListener('click',()=>{
+  modes.forEach(m=>m.setAttribute('aria-selected',m===b));
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+b.dataset.v));
+  stopSim();SFX.click();sizeAll();drawAll();
+  if(b.dataset.v==='stat')renderBars();
+}));
+/* ===== Tab bên phải (nội dung) ===== */
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  ['desc','rev','quiz'].forEach(k=>$('b-'+k).hidden=k!==b.dataset.t);
+  SFX.click();
+}));
+
+/* ===== Mô hình 1: khoảng cách an toàn ===== */
+const cv=$('cv'),cx=cv.getContext('2d');
+const P={spd:60,rt:0.9,gap:35,wet:false};
+const S={t:0,run:false,done:false,crash:false,impact:0,slow:false,skidded:false};
+function phys(){
+  const v=P.spd/3.6,a=P.wet?4:7,s1=v*P.rt,s2=v*v/(2*a);
+  return{v,a,s1,s2,S:s1+s2,tstop:v/a};
+}
+function posAt(t,p){
+  if(t<=P.rt)return p.v*t;
+  const tb=Math.min(t-P.rt,p.tstop);return p.s1+p.v*tb-p.a*tb*tb/2;
+}
+function speedAt(t,p){return t<=P.rt?p.v:Math.max(0,p.v-p.a*(t-P.rt))}
+function tabVal(k){return[35,55,70,100][k]}
+function tabIdx(v){return v<=60?0:v<=80?1:v<=100?2:3}
+function updateStats(){
+  const p=phys();
+  $('spdO').textContent=P.spd+' km/h';$('rtO').textContent=fmt(P.rt)+' s';$('gapO').textContent=P.gap+' m';
+  $('sR').textContent=fmt(p.s1)+' m';$('sB').textContent=fmt(p.s2)+' m';$('sT').textContent=fmt(p.S)+' m';
+  $('sTab').textContent=P.spd<60?'tự giữ':tabVal(tabIdx(P.spd))+' m';
+  document.querySelectorAll('#tab111 tr[data-k]').forEach(r=>r.firstElementChild.classList.toggle('hl',P.spd>=60&&+r.dataset.k===tabIdx(P.spd)));
+  document.querySelectorAll('#tab111 tr[data-k]').forEach(r=>r.lastElementChild.classList.toggle('hl',P.spd>=60&&+r.dataset.k===tabIdx(P.spd)));
+}
+function setVerdict(txt,cls){const v=$('verdict');v.textContent=txt;v.className='verdict '+(cls||'')}
+function resetSim(msg){
+  stopSim();S.t=0;S.done=false;S.crash=false;S.skidded=false;S.impact=0;
+  setVerdict(msg||'Bấm Chạy mô phỏng để xem kết quả.');updateStats();drawSim();
+}
+function stopSim(){S.run=false;engStop();S3.run=false}
+[['spd','spd',1],['rt','rt',0],['gap','gap',1]].forEach(([id,k])=>{
+  $(id).addEventListener('input',e=>{P[k]=+e.target.value;resetSim();});
+  $(id).addEventListener('change',()=>SFX.tick());
+});
+function setWet(w){P.wet=w;$('dry').setAttribute('aria-pressed',!w);$('wet').setAttribute('aria-pressed',w);if(w)SFX.rain();else SFX.click();resetSim()}
+$('dry').onclick=()=>setWet(false);$('wet').onclick=()=>setWet(true);
+$('useTab').onclick=()=>{
+  const val=P.spd<60?Math.round(phys().v*3):tabVal(tabIdx(P.spd));
+  P.gap=Math.min(150,val);$('gap').value=P.gap;SFX.click();resetSim('Đã đặt khoảng cách '+P.gap+' m'+(P.spd<60?' (3 giây ở tốc độ này).':' theo Bảng 11.1.'));
+};
+$('slow').onclick=()=>{S.slow=!S.slow;$('slow').setAttribute('aria-pressed',S.slow);$('slow').textContent=S.slow?'Quay chậm đang bật':'Quay chậm ×0,5';SFX.click()};
+$('reset').onclick=()=>{SFX.click();resetSim()};
+$('run').onclick=()=>{
+  resetSim();S.run=true;lastTs=0;engStart(P.spd);SFX.horn();
+};
+function finishSim(){
+  const p=phys();S.run=false;S.done=true;engStop();
+  if(S.crash){
+    SFX.crash();
+    setVerdict('Va chạm. Xe sau đâm vào xe trước với tốc độ khoảng '+fmt(S.impact*3.6,0)+' km/h. Khoảng cách '+P.gap+' m nhỏ hơn quãng đường dừng '+fmt(p.S)+' m.','no');
+  }else{
+    SFX.good();
+    setVerdict('An toàn. Xe dừng cách xe trước '+fmt(P.gap-p.S)+' m. Khoảng cách '+P.gap+' m lớn hơn quãng đường dừng '+fmt(p.S)+' m.','ok');
+  }
+}
+function stepSim(dt){
+  const p=phys();S.t+=dt*(S.slow?.5:1);
+  const x=posAt(S.t,p);
+  engSet(speedAt(S.t,p)*3.6);
+  if(S.t>P.rt&&!S.skidded){S.skidded=true;SFX.skid()}
+  if(x>=P.gap){
+    S.crash=true;
+    S.impact=P.gap<=p.s1?p.v:Math.sqrt(Math.max(0,p.v*p.v-2*p.a*(P.gap-p.s1)));
+    S.t=P.gap<=p.s1?P.gap/p.v:P.rt+(p.v-S.impact)/p.a;
+    finishSim();return;
+  }
+  if(S.t>=P.rt+p.tstop){S.t=P.rt+p.tstop;finishSim()}
+}
+function sizeCanvas(c){
+  const d=Math.min(window.devicePixelRatio||1,2),w=c.clientWidth,h=c.clientHeight;
+  if(w&&(c.width!==Math.round(w*d)||c.height!==Math.round(h*d))){c.width=Math.round(w*d);c.height=Math.round(h*d)}
+  return{w:c.width,h:c.height,d};
+}
+function roundRect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+function drawCar(c,front,y,w,h,color,braking,u){
+  const x=front-w;
+  c.fillStyle='rgba(0,0,0,.28)';c.beginPath();c.ellipse(x+w/2,y+h+2*u,w/2,3*u,0,0,7);c.fill();
+  c.fillStyle=color;roundRect(c,x,y,w,h,h*.25);c.fill();
+  c.fillStyle='rgba(255,255,255,.75)';roundRect(c,x+w*.22,y+h*.12,w*.42,h*.38,h*.1);c.fill();
+  c.fillStyle='#111';[.2,.72].forEach(k=>{c.beginPath();c.arc(x+w*k,y+h,h*.2,0,7);c.fill()});
+  c.fillStyle=braking?'#ff2a2a':'#8a1a1a';c.fillRect(x,y+h*.45,w*.07,h*.22);
+  c.fillStyle='#ffe9a0';c.fillRect(x+w*.94,y+h*.45,w*.06,h*.2);
+  if(braking){c.fillStyle='rgba(255,40,40,.35)';c.beginPath();c.arc(x,y+h*.55,h*.5,0,7);c.fill()}
+}
+function drawRoad(c,W,H,horizon,roadTop,roadH){
+  c.fillStyle=css('--sky');c.fillRect(0,0,W,horizon);
+  c.fillStyle=css('--grass');c.fillRect(0,horizon,W,H-horizon);
+  c.fillStyle=css('--road');c.fillRect(0,roadTop,W,roadH);
+  c.strokeStyle=css('--road-line');c.lineWidth=Math.max(2,roadH*.03);c.setLineDash([roadH*.2,roadH*.16]);
+  c.beginPath();c.moveTo(0,roadTop+roadH/2);c.lineTo(W,roadTop+roadH/2);c.stroke();c.setLineDash([]);
+}
+function drawSim(){
+  const{w:W,h:H,d}=sizeCanvas(cv);if(!W)return;const p=phys(),u=d;
+  const horizon=H*.18,roadTop=H*.22,roadH=H*.30;
+  cx.clearRect(0,0,W,H);drawRoad(cx,W,H,horizon,roadTop,roadH);
+  const padL=24*u,padR=20*u,L=Math.max(p.S,P.gap)+14;
+  const sc=(W-padL-padR)/L,X=m=>padL+m*sc;
+  const carW=Math.max(46*u,4.5*sc),carH=Math.min(roadH*.36,carW*.45),carY=roadTop+roadH*.5+(roadH*.5-carH)/2-roadH*.04;
+  // vệt phanh
+  const x=posAt(S.t,p);
+  if(S.t>P.rt){cx.strokeStyle='rgba(0,0,0,.55)';cx.lineWidth=3*u;cx.beginPath();cx.moveTo(X(p.s1),carY+carH);cx.lineTo(X(x),carY+carH);cx.stroke()}
+  // thước đo
+  const ry=roadTop+roadH+10*u,rh=16*u;
+  cx.fillStyle='rgba(232,115,26,.9)';cx.fillRect(X(0),ry,X(p.s1)-X(0),rh);
+  cx.fillStyle='rgba(13,90,140,.9)';cx.fillRect(X(p.s1),ry,X(p.S)-X(p.s1),rh);
+  cx.font=`600 ${11*u}px Be Vietnam Pro, sans-serif`;cx.textBaseline='middle';
+  cx.fillStyle='#fff';
+  if(X(p.s1)-X(0)>60*u)cx.fillText('Phản ứng '+fmt(p.s1,0)+' m',X(0)+5*u,ry+rh/2);
+  if(X(p.S)-X(p.s1)>60*u)cx.fillText('Phanh '+fmt(p.s2,0)+' m',X(p.s1)+5*u,ry+rh/2);
+  // vạch mốc mét
+  const step=L>120?20:10;cx.fillStyle=css('--ink');cx.textAlign='center';
+  for(let m=0;m<=L-6;m+=step){cx.fillRect(X(m)-.5*u,ry+rh,1*u,5*u);cx.fillText(m+' m',X(m),ry+rh+16*u)}
+  cx.textAlign='left';
+  // khoảng cách giữa hai xe
+  const by=ry+rh+34*u;cx.strokeStyle=P.gap>=p.S?css('--good'):css('--bad');cx.lineWidth=2*u;
+  cx.beginPath();cx.moveTo(X(0),by);cx.lineTo(X(P.gap),by);cx.moveTo(X(0),by-5*u);cx.lineTo(X(0),by+5*u);cx.moveTo(X(P.gap),by-5*u);cx.lineTo(X(P.gap),by+5*u);cx.stroke();
+  cx.fillStyle=cx.strokeStyle;cx.textAlign='center';cx.fillText('Khoảng cách hai xe: '+P.gap+' m',(X(0)+X(P.gap))/2,by+14*u);cx.textAlign='left';
+  // vạch dừng tính toán
+  cx.strokeStyle=css('--accent');cx.setLineDash([5*u,4*u]);cx.lineWidth=2*u;
+  cx.beginPath();cx.moveTo(X(p.S),roadTop);cx.lineTo(X(p.S),ry);cx.stroke();cx.setLineDash([]);
+  // hai xe
+  const braking=S.t>P.rt&&!S.done;
+  drawCar(cx,X(P.gap)+carW,carY,carW,carH,'#c63a2e',true,u);
+  drawCar(cx,X(x),carY,carW,carH,'#1f6fb2',braking||(S.done&&!S.crash),u);
+  cx.fillStyle=css('--ink');cx.font=`700 ${11*u}px Be Vietnam Pro, sans-serif`;
+  cx.fillText('Xe sau',X(x)-carW,carY-6*u);cx.textAlign='right';cx.fillText('Xe trước (dừng đột ngột)',X(P.gap)+carW,carY-22*u);cx.textAlign='left';
+  if(S.run&&S.t<=P.rt){cx.fillStyle='#e8731a';cx.fillText('Đang phản ứng… '+fmt(P.rt-S.t)+' s',Math.max(4*u,X(x)-carW-30*u),carY-38*u)}
+  if(S.crash){
+    const bx=X(P.gap),by2=carY+carH*.4;cx.fillStyle='#ffcc00';cx.strokeStyle='#d63a2f';cx.lineWidth=3*u;cx.beginPath();
+    for(let i=0;i<16;i++){const r=(i%2?14:30)*u,a=i*Math.PI/8;cx.lineTo(bx+Math.cos(a)*r,by2+Math.sin(a)*r)}cx.closePath();cx.fill();cx.stroke();
+  }
+  // đồng hồ tốc độ
+  const sp=S.crash?0:speedAt(S.t,p)*3.6,gx=W-70*u,gy=H*.15;
+  cx.fillStyle='rgba(0,0,0,.65)';roundRect(cx,gx-50*u,gy-18*u,100*u,34*u,8*u);cx.fill();
+  cx.fillStyle='#fff';cx.font=`700 ${20*u}px Barlow Condensed, sans-serif`;cx.textAlign='center';cx.fillText(fmt(sp,0)+' km/h',gx,gy);cx.textAlign='left';
+  if(P.wet){cx.strokeStyle='rgba(120,160,200,.6)';cx.lineWidth=1*u;for(let i=0;i<60;i++){const rx=(i*97%W),ry2=((i*53+S.t*400)%H);cx.beginPath();cx.moveTo(rx,ry2);cx.lineTo(rx-4*u,ry2+12*u);cx.stroke()}}
+}
+/* ===== Mô hình 2: quy tắc 3 giây ===== */
+const cv3=$('cv3'),c3=cv3.getContext('2d');
+const S3={spd:68,run:false,tau:0};
+function m3(){const v=S3.spd/3.6;return{v,d:v*3}}
+function upd3(){
+  const m=m3();$('spd3O').textContent=S3.spd+' km/h';$('m3v').textContent=fmt(m.v)+' m/s';$('m3d').textContent=fmt(m.d)+' m';
+  let t='Với '+S3.spd+' km/h ≈ '+fmt(m.v)+' m/s thì d = '+fmt(m.v)+' × 3 ≈ '+fmt(m.d)+' m.';
+  if(S3.spd>=60&&S3.spd<=120){const k=tabIdx(S3.spd);t+=' Bảng 11.1 quy định tối thiểu '+tabVal(k)+' m.'}
+  $('m3text').textContent=t;
+}
+$('spd3').addEventListener('input',e=>{S3.spd=+e.target.value;S3.run=false;S3.tau=0;upd3();draw3()});
+document.querySelectorAll('[data-s]').forEach(b=>b.addEventListener('click',()=>{S3.spd=+b.dataset.s;$('spd3').value=S3.spd;S3.run=false;S3.tau=0;SFX.click();upd3();draw3()}));
+let last3=-1;
+$('run3').onclick=()=>{S3.run=true;S3.tau=0;last3=0;lastTs=0;SFX.horn()};
+function draw3(){
+  const{w:W,h:H,d:u}=sizeCanvas(cv3);if(!W)return;const m=m3();
+  const horizon=H*.2,roadTop=H*.28,roadH=H*.32;
+  c3.clearRect(0,0,W,H);drawRoad(c3,W,H,horizon,roadTop,roadH);
+  const Wm=2*m.d+30,pad=24*u,sc=(W-2*pad)/Wm,X=q=>pad+q*sc,pole=m.d+12;
+  const carW=Math.max(46*u,4.5*sc),carH=Math.min(roadH*.36,carW*.45),carY=roadTop+roadH*.5+(roadH*.5-carH)/2-roadH*.04;
+  // cột mốc
+  c3.fillStyle='#fff';c3.fillRect(X(pole)-3*u,roadTop-34*u,6*u,34*u);c3.fillStyle='#e8731a';c3.fillRect(X(pole)-3*u,roadTop-34*u,6*u,10*u);
+  c3.font=`700 ${11*u}px Be Vietnam Pro, sans-serif`;c3.fillStyle=css('--ink');c3.textAlign='center';c3.fillText('Mốc cố định',X(pole),roadTop-40*u);
+  // thước giây
+  const ry=roadTop+roadH+12*u;c3.textBaseline='middle';
+  for(let k=0;k<=3;k++){const q=pole-(3-k)*m.v;c3.fillStyle=k===3?css('--accent'):css('--blue');c3.fillRect(X(q)-1.5*u,ry-6*u,3*u,14*u);
+    c3.fillStyle=css('--ink');c3.fillText(k===0?'xe sau lúc đầu':(k+' s'),X(q),ry+20*u)}
+  c3.strokeStyle=css('--accent');c3.lineWidth=3*u;c3.beginPath();c3.moveTo(X(pole-m.d),ry+1*u);c3.lineTo(X(pole),ry+1*u);c3.stroke();
+  c3.fillStyle=css('--accent');c3.fillText('d = '+fmt(m.d)+' m',X(pole-m.d/2),ry+38*u);c3.textAlign='left';
+  const t=S3.tau,lead=pole+m.v*t,fol=lead-m.d;
+  drawCar(c3,X(lead)+carW,carY,carW,carH,'#c63a2e',false,u);
+  drawCar(c3,X(fol)+carW,carY,carW,carH,'#1f6fb2',false,u);
+  c3.fillStyle=css('--ink');c3.font=`700 ${11*u}px Be Vietnam Pro, sans-serif`;c3.fillText('Xe trước',X(lead),carY-6*u);c3.fillText('Xe sau',X(fol),carY-6*u);
+  if(S3.run||S3.tau>0){const s=Math.min(3,Math.floor(S3.tau)+(S3.tau>=3?0:1));c3.fillStyle='rgba(0,0,0,.65)';roundRect(c3,W-90*u,10*u,76*u,40*u,8*u);c3.fill();
+    c3.fillStyle='#fff';c3.font=`700 ${26*u}px Barlow Condensed, sans-serif`;c3.fillText(S3.tau>=3?'3 giây':fmt(S3.tau)+' s',W-82*u,31*u)}
+}
+let lastTs=0;
+function loop(ts){
+  const dt=lastTs?Math.min(.05,(ts-lastTs)/1000):0;lastTs=ts;
+  if(S.run){stepSim(dt);drawSim()}
+  if(S3.run){
+    const before=S3.tau;S3.tau=Math.min(3,S3.tau+dt);
+    for(let k=1;k<=3;k++)if(before<k&&S3.tau>=k)SFX.beep(k);
+    if(S3.tau>=3){S3.run=false;SFX.good();toast('Xe sau tới mốc đúng sau 3 giây')}
+    draw3();
+  }
+  if(rainOn)drawRain(ts);
+  requestAnimationFrame(loop);
+}
+function sizeAll(){sizeCanvas(cv);sizeCanvas(cv3)}
+function drawAll(){drawSim();draw3()}
+window.addEventListener('resize',()=>{sizeAll();drawAll()});
+let rainOn=false;
+function drawRain(ts){
+  const c=$('rain'),g=c.getContext('2d'),W=c.width,H=c.height;g.clearRect(0,0,W,H);g.strokeStyle='rgba(255,255,255,.55)';g.lineWidth=1.5;
+  for(let i=0;i<50;i++){const x=(i*61)%W,y=((i*37)+ts*.4*(1+i%3*.3))%H;g.beginPath();g.moveTo(x,y);g.lineTo(x-4,y+14);g.stroke()}
+}
+
+/* ===== Tốc độ tối đa ===== */
+const VEH=[
+ ['Ô tô chở người đến 30 chỗ',80,'Xe nhỏ, nhẹ, dễ phanh và đánh lái nên được phép chạy nhanh hơn.'],
+ ['Ô tô tải dưới 3,5 tấn (trừ ô tô buýt)',80,'Tải trọng còn vừa phải nên quán tính chưa quá lớn.'],
+ ['Ô tô chở người trên 30 chỗ',70,'Chở đông người, khối lượng lớn nên quãng đường phanh dài và hậu quả va chạm nặng hơn.'],
+ ['Ô tô tải trên 3,5 tấn (trừ ô tô buýt)',70,'Khối lượng lớn, quán tính lớn, khó dừng nhanh.'],
+ ['Ô tô buýt',60,'Chở nhiều hành khách, thường xuyên dừng đỗ nên cần tốc độ thấp hơn để an toàn.'],
+ ['Ô tô tải, ô tô chuyên dùng',60,'Hàng hoá và thiết bị nặng làm xe khó phanh, dễ mất ổn định khi vào cua.'],
+ ['Mô tô',60,'Người ngồi không có khung bảo vệ, dễ bị thương nặng khi ngã hoặc va chạm.'],
+ ['Ô tô kéo rơ moóc, ô tô kéo xe khác',50,'Xe dài, nhiều bộ phận nối với nhau, dễ mất lái và rất khó phanh.'],
+ ['Xe gắn máy',50,'Không có khung bảo vệ, người điều khiển chịu thiệt hại trực tiếp khi tai nạn.']
+];
+let vSel=0;
+function renderVeh(){
+  const box=$('vehList');box.innerHTML='';
+  VEH.forEach((v,i)=>{
+    const b=document.createElement('button');b.setAttribute('aria-pressed',i===vSel);
+    b.innerHTML='<span style="flex:1"></span><span class="sp"></span>';
+    b.firstChild.textContent=v[0];b.lastChild.textContent=v[1];
+    b.onclick=()=>{vSel=i;tone(300+v[1]*4,.18,'triangle',.15);renderVeh()};
+    box.appendChild(b);
+  });
+  const v=VEH[vSel];$('vehWhy').textContent=v[0]+': tối đa '+v[1]+' km/h. '+v[2];
+}
+function setHw(wet,quiet){
+  $('hwDry').setAttribute('aria-pressed',!wet);$('hwWet').setAttribute('aria-pressed',wet);
+  const d=$('hwDisc');d.textContent=wet?'100':'120';d.classList.add('pulse');setTimeout(()=>d.classList.remove('pulse'),220);
+  $('rain').classList.toggle('on',wet);rainOn=wet;
+  if(quiet){}else if(wet){SFX.rain();setTimeout(SFX.rain,300)}else SFX.click();
+  $('hwWhy').textContent=wet
+   ?'Có mưa: tối đa 100 km/h. Mặt đường trơn làm ma sát giảm, nên xe cần quãng đường phanh dài hơn, và tầm nhìn cũng kém. Theo mô hình (a = 4 m/s²), phanh từ 100 km/h trên đường ướt vẫn mất khoảng 96 m, còn phanh từ 120 km/h trên đường khô (a = 7 m/s²) chỉ khoảng 79 m.'
+   :'Không mưa: tối đa 120 km/h. Mặt đường khô, ma sát lớn, xe phanh hiệu quả hơn và tầm nhìn tốt.';
+}
+$('hwDry').onclick=()=>setHw(false,true);$('hwWet').onclick=()=>setHw(true);
+
+/* ===== Thống kê ===== */
+const YEARS=[2016,2017,2018,2019,2020],ACC=[21589,20080,18232,17626,14510],DIE=[8685,8279,8125,7624,6700];
+let metric='acc',ySel=-1;
+const th=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+function renderBars(){
+  const data=metric==='acc'?ACC:DIE,mx=Math.max(...data),bars=$('bars');bars.innerHTML='';
+  data.forEach((n,i)=>{
+    const b=document.createElement('button');b.className='bar'+(i===ySel?' sel':'');b.setAttribute('aria-label',YEARS[i]+': '+th(n));
+    b.innerHTML='<span></span><i></i>';b.firstChild.textContent=th(n);b.lastChild.style.height='0%';
+    b.onclick=()=>{ySel=i;tone(300+n/60,.15,'triangle',.15);renderBars()};
+    bars.appendChild(b);requestAnimationFrame(()=>requestAnimationFrame(()=>{b.lastChild.style.height=(n/mx*88)+'%'}));
+  });
+  $('years').innerHTML=YEARS.map(y=>'<div>'+y+'</div>').join('');
+  const unit=metric==='acc'?'vụ tai nạn':'người chết';
+  if(ySel<0){const drop=(data[0]-data[4])/data[0]*100;
+    $('statTxt').textContent='Từ 2016 đến 2020, số '+unit+' giảm từ '+th(data[0])+' xuống '+th(data[4])+' (giảm khoảng '+fmt(drop)+'%). Bấm vào một cột để xem từng năm.';}
+  else{const drop=(data[0]-data[ySel])/data[0]*100;
+    $('statTxt').textContent='Năm '+YEARS[ySel]+': '+th(data[ySel])+' '+unit+(ySel?', giảm '+fmt(drop)+'% so với 2016.':'. Đây là năm gốc để so sánh.');}
+}
+$('mAcc').onclick=()=>{metric='acc';$('mAcc').setAttribute('aria-pressed',true);$('mDie').setAttribute('aria-pressed',false);SFX.click();renderBars()};
+$('mDie').onclick=()=>{metric='die';$('mAcc').setAttribute('aria-pressed',false);$('mDie').setAttribute('aria-pressed',true);SFX.click();renderBars()};
+
+/* ===== Thẻ ôn nhanh ===== */
+const CARDS=[
+ ['Quãng đường dừng xe gồm những phần nào?','Quãng đường phản ứng (v·t) cộng quãng đường phanh (v²/2a).'],
+ ['Khi tốc độ tăng gấp đôi, quãng đường phanh thay đổi thế nào?','Tăng gấp 4 lần, vì s = v²/(2a).'],
+ ['Tốc độ tối đa trên đường cao tốc khi có mưa?','100 km/h (không mưa là 120 km/h).'],
+ ['Công thức quy tắc 3 giây?','Khoảng cách an toàn (m) = tốc độ (m/s) × 3 (s).'],
+ ['Đổi 68 km/h ra m/s và tính khoảng cách an toàn.','68 ÷ 3,6 ≈ 18,9 m/s; d ≈ 18,9 × 3 ≈ 56,7 m.'],
+ ['Khoảng cách an toàn tối thiểu khi 100 < v ≤ 120 km/h?','100 m.'],
+ ['Vì sao xe tải lớn có tốc độ tối đa thấp hơn xe con?','Khối lượng lớn, quán tính lớn, quãng đường phanh dài, hậu quả va chạm nặng hơn.'],
+ ['Nguyên nhân chủ yếu của tai nạn giao thông đường bộ?','Các lỗi vi phạm trật tự an toàn giao thông: sai làn, vượt đèn, quá tốc độ, chuyển hướng sai.'],
+ ['Biển báo khoảng cách trên đường cao tốc để làm gì?','Giúp lái xe ước lượng khoảng cách tới xe trước để giữ khoảng cách an toàn.'],
+ ['Hai yếu tố người tham gia giao thông cần có?','Ý thức tôn trọng quy định và hiểu biết về ảnh hưởng của tốc độ.']
+];
+let fi=0,fback=false;
+function renderFlash(){
+  const f=$('flash');f.innerHTML='<small></small><span></span>';
+  f.firstChild.textContent=fback?'ĐÁP ÁN':'CÂU HỎI '+(fi+1);f.lastChild.textContent=CARDS[fi][fback?1:0];
+  $('fCount').textContent=(fi+1)+' / '+CARDS.length;
+}
+$('flash').onclick=()=>{fback=!fback;SFX.tick();renderFlash()};
+$('fNext').onclick=()=>{fi=(fi+1)%CARDS.length;fback=false;SFX.click();renderFlash()};
+$('fPrev').onclick=()=>{fi=(fi+CARDS.length-1)%CARDS.length;fback=false;SFX.click();renderFlash()};
+
+/* ===== Trò chơi trắc nghiệm ===== */
+const QS=[
+ ['Theo Hình 11.1, tốc độ tối đa của ô tô chở người đến 30 chỗ trên đường không có dải phân cách cứng, ngoài khu dân cư là bao nhiêu?',['60 km/h','70 km/h','80 km/h','100 km/h'],2,'Nhóm xe nhỏ (ô tô chở người đến 30 chỗ, ô tô tải dưới 3,5 tấn) được chạy tối đa 80 km/h.'],
+ ['Xe gắn máy có tốc độ tối đa theo Hình 11.1 là:',['50 km/h','60 km/h','70 km/h','80 km/h'],0,'Xe gắn máy và ô tô kéo rơ moóc thuộc nhóm 50 km/h.'],
+ ['Ô tô tải trên 3,5 tấn (trừ ô tô buýt) được chạy tối đa:',['50 km/h','60 km/h','70 km/h','80 km/h'],2,'Nhóm xe lớn, nặng hơn bị giới hạn ở 70 km/h.'],
+ ['Biển báo trên đường cao tốc (Hình 11.2): tốc độ tối đa khi có mưa là:',['80 km/h','90 km/h','100 km/h','120 km/h'],2,'Có mưa: 100 km/h. Không mưa: 120 km/h.'],
+ ['Vì sao khi trời mưa phải giảm tốc độ tối đa?',['Vì xe nặng hơn','Vì ma sát giảm nên quãng đường phanh dài hơn','Vì đường cao tốc ngắn lại','Vì lái xe đông hơn'],1,'Mặt đường ướt làm giảm ma sát giữa lốp và đường, gia tốc phanh nhỏ đi nên xe dừng chậm hơn.'],
+ ['Theo Bảng 11.1, khi 60 < v ≤ 80 km/h thì khoảng cách an toàn tối thiểu là:',['35 m','55 m','70 m','100 m'],1,'Bảng 11.1: v = 60 → 35 m; 60 < v ≤ 80 → 55 m; 80 < v ≤ 100 → 70 m; 100 < v ≤ 120 → 100 m.'],
+ ['Khoảng cách an toàn tối thiểu khi xe chạy 60 km/h là:',['25 m','35 m','55 m','70 m'],1,'Theo Bảng 11.1, v = 60 km/h thì 35 m.'],
+ ['Công thức của quy tắc "3 giây" là:',['d (m) = v (km/h) × 3','d (m) = v (m/s) × 3 (s)','d (m) = v (m/s) ÷ 3','d (m) = v² × 3'],1,'Khoảng cách an toàn (m) = tốc độ (m/s) × 3 (s).'],
+ ['Dùng quy tắc "3 giây", khoảng cách an toàn khi xe chạy 68 km/h xấp xỉ:',['18,9 m','37,8 m','56,7 m','204 m'],2,'68 km/h ≈ 18,9 m/s nên d ≈ 18,9 × 3 ≈ 56,7 m.'],
+ ['Khi tốc độ tăng gấp đôi, quãng đường phản ứng (v·t, cùng thời gian phản ứng) sẽ:',['Tăng 2 lần','Tăng 4 lần','Không đổi','Giảm một nửa'],0,'s₁ = v·t tỉ lệ thuận với v nên tăng 2 lần.'],
+ ['Khi tốc độ tăng gấp đôi, quãng đường phanh (cùng gia tốc phanh) sẽ:',['Tăng 2 lần','Tăng 4 lần','Tăng 8 lần','Không đổi'],1,'s₂ = v²/(2a) tỉ lệ với v² nên tăng 4 lần. Vì vậy chạy nhanh rất nguy hiểm.'],
+ ['Số vụ tai nạn giao thông năm 2020 theo bảng thống kê là:',['17 626 vụ','14 510 vụ','18 232 vụ','8 125 vụ'],1,'Năm 2020 có 14 510 vụ và 6 700 người chết.'],
+ ['Năm nào trong giai đoạn 2016 đến 2020 có số người chết vì tai nạn giao thông thấp nhất?',['2016','2018','2019','2020'],3,'Năm 2020 có 6 700 người chết, thấp nhất trong 5 năm.'],
+ ['Nguyên nhân chủ yếu của tai nạn giao thông đường bộ là:',['Thời tiết xấu','Các lỗi vi phạm trật tự an toàn giao thông','Đường quá rộng','Xe mới sản xuất'],1,'Đi sai làn, không chấp hành đèn tín hiệu, chạy quá tốc độ, chuyển hướng sai đều là lỗi vi phạm.'],
+ ['Khi lái xe dưới 60 km/h, người lái cần:',['Không cần giữ khoảng cách','Luôn giữ đúng 100 m','Chủ động giữ khoảng cách phù hợp với xe phía trước','Bám sát xe trước'],2,'Khoảng cách tuỳ mật độ phương tiện và tình hình giao thông thực tế.'],
+ ['Biển báo khoảng cách trên đường cao tốc (0 m, 50 m, 100 m) dùng để:',['Báo tốc độ tối thiểu','Giúp lái xe ước lượng khoảng cách để giữ an toàn','Báo trạm thu phí','Báo đường cấm'],1,'Biển giúp lái xe ước lượng khoảng cách giữa các xe.'],
+ ['Đổi 90 km/h ra m/s được:',['15 m/s','25 m/s','32,4 m/s','90 m/s'],1,'90 ÷ 3,6 = 25 m/s.'],
+ ['Hai yếu tố người tham gia giao thông cần có để bảo đảm an toàn là:',['Xe mới và đường rộng','Ý thức tôn trọng quy định và hiểu biết về ảnh hưởng của tốc độ','Tốc độ cao và phản xạ nhanh','Đi theo đám đông'],1,'Vừa có ý thức thực hiện an toàn giao thông, vừa hiểu biết về ảnh hưởng của tốc độ.']
+];
+const ROUND=10;
+let Q=null;
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function startQuiz(){
+  Q={list:shuffle(QS).slice(0,ROUND).map(q=>{const o=q[1].map((t,i)=>({t,ok:i===q[2]}));return{q:q[0],o:shuffle(o),e:q[3]}}),i:0,score:0,streak:0,best:0,right:0,answered:false};
+  renderQuiz();
+}
+function renderQuiz(){
+  const box=$('quiz');box.innerHTML='';
+  const el=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e};
+  if(!Q){
+    const w=el('div','result');w.append(el('div','big','🚦'),el('h2',null,'Trò chơi trắc nghiệm'),
+      el('p',null,'10 câu hỏi ngẫu nhiên từ bài học. Trả lời đúng được 10 điểm, đúng liên tiếp được thưởng thêm.'));
+    const b=el('button','btn','Bắt đầu chơi');b.onclick=()=>{SFX.click();startQuiz()};w.append(b);box.append(w);return;
+  }
+  if(Q.i>=Q.list.length){
+    const pct=Q.right/Q.list.length,rank=pct>=.9?'Tài xế mẫu mực':pct>=.7?'Lái xe cẩn thận':pct>=.5?'Cần ôn thêm':'Hãy đọc lại bài rồi thử lại';
+    const w=el('div','result');w.append(el('div','big',String(Q.score)),el('p',null,'điểm'),el('h2',null,rank),
+      el('p',null,'Đúng '+Q.right+'/'+Q.list.length+' câu. Chuỗi đúng dài nhất: '+Q.best+'.'));
+    const b=el('button','btn','Chơi lại');b.onclick=()=>{SFX.click();startQuiz()};w.append(b);box.append(w);
+    if(pct>=.7)SFX.win();return;
+  }
+  const cur=Q.list[Q.i];
+  const h=el('div','qhead');h.append(el('span',null,'Câu '+(Q.i+1)+'/'+Q.list.length),el('span',null,'Điểm: '+Q.score),el('span',null,'🔥 Chuỗi: '+Q.streak));
+  const pb=el('div','pbar');const bi=el('i');bi.style.width=(Q.i/Q.list.length*100)+'%';pb.append(bi);
+  box.append(h,pb,el('p','qtext',cur.q));
+  const btns=[];
+  cur.o.forEach(o=>{
+    const b=el('button','opt',o.t);btns.push(b);
+    b.onclick=()=>{
+      if(Q.answered)return;Q.answered=true;
+      btns.forEach((x,k)=>{x.disabled=true;if(cur.o[k].ok)x.classList.add('right')});
+      let msg;
+      if(o.ok){Q.right++;Q.streak++;Q.best=Math.max(Q.best,Q.streak);const bonus=Math.min(Q.streak-1,5)*2;Q.score+=10+bonus;SFX.good();msg='Chính xác! +'+(10+bonus)+' điểm. '}
+      else{b.classList.add('wrong');Q.streak=0;SFX.bad();msg='Chưa đúng. '}
+      const ex=el('div','expl',msg+cur.e);const nx=el('button','btn',Q.i+1>=Q.list.length?'Xem kết quả':'Câu tiếp →');
+      nx.onclick=()=>{SFX.click();Q.i++;Q.answered=false;renderQuiz();$('b-quiz').scrollTop=0};
+      box.append(ex,nx);nx.focus({preventScroll:false});
+    };
+    box.append(b);
+  });
+}
+
+/* ===== Khởi động ===== */
+renderVeh();setHw(false,true);renderBars();renderFlash();renderQuiz();
+sizeAll();updateStats();upd3();drawAll();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{drawAll()});
+requestAnimationFrame(loop);
+})();
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Chặn phím tắt: F12, Ctrl+U, Ctrl+Shift+I/J/C, Ctrl+S
+    document.addEventListener('keydown', function(e) {
+      const key = e.key.toLowerCase();
+
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) || 
+        (e.ctrlKey && (key === 'u' || key === 's'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 2. Chặn chuột phải (Context Menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  });
+</script>
+</body>
+</html>
