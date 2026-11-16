@@ -1,0 +1,654 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Tế bào LucianEdu</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: mô hình SVG chiếm 3/4 bên trái (có chân trang cố định), bảng 3 tab chiếm 1/4 bên phải, tab cuộn riêng */
+:root{
+  --bg:#eef4ea; --panel:#ffffff; --ink:#1f2d1f; --muted:#5b6b5b; --line:#d5e2cf;
+  --green:#3f9a2f; --green-d:#2b7a1f; --orange:#f28a1b; --soft:#f4f9f0; --warn:#c0392b; --ok:#2e8b3d;
+  --stage:#fbfdf9; --label:#222;
+  --font:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#101a12; --panel:#18241b; --ink:#e6efe3; --muted:#9fb3a0; --line:#2c4030; --green:#6cc65a; --green-d:#8be07a;
+  --orange:#ffa23a; --soft:#1e2d21; --warn:#ff7a6b; --ok:#6fd283; --stage:#f3f8ef; --label:#222; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101a12; --panel:#18241b; --ink:#e6efe3; --muted:#9fb3a0; --line:#2c4030; --green:#6cc65a; --green-d:#8be07a;
+  --orange:#ffa23a; --soft:#1e2d21; --warn:#ff7a6b; --ok:#6fd283; --stage:#f3f8ef; --label:#222; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:14px;
+  padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.app{display:grid;grid-template-columns:3fr 1fr;gap:12px;height:100%;min-height:640px}
+.model{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--soft)}
+.course{font-weight:700;color:var(--green-d);font-size:13px;line-height:1.3;flex:1 1 320px;text-align:left}
+.course small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.figtabs{display:flex;gap:6px;flex-wrap:wrap}
+.figtabs button,.tbtn{font:inherit;font-size:12px;font-weight:600;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:6px 10px;border-radius:8px;cursor:pointer}
+.figtabs button[aria-pressed="true"]{background:var(--green);color:#fff;border-color:var(--green)}
+.tbtn:hover,.figtabs button:hover{border-color:var(--green)}
+:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+.stage{position:relative;flex:1 1 auto;min-height:0;padding-top:34px;background:var(--stage);display:flex;align-items:center;justify-content:center}
+.stage svg{width:100%;height:100%;display:none}
+.stage svg.on{display:block}
+.banner{position:absolute;left:10px;top:8px;right:10px;pointer-events:none;display:flex;justify-content:space-between;gap:8px;font-size:12px}
+.banner .hint{background:rgba(255,255,255,.9);color:#2b4a2b;border:1px solid #cfe3c8;border-radius:8px;padding:4px 9px}
+.banner .score{background:#f28a1b;color:#fff;border-radius:8px;padding:4px 9px;font-weight:700;display:none}
+.controls{border-top:1px solid var(--line);padding:8px 12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px 16px;background:var(--panel)}
+.controls[hidden]{display:none}
+.ctl{display:flex;flex-direction:column;gap:3px;min-width:0}
+.ctl label{font-size:12px;font-weight:600;display:flex;justify-content:space-between;gap:6px}
+.ctl label output{color:var(--orange);font-variant-numeric:tabular-nums}
+.ctl input[type=range]{width:100%;accent-color:var(--green)}
+.ctl.chk{flex-direction:row;align-items:center;gap:6px;font-size:12px;font-weight:600}
+.readout{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted);align-items:center}
+.readout b{color:var(--ink);font-variant-numeric:tabular-nums}
+.meter{flex:1 1 140px;max-width:260px;height:10px;border-radius:6px;background:var(--line);overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f6c23e,#3f9a2f);transition:width .2s}
+.foot{flex:0 0 auto;text-align:center;padding:6px 8px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);background:var(--soft);letter-spacing:.02em}
+.foot b{color:#f28a1b;font-weight:700}
+.side{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.tabs{display:flex;border-bottom:1px solid var(--line);background:var(--soft)}
+.tabs button{flex:1;font:inherit;font-size:12px;font-weight:600;padding:9px 4px;border:0;background:none;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent}
+.tabs button[aria-selected="true"]{color:var(--green-d);border-bottom-color:var(--orange);background:var(--panel)}
+.pane{display:none;flex:1 1 auto;min-height:0;overflow-y:auto;padding:12px;scroll-behavior:smooth;overscroll-behavior:contain;scrollbar-width:thin}
+.pane.on{display:block}
+.pane h3{margin:0 0 6px;font-size:14px;color:var(--green-d);text-wrap:balance}
+.pane h4{margin:12px 0 4px;font-size:13px}
+.pane p,.pane li{line-height:1.55;margin:0 0 8px}
+.pane ul{padding-left:18px;margin:0 0 8px}
+.card{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px}
+.card.sel{border-color:var(--orange);box-shadow:0 0 0 2px rgba(242,138,27,.25)}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;background:var(--green);color:#fff;margin-bottom:6px}
+.tag.o{background:var(--orange)}
+table{border-collapse:collapse;width:100%;font-size:12px;margin-bottom:10px}
+th,td{border:1px solid var(--line);padding:5px 6px;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin-bottom:8px}
+summary{cursor:pointer;font-weight:600}
+.fc{perspective:600px;margin-bottom:8px}
+.fc button{width:100%;min-height:64px;font:inherit;border:1px solid var(--line);border-radius:10px;background:var(--soft);color:var(--ink);padding:8px;cursor:pointer;text-align:left}
+.fc button.flip{background:var(--green);color:#fff;border-color:var(--green)}
+.opt{display:block;width:100%;text-align:left;font:inherit;font-size:13px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 10px;border-radius:8px;margin-bottom:6px;cursor:pointer;line-height:1.4}
+.opt:hover:not(:disabled){border-color:var(--green)}
+.opt.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+.opt.bad{background:var(--warn);color:#fff;border-color:var(--warn)}
+.opt:disabled{cursor:default}
+.prog{height:6px;background:var(--line);border-radius:4px;margin-bottom:10px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--orange);width:0;transition:width .3s}
+.expl{font-size:12.5px;background:var(--soft);border-left:3px solid var(--orange);padding:6px 8px;border-radius:4px;margin:6px 0 8px}
+.btn{font:inherit;font-weight:600;font-size:13px;border:0;border-radius:8px;background:var(--green);color:#fff;padding:8px 12px;cursor:pointer}
+.btn.o{background:var(--orange)}
+/* SVG chung */
+.hot{cursor:pointer}
+.hot:hover{filter:brightness(1.08) drop-shadow(0 0 4px rgba(242,138,27,.9))}
+.hot.sel{filter:drop-shadow(0 0 7px #f28a1b) drop-shadow(0 0 3px #f28a1b)}
+.lab text{fill:var(--label)}
+.lab.hot:hover,.lab.hot.sel{filter:none}
+.lab:hover text,.lab.sel text{fill:#d9680a;font-weight:700}
+.lab line,.lab polyline{stroke:#1a1a1a;stroke-width:2.2;fill:none}
+.lab.light polyline{stroke:#9aa;stroke-width:1.6}
+.hide-labels .lab{opacity:0}
+.hide-labels .lab.sel{opacity:0}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr;height:auto}
+  .model{height:88vh;min-height:620px}
+  .side{height:70vh;min-height:420px}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+<div class="app">
+<section class="model" id="model" aria-label="Mô hình tương tác">
+  <div class="head">
+    <div class="course">Sinh học 6 - 2026-2027 – Bài 19: Cấu tạo và chức năng các thành phần của tế bào<small id="figName">Hình 19.1 · Sơ đồ các thành phần chính của tế bào</small></div>
+    <div class="figtabs" role="group" aria-label="Chọn hình">
+      <button id="fb1" aria-pressed="true">Hình 19.1</button>
+      <button id="fb2" aria-pressed="false">Hình 19.2</button>
+      <button id="fb3" aria-pressed="false">Hình 19.3</button>
+    </div>
+    <button class="tbtn" id="challengeBtn">🎯 Thử thách</button>
+    <button class="tbtn" id="muteBtn" aria-pressed="false" title="Bật/tắt âm thanh">🔊 Âm thanh</button>
+  </div>
+  <div class="stage" id="stage">
+    <div class="banner"><span class="hint" id="hint">Bấm vào từng bộ phận hoặc nhãn để xem chi tiết.</span><span class="score" id="scoreBox"></span></div>
+
+<!-- ============ HÌNH 19.1 (toạ độ theo ảnh gốc trang 67) ============ -->
+<svg id="s1" class="on" viewBox="745 585 430 380" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Hình 19.1 Sơ đồ các thành phần chính của tế bào">
+  <defs>
+    <radialGradient id="g1cyt" cx="50%" cy="50%" r="60%"><stop offset="0" stop-color="#f7cfb0"/><stop offset="1" stop-color="#efb594"/></radialGradient>
+    <radialGradient id="g1nuc" cx="45%" cy="40%" r="65%"><stop offset="0" stop-color="#b5acd6"/><stop offset="1" stop-color="#8c82bd"/></radialGradient>
+    <filter id="glow1"><feGaussianBlur stdDeviation="4"/></filter>
+  </defs>
+  <g id="f1cell">
+    <g class="hot" data-part="f1_tbc" data-fig="1">
+      <path d="M843,712 C843,660 890,626 950,625 C1010,624 1060,648 1074,700 C1086,750 1070,800 1030,826 C990,846 920,845 880,825 C850,808 843,760 843,712 Z" fill="url(#g1cyt)"/>
+    </g>
+    <g id="f1mito" class="hot" data-part="f1_tbc" data-fig="1">
+      <path id="m1a" d="M892,668 C905,660 922,664 922,672 C915,670 905,675 902,692 C900,700 892,704 888,696 C884,686 886,674 892,668 Z" fill="#d9534f" stroke="#a63434" stroke-width="2"/>
+      <path id="m1b" d="M898,738 C915,736 932,752 930,770 C928,786 910,792 896,789 C906,780 902,768 892,760 C880,752 884,742 898,738 Z" fill="#d9534f" stroke="#a63434" stroke-width="2"/>
+      <g stroke="#fbe9e4" stroke-width="2.4" stroke-linecap="round"><path d="M902,744 L896,750"/><path d="M909,744 L902,757"/><path d="M915,748 L907,764"/><path d="M921,754 L912,771"/><path d="M924,764 L915,781"/></g>
+      <g fill="#fbe6cc" stroke="#e2b283" stroke-width="1.5">
+        <ellipse cx="996" cy="776" rx="9" ry="6"/><ellipse cx="1016" cy="772" rx="8" ry="6"/><ellipse cx="1026" cy="782" rx="8" ry="6"/>
+        <ellipse cx="1005" cy="790" rx="9" ry="6"/><ellipse cx="1021" cy="796" rx="8" ry="6"/><ellipse cx="990" cy="801" rx="8" ry="5"/><ellipse cx="1010" cy="804" rx="8" ry="5"/>
+      </g>
+    </g>
+    <g class="hot" data-part="f1_nhan" data-fig="1">
+      <circle id="f1nucGlow" cx="961" cy="729" r="52" fill="#ffd27a" opacity="0" filter="url(#glow1)"/>
+      <circle cx="961" cy="729" r="47" fill="url(#g1nuc)" stroke="#7a70ad" stroke-width="2.5"/>
+    </g>
+    <g class="hot" data-part="f1_vcdt" data-fig="1">
+      <g fill="none" stroke="#d9534f" stroke-width="2.6" stroke-linecap="round">
+        <path d="M940,706 L955,722 L946,735 L957,750"/><path d="M955,704 L945,720"/><path d="M962,716 L972,729 L964,742 L972,755"/><path d="M938,742 L953,735"/><path d="M960,727 L969,719"/>
+      </g>
+    </g>
+    <g class="hot" data-part="f1_mang" data-fig="1">
+      <path d="M843,712 C843,660 890,626 950,625 C1010,624 1060,648 1074,700 C1086,750 1070,800 1030,826 C990,846 920,845 880,825 C850,808 843,760 843,712 Z" fill="none" stroke="#6d6f7c" stroke-width="5"/>
+    </g>
+  </g>
+  <g id="p1layer" pointer-events="none"></g>
+  <g id="f1pulse" pointer-events="none"></g>
+  <!-- Nhãn: vị trí đo từ ảnh -->
+  <g class="lab hot" data-part="f1_mang" data-fig="1"><text x="773" y="615" font-size="18" font-family="Arial,sans-serif">Màng tế bào</text><line x1="861" y1="623" x2="886" y2="648"/><rect x="770" y="598" width="124" height="24" fill="transparent"/></g>
+  <g class="lab hot" data-part="f1_vcdt" data-fig="1"><text x="1061" y="608" font-size="18" font-family="Arial,sans-serif">Vật chất</text><text x="1061" y="633" font-size="18" font-family="Arial,sans-serif">di truyền</text><line x1="1085" y1="649" x2="971" y2="737"/><rect x="1058" y="592" width="90" height="46" fill="transparent"/></g>
+  <g class="lab hot" data-part="f1_nhan" data-fig="1"><text x="1093" y="752" font-size="18" font-family="Arial,sans-serif">Nhân</text><line x1="1007" y1="746" x2="1086" y2="746"/><rect x="1090" y="732" width="55" height="26" fill="transparent"/></g>
+  <g class="lab hot" data-part="f1_tbc" data-fig="1"><text x="758" y="762" font-size="18" font-family="Arial,sans-serif">Tế bào</text><text x="783" y="787" font-size="18" font-family="Arial,sans-serif">chất</text><line x1="832" y1="770" x2="870" y2="770"/><rect x="755" y="744" width="72" height="50" fill="transparent"/></g>
+  <!-- chân hình -->
+  <rect x="895" y="862" width="140" height="31" rx="15" fill="#7cc242"/><text x="965" y="884" font-size="19" font-style="italic" font-weight="700" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif">Hình 19.1</text>
+  <text x="971" y="924" font-size="20" font-style="italic" text-anchor="middle" fill="#333" font-family="Arial,sans-serif">Sơ đồ các thành phần chính của</text>
+  <text x="971" y="952" font-size="20" font-style="italic" text-anchor="middle" fill="#333" font-family="Arial,sans-serif">tế bào</text>
+</svg>
+<!-- ============ HÌNH 19.2 (toạ độ theo ảnh gốc trang 67) ============ -->
+<svg id="s2" viewBox="100 1310 1090 385" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Hình 19.2 Cấu tạo tế bào nhân sơ và tế bào nhân thực">
+  <defs>
+    <linearGradient id="g2cap" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4b560"/><stop offset="1" stop-color="#e58b2a"/></linearGradient>
+    <linearGradient id="g2bowl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7ccaf2"/><stop offset="1" stop-color="#1673c4"/></linearGradient>
+    <linearGradient id="g2cav" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a9c3d6"/><stop offset="1" stop-color="#8dc4e8"/></linearGradient>
+    <radialGradient id="g2nuc" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#c25a8a"/><stop offset="1" stop-color="#7a2a55"/></radialGradient>
+    <pattern id="g2rer" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#d98a88"/><path d="M0,3 L6,3" stroke="#f3c9c4" stroke-width="1.5"/></pattern>
+  </defs>
+  <!-- (a) NHÂN SƠ -->
+  <g id="pili" pointer-events="none"></g>
+  <g class="hot" data-part="f2_mang_a" data-fig="2">
+    <rect x="140" y="1443" width="252" height="84" rx="42" fill="url(#g2cap)" stroke="#d9822b" stroke-width="2"/>
+    <rect x="145" y="1450" width="75" height="70" rx="30" fill="#f7cf9c" opacity=".8"/>
+    <rect x="218" y="1446" width="154" height="67" rx="30" fill="#e5e04e" stroke="#4c8a3a" stroke-width="3"/>
+  </g>
+  <g class="hot" data-part="f2_tbc_a" data-fig="2">
+    <rect x="225" y="1451" width="142" height="57" rx="25" fill="#82d6e6"/>
+    <g id="ribo2a" fill="#2a6fb5"></g>
+  </g>
+  <g class="hot" data-part="f2_vn_a" data-fig="2">
+    <path id="nucleoid" d="M233,1480 C233,1466 250,1462 268,1466 C285,1458 305,1464 322,1462 C340,1458 357,1466 356,1480 C355,1494 338,1497 320,1493 C300,1499 282,1494 264,1496 C245,1498 233,1494 233,1480 Z" fill="#c778c9" stroke="#9a3da8" stroke-width="2"/>
+    <g fill="none" stroke="#8a2f9a" stroke-width="1.4" stroke-linecap="round" opacity=".8"><path d="M240,1478 C255,1470 262,1488 278,1478 S300,1470 312,1484 S340,1472 350,1480"/><path d="M243,1487 C258,1481 268,1493 285,1486 S308,1480 320,1488 S342,1486 350,1488"/></g>
+  </g>
+  <g id="fl" class="hot" data-part="f2_roi" data-fig="2" fill="none" stroke-linecap="round">
+    <path id="fl1" d="M400,1482 C430,1462 455,1432 490,1427 C525,1422 550,1440 568,1425 C582,1412 596,1392 625,1390" stroke="#e8b52a" stroke-width="6"/>
+    <path id="fl2" d="M400,1488 C430,1472 462,1458 490,1456 C520,1454 545,1472 572,1463 C600,1454 622,1450 640,1458" stroke="#e8b52a" stroke-width="6"/>
+    <path id="fl3" d="M400,1498 C430,1502 452,1495 472,1495 C492,1495 497,1515 522,1522 C547,1528 565,1514 592,1502 C612,1494 636,1500 655,1503" stroke="#e8b52a" stroke-width="6"/>
+  </g>
+  <g id="nuclearOutline" pointer-events="none" fill="none" stroke="#ff7a00" stroke-width="2.5" stroke-dasharray="6 4" opacity="0">
+    <rect x="216" y="1445" width="158" height="70" rx="30"/>
+  </g>
+  <!-- (b) NHÂN THỰC -->
+  <ellipse cx="1030" cy="1556" rx="112" ry="13" fill="#000" opacity=".12"/>
+  <g class="hot" data-part="f2_mang_b" data-fig="2">
+    <path d="M890,1428 C890,1500 950,1550 1023,1550 C1096,1550 1157,1500 1157,1428 Z" fill="url(#g2bowl)"/>
+    <path d="M892,1432 C905,1490 960,1500 1023,1497 C1090,1494 1148,1480 1155,1432" fill="none" stroke="#bfe4fa" stroke-width="3"/>
+  </g>
+  <g class="hot" data-part="f2_tbc_b" data-fig="2">
+    <ellipse cx="1023" cy="1428" rx="133" ry="67" fill="url(#g2cav)"/>
+    <g id="ribo2b" fill="#fff" opacity=".85"></g>
+    <g fill="#f4d7d7" opacity=".9"><circle cx="1000" cy="1480" r="4"/><circle cx="1038" cy="1494" r="3"/><circle cx="944" cy="1480" r="4"/><circle cx="1130" cy="1440" r="3"/><circle cx="960" cy="1488" r="3"/></g>
+  </g>
+  <g id="orgs2b" class="hot" data-part="f2_nhan_b" data-fig="2">
+    <g id="er2b">
+      <path d="M992,1360 C992,1348 1010,1344 1030,1346 L1100,1346 C1118,1346 1126,1356 1125,1372 L1125,1442 C1125,1452 1112,1452 1050,1452 C1000,1452 992,1448 992,1436 Z" fill="#e6b84e" stroke="#b8862a" stroke-width="2"/>
+      <g fill="none" stroke="#b8862a" stroke-width="2" stroke-linecap="round"><path d="M996,1372 C1020,1366 1040,1380 1060,1372 S1100,1368 1122,1376"/><path d="M996,1388 C1020,1382 1040,1396 1060,1388 S1100,1384 1122,1392"/><path d="M996,1404 C1020,1398 1040,1412 1060,1404 S1100,1400 1122,1408"/></g>
+      <g fill="#f3d58a" stroke="#b8862a" stroke-width="1.5"><rect x="1018" y="1418" width="12" height="34" rx="6"/><rect x="1038" y="1420" width="12" height="32" rx="6"/><rect x="1058" y="1418" width="12" height="34" rx="6"/><rect x="1078" y="1420" width="12" height="32" rx="6"/><rect x="1098" y="1418" width="12" height="34" rx="6"/></g>
+    </g>
+    <circle cx="1058" cy="1356" r="38" fill="url(#g2nuc)" stroke="#5e1e40" stroke-width="2"/>
+    <circle cx="1048" cy="1349" r="10" fill="#d97aa6" opacity=".85"/>
+    <circle id="envRing" cx="1058" cy="1356" r="43" fill="none" stroke="#ff7a00" stroke-width="3" stroke-dasharray="6 4" opacity="0" pointer-events="none"/>
+  </g>
+  <g class="hot" data-part="f2_tbc_b" data-fig="2">
+    <ellipse cx="950" cy="1440" rx="40" ry="28" fill="url(#g2rer)" stroke="#b86a68" stroke-width="2"/>
+    <g id="mit2b"><ellipse cx="972" cy="1388" rx="16" ry="11" transform="rotate(-30 972 1388)" fill="#d85a6a" stroke="#3b73b8" stroke-width="2"/><ellipse cx="1104" cy="1471" rx="18" ry="13" transform="rotate(-20 1104 1471)" fill="#d85a6a" stroke="#3b73b8" stroke-width="2"/></g>
+    <rect x="1011" y="1462" width="12" height="30" rx="6" transform="rotate(-15 1017 1477)" fill="#f0a64a"/>
+  </g>
+  <g id="orgOutline" pointer-events="none" fill="none" stroke="#ff7a00" stroke-width="2.5" stroke-dasharray="6 4" opacity="0">
+    <ellipse cx="972" cy="1388" rx="21" ry="16" transform="rotate(-30 972 1388)"/><ellipse cx="1104" cy="1471" rx="23" ry="18" transform="rotate(-20 1104 1471)"/><ellipse cx="950" cy="1440" rx="45" ry="33"/><rect x="988" y="1343" width="141" height="113" rx="14"/>
+  </g>
+  <!-- Nhãn (toạ độ đo từ ảnh) -->
+  <g class="lab hot" data-part="f2_vn_a" data-fig="2"><text x="475" y="1356" font-size="17" font-family="Arial,sans-serif">Vùng nhân</text><polyline points="472,1349 275,1349 275,1462"/><rect x="474" y="1340" width="94" height="22" fill="transparent"/></g>
+  <g class="lab hot" data-part="f2_tbc" data-fig="2"><text x="711" y="1445" font-size="17" font-family="Arial,sans-serif">Tế bào chất</text><line x1="374" y1="1474" x2="706" y2="1439"/><line x1="820" y1="1439" x2="899" y2="1421"/><rect x="709" y="1428" width="106" height="22" fill="transparent"/></g>
+  <g class="lab hot" data-part="f2_mang" data-fig="2"><text x="712" y="1532" font-size="17" font-family="Arial,sans-serif">Màng tế bào</text><line x1="367" y1="1500" x2="708" y2="1526"/><line x1="822" y1="1526" x2="900" y2="1489"/><rect x="709" y="1515" width="110" height="22" fill="transparent"/></g>
+  <g class="lab hot" data-part="f2_nhan_b" data-fig="2"><text x="727" y="1355" font-size="17" font-family="Arial,sans-serif">Nhân</text><line x1="779" y1="1350" x2="1012" y2="1350"/><rect x="725" y="1340" width="50" height="22" fill="transparent"/></g>
+  <text x="410" y="1625" font-size="22" font-style="italic" text-anchor="middle" fill="#333" font-family="Arial,sans-serif">a) Tế bào nhân sơ</text>
+  <text x="1022" y="1625" font-size="22" font-style="italic" text-anchor="middle" fill="#333" font-family="Arial,sans-serif">b) Tế bào nhân thực</text>
+  <rect x="378" y="1652" width="147" height="31" rx="15" fill="#7cc242"/><text x="451" y="1674" font-size="19" font-style="italic" font-weight="700" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif">Hình 19.2</text>
+  <text x="536" y="1675" font-size="21" font-style="italic" fill="#333" font-family="Arial,sans-serif">Cấu tạo tế bào nhân sơ và tế bào nhân thực</text>
+</svg>
+<!-- ============ HÌNH 19.3 (toạ độ theo ảnh gốc trang 68) ============ -->
+<svg id="s3" viewBox="85 885 1110 590" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Hình 19.3 Cấu tạo tế bào động vật và tế bào thực vật">
+  <defs>
+    <linearGradient id="g3abowl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e0508c"/><stop offset="1" stop-color="#a81f68"/></linearGradient>
+    <linearGradient id="g3acav" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d44a86"/><stop offset="1" stop-color="#ea77a8"/></linearGradient>
+    <linearGradient id="g3wall" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c3df3c"/><stop offset="1" stop-color="#6b9a10"/></linearGradient>
+    <radialGradient id="g3nuc" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#8b78c8"/><stop offset="1" stop-color="#3a2a7a"/></radialGradient>
+    <radialGradient id="g3nucP" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#7f8fd6"/><stop offset="1" stop-color="#2e3680"/></radialGradient>
+    <radialGradient id="g3vac" cx="40%" cy="30%" r="75%"><stop offset="0" stop-color="#b6e6ec"/><stop offset="1" stop-color="#5aa6c8"/></radialGradient>
+    <radialGradient id="g3ves" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#d9c8d6"/><stop offset="1" stop-color="#8a7488"/></radialGradient>
+    <filter id="blur3"><feGaussianBlur stdDeviation="6"/></filter>
+    <pattern id="g3str" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="#e07a50"/><path d="M0,2.5 L5,2.5" stroke="#7a2e18" stroke-width="1.2"/></pattern>
+  </defs>
+  <!-- ánh sáng mặt trời (mô phỏng) -->
+  <g id="sun3" opacity="0" pointer-events="none"><circle cx="1085" cy="925" r="0" fill="#ffd34d"/><g id="rays3" stroke="#ffc928" stroke-width="3" stroke-linecap="round"></g></g>
+
+  <!-- ===== a) TẾ BÀO ĐỘNG VẬT ===== -->
+  <g id="animal" >
+    <g class="hot" data-part="f3_mang_a" data-fig="3">
+      <path d="M101,1085 C101,1180 180,1236 276,1236 C372,1236 451,1180 451,1085 Z" fill="url(#g3abowl)"/>
+      <path d="M103,1092 C130,1150 200,1170 276,1169 C360,1168 430,1140 449,1090" fill="none" stroke="#f7b6d2" stroke-width="3"/>
+    </g>
+    <g class="hot" data-part="f3_tbc_a" data-fig="3">
+      <ellipse cx="276" cy="1085" rx="175" ry="84" fill="url(#g3acav)"/>
+    </g>
+    <g class="hot" data-part="f3_ves_a" data-fig="3">
+      <circle cx="166" cy="1056" r="28" fill="url(#g3ves)" opacity=".85"/><circle cx="148" cy="1112" r="19" fill="url(#g3ves)" opacity=".85"/>
+    </g>
+    <g class="hot" data-part="f3_nhan_a" data-fig="3">
+      <g fill="none" stroke="#4d3d8a" stroke-width="2.2" opacity=".95">
+        <ellipse cx="298" cy="1078" rx="82" ry="46" fill="#7b68b8"/><ellipse cx="298" cy="1078" rx="72" ry="40"/><ellipse cx="298" cy="1078" rx="62" ry="34"/><ellipse cx="298" cy="1078" rx="52" ry="28"/>
+      </g>
+      <circle cx="300" cy="1035" r="42" fill="url(#g3nuc)" stroke="#2c1f6a" stroke-width="2"/>
+      <path d="M300,1035 L300,997 A42,42 0 0 1 335,1052 Z" fill="#b7a7e8"/><circle cx="300" cy="1035" r="11" fill="#a02a8a"/>
+    </g>
+    <g class="hot" data-part="f3_ti_a" data-fig="3">
+      <g id="mitoA" fill="url(#g3str)" stroke="#f0a070" stroke-width="2.5">
+        <ellipse cx="209" cy="1109" rx="32" ry="13" transform="rotate(10 209 1109)"/><ellipse cx="230" cy="1149" rx="28" ry="12" transform="rotate(-8 230 1149)"/><ellipse cx="400" cy="1073" rx="25" ry="14" transform="rotate(-15 400 1073)"/>
+      </g>
+    </g>
+    <g class="hot" data-part="f3_tbc_a" data-fig="3">
+      <path d="M335,1118 C350,1100 365,1104 380,1100 C395,1096 408,1102 407,1112 C406,1124 390,1126 375,1130 C360,1136 345,1138 335,1130 Z" fill="#6b4f9a" stroke="#4a3578" stroke-width="2"/>
+      <g fill="none" stroke="#a894d6" stroke-width="1.6"><path d="M340,1119 C360,1110 385,1112 402,1108"/><path d="M340,1127 C360,1120 385,1122 400,1118"/></g>
+    </g>
+  </g>
+
+  <!-- ===== b) TẾ BÀO THỰC VẬT ===== -->
+  <g id="plant">
+    <g class="hot" data-part="f3_thanh" data-fig="3">
+      <path d="M588.3,1063.3 L652.2,1016.1 L730,1013.3 L991.1,1063.3 L999.4,1091.1 L993.9,1180 L924.4,1241.1 L846.7,1277.2 L802.2,1268.9 L674.4,1218.9 L591.1,1130 Z" fill="url(#g3wall)" stroke="#5f8710" stroke-width="2"/>
+      <path d="M599.4,1074.4 L655,1025.6 L727.2,1020 L988.3,1074.4 L993.9,1093.9 L907.8,1163.3 L868.9,1177.2 L846.7,1180 L680,1118.9 L599.4,1082.8 Z" fill="none" stroke="#efe9a0" stroke-width="7" stroke-linejoin="round"/>
+    </g>
+    <g class="hot" data-part="f3_mang_b" data-fig="3">
+      <path id="pmem" d="M599.4,1074.4 L655,1025.6 L727.2,1020 L988.3,1074.4 L993.9,1093.9 L907.8,1163.3 L868.9,1177.2 L846.7,1180 L680,1118.9 L599.4,1082.8 Z" fill="#c4a53c" stroke="#8a6d1a" stroke-width="3"/>
+    </g>
+    <g class="hot" data-part="f3_tbc_b" data-fig="3"><path d="M640,1060 L700,1030 L850,1040 L960,1085 L900,1140 L820,1150 L700,1110 Z" fill="#cdae48" opacity=".55"/></g>
+    <g class="hot" data-part="f3_nhan_b" data-fig="3">
+      <g fill="none" stroke="#7a4bb0" stroke-width="2"><ellipse cx="718" cy="1086" rx="46" ry="22" fill="#9a6bd0" opacity=".9"/><ellipse cx="718" cy="1086" rx="38" ry="17"/><ellipse cx="718" cy="1086" rx="30" ry="12"/></g>
+      <circle cx="715" cy="1052" r="38" fill="url(#g3nucP)" stroke="#232a6a" stroke-width="2"/>
+      <path d="M715,1052 L715,1016 A38,38 0 0 1 748,1068 Z" fill="#aab6ee"/><circle cx="715" cy="1052" r="9" fill="#6a2a8a"/>
+    </g>
+    <g class="hot" data-part="f3_khongbao" data-fig="3">
+      <path id="vac" d="M794,1110 C794,1060 820,1038 857,1038 C895,1038 919,1065 919,1100 C919,1130 890,1140 857,1140 C820,1140 794,1135 794,1110 Z" fill="url(#g3vac)" opacity=".92" stroke="#4a95b8" stroke-width="2"/>
+    </g>
+    <g class="hot" data-part="f3_luclap" data-fig="3">
+      <circle id="chloGlow" cx="790" cy="1070" r="150" fill="#9dff6a" opacity="0" filter="url(#blur3)" pointer-events="none"/>
+      <g id="chlo">
+        <ellipse cx="790" cy="1040" rx="30" ry="14" transform="rotate(20 790 1040)" fill="#d9e6b8" stroke="#8fb05a" stroke-width="2.5"/>
+        <ellipse cx="755" cy="1097" rx="33" ry="15" transform="rotate(-20 755 1097)" fill="#d9e6b8" stroke="#8fb05a" stroke-width="2.5"/>
+        <ellipse cx="852" cy="1157" rx="47" ry="15" fill="#d9e6b8" stroke="#8fb05a" stroke-width="2.5"/>
+        <g fill="#2f9b3c"><rect x="772" y="1034" width="8" height="6" rx="2"/><rect x="783" y="1038" width="8" height="6" rx="2"/><rect x="795" y="1042" width="8" height="6" rx="2"/><rect x="738" y="1094" width="8" height="6" rx="2"/><rect x="750" y="1096" width="8" height="6" rx="2"/><rect x="762" y="1092" width="8" height="6" rx="2"/><rect x="820" y="1154" width="9" height="6" rx="2"/><rect x="833" y="1156" width="9" height="6" rx="2"/><rect x="846" y="1156" width="9" height="6" rx="2"/><rect x="859" y="1155" width="9" height="6" rx="2"/><rect x="872" y="1154" width="9" height="6" rx="2"/></g>
+      </g>
+    </g>
+    <g class="hot" data-part="f3_ti_b" data-fig="3">
+      <g fill="url(#g3str)" stroke="#f0a070" stroke-width="2.5"><ellipse cx="650" cy="1072" rx="14" ry="22"/><ellipse cx="940" cy="1083" rx="22" ry="12" transform="rotate(20 940 1083)"/><ellipse cx="931" cy="1121" rx="26" ry="13" transform="rotate(-10 931 1121)"/></g>
+    </g>
+  </g>
+  <g id="bub3" pointer-events="none"></g>
+  <g id="hl3" pointer-events="none" fill="none" stroke="#ff7a00" stroke-width="3" stroke-dasharray="7 5" opacity="0">
+    <path d="M588.3,1063.3 L652.2,1016.1 L730,1013.3 L991.1,1063.3 L999.4,1091.1 L993.9,1180 L924.4,1241.1 L846.7,1277.2 L802.2,1268.9 L674.4,1218.9 L591.1,1130 Z"/>
+    <ellipse cx="857" cy="1090" rx="68" ry="55"/><ellipse cx="790" cy="1040" rx="36" ry="19" transform="rotate(20 790 1040)"/><ellipse cx="755" cy="1097" rx="39" ry="20" transform="rotate(-20 755 1097)"/><ellipse cx="852" cy="1157" rx="53" ry="20"/>
+  </g>
+
+  <!-- Nhãn dùng chung ở giữa (nét xám nhạt như ảnh) -->
+  <g class="lab light hot" data-part="f3_nhan" data-fig="3"><text x="530" y="935" font-size="16" font-family="Arial,sans-serif">Nhân</text><polyline points="519,933 296,933 296,1005"/><polyline points="578,933 702,933 702,1030"/><rect x="526" y="920" width="50" height="20" fill="transparent"/></g>
+  <g class="lab light hot" data-part="f3_tbc" data-fig="3"><text x="423" y="973" font-size="16" font-family="Arial,sans-serif">Tế bào chất</text><polyline points="421,968 400,968 400,1052"/><polyline points="524,968 652,968 652,1045"/><rect x="421" y="958" width="104" height="20" fill="transparent"/></g>
+  <g class="lab light hot" data-part="f3_ti" data-fig="3"><text x="488" y="1071" font-size="16" font-family="Arial,sans-serif">Ti thể</text><polyline points="486,1066 440,1066 426,1072"/><polyline points="534,1066 600,1066 640,1070"/><rect x="486" y="1056" width="50" height="20" fill="transparent"/></g>
+  <g class="lab light hot" data-part="f3_mang" data-fig="3"><text x="432" y="1243" font-size="16" font-family="Arial,sans-serif">Màng tế bào</text><polyline points="430,1244 334,1244 334,1180"/><polyline points="540,1244 702,1244 702,1170"/><rect x="430" y="1230" width="110" height="20" fill="transparent"/></g>
+  <!-- Nhãn riêng của tế bào thực vật -->
+  <g class="lab hot" data-part="f3_luclap" data-fig="3">
+    <polyline points="842,933 788,933 788,1041"/>
+    <text x="855" y="904" font-size="16" font-family="Arial,sans-serif">Lục lạp: Chứa diệp lục giúp hấp thu</text>
+    <text x="855" y="927" font-size="16" font-family="Arial,sans-serif">năng lượng ánh sáng mặt trời để</text>
+    <text x="855" y="950" font-size="16" font-family="Arial,sans-serif">tổng hợp chất hữu cơ trong quá trình</text>
+    <text x="855" y="973" font-size="16" font-weight="700" font-family="Arial,sans-serif">quang hợp</text>
+    <rect x="852" y="888" width="305" height="92" fill="transparent"/>
+  </g>
+  <g class="lab hot" data-part="f3_khongbao" data-fig="3">
+    <polyline points="1008,1012 864,1012 864,1074"/>
+    <text x="1010" y="1017" font-size="16" font-family="Arial,sans-serif">Không bào: Kích</text>
+    <text x="1010" y="1040" font-size="16" font-family="Arial,sans-serif">thước lớn, giữ các</text>
+    <text x="1010" y="1063" font-size="16" font-family="Arial,sans-serif">chức năng khác</text>
+    <text x="1010" y="1086" font-size="16" font-family="Arial,sans-serif">nhau: chứa sắc tố,</text>
+    <text x="1010" y="1109" font-size="16" font-family="Arial,sans-serif">chất thải; dự trữ dinh</text>
+    <text x="1010" y="1132" font-size="16" font-family="Arial,sans-serif">dưỡng,... tuỳ thuộc</text>
+    <text x="1010" y="1155" font-size="16" font-family="Arial,sans-serif">từng loại tế bào</text>
+    <rect x="1006" y="998" width="170" height="165" fill="transparent"/>
+  </g>
+  <g class="lab hot" data-part="f3_thanh" data-fig="3">
+    <polyline points="853,1323 799,1323 799,1210"/>
+    <text x="860" y="1306" font-size="16" font-family="Arial,sans-serif"><tspan font-weight="700">Thành tế bào:</tspan> Bao bọc bên ngoài</text>
+    <text x="860" y="1329" font-size="16" font-family="Arial,sans-serif">màng tế bào, có chức năng quy định</text>
+    <text x="860" y="1352" font-size="16" font-family="Arial,sans-serif">hình dạng và bảo vệ tế bào</text>
+    <rect x="856" y="1288" width="295" height="72" fill="transparent"/>
+  </g>
+  <text x="102" y="1311" font-size="16" fill="#333" font-family="Arial,sans-serif">(Một số tế bào động vật đơn bào có không bào</text>
+  <text x="102" y="1336" font-size="16" fill="#333" font-family="Arial,sans-serif">giữ chức năng co bóp, tiêu hoá)</text>
+  <text x="299" y="1404" font-size="22" font-style="italic" text-anchor="middle" fill="#333" font-family="Arial,sans-serif">a) Tế bào động vật</text>
+  <text x="837" y="1404" font-size="22" font-style="italic" text-anchor="middle" fill="#333" font-family="Arial,sans-serif">b) Tế bào thực vật</text>
+  <rect x="320" y="1433" width="148" height="31" rx="15" fill="#7cc242"/><text x="394" y="1455" font-size="19" font-style="italic" font-weight="700" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif">Hình 19.3</text>
+  <text x="480" y="1456" font-size="21" font-style="italic" fill="#333" font-family="Arial,sans-serif">Cấu tạo tế bào động vật và tế bào thực vật</text>
+</svg>
+  </div>
+  <div class="controls" id="c1">
+    <div class="ctl"><label for="r1a">Trao đổi chất qua màng tế bào <output id="o1a">50</output></label><input type="range" id="r1a" min="0" max="100" value="50"></div>
+    <div class="ctl"><label for="r1b">Mức điều khiển của nhân <output id="o1b">50</output></label><input type="range" id="r1b" min="0" max="100" value="50"></div>
+    <div class="readout"><span>Chất vào: <b id="in1">0</b></span><span>Chất thải ra: <b id="out1">0</b></span><span>Mức hoạt động sống: <b id="life1">50%</b></span><span class="meter"><i id="m1"></i></span></div>
+  </div>
+  <div class="controls" id="c2" hidden>
+    <div class="ctl"><label for="r2a">Số ribosome trong tế bào chất <output id="o2a">20</output></label><input type="range" id="r2a" min="0" max="60" value="20"></div>
+    <div class="ctl"><label for="r2b">Tốc độ vẫy roi (nhân sơ) <output id="o2b">40</output></label><input type="range" id="r2b" min="0" max="100" value="40"></div>
+    <label class="ctl chk"><input type="checkbox" id="k2"> Làm nổi bật màng nhân và bào quan có màng bao</label>
+    <div class="readout"><span>Nhân sơ: màng nhân <b>0</b> · bào quan có màng <b>0</b> · ribosome <b id="rb2a">20</b></span><span>Nhân thực: màng nhân <b>1</b> · bào quan có màng <b>nhiều</b></span></div>
+  </div>
+  <div class="controls" id="c3" hidden>
+    <div class="ctl"><label for="r3a">Cường độ ánh sáng <output id="o3a">60</output></label><input type="range" id="r3a" min="0" max="100" value="60"></div>
+    <div class="ctl"><label for="r3b">Lượng nước trong tế bào <output id="o3b">50</output></label><input type="range" id="r3b" min="0" max="100" value="50"></div>
+    <label class="ctl chk"><input type="checkbox" id="k3"> Làm nổi bật điểm khác nhau (thành tế bào, lục lạp, không bào)</label>
+    <div class="readout"><span>Chất hữu cơ tạo ra (thực vật): <b id="sugar3">0</b></span><span id="note3">Tế bào thực vật giữ nguyên hình dạng nhờ thành tế bào.</span></div>
+  </div>
+  <div class="foot">Produced of <b>LucianEdu</b></div>
+</section>
+
+<aside class="side">
+  <div class="tabs" role="tablist">
+    <button role="tab" id="t0" aria-selected="true" data-p="0">Nội dung</button>
+    <button role="tab" id="t1" aria-selected="false" data-p="1">Ôn tập</button>
+    <button role="tab" id="t2" aria-selected="false" data-p="2">Trắc nghiệm</button>
+  </div>
+  <div class="pane on" id="pane0" role="tabpanel"></div>
+  <div class="pane" id="pane1" role="tabpanel"></div>
+  <div class="pane" id="pane2" role="tabpanel"></div>
+</aside>
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s)}, $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var NS="http://www.w3.org/2000/svg";
+function el(n,a,p){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+
+/* ---------- Âm thanh (Web Audio) ---------- */
+var AC=null,muted=false;
+function ctx(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==="suspended")AC.resume();return AC}
+function tone(f,t0,d,type,vol,f2){var c=ctx();if(!c||muted)return;var o=c.createOscillator(),g=c.createGain();o.type=type||"sine";o.frequency.setValueAtTime(f,c.currentTime+t0);if(f2)o.frequency.exponentialRampToValueAtTime(f2,c.currentTime+t0+d);g.gain.setValueAtTime(0.0001,c.currentTime+t0);g.gain.exponentialRampToValueAtTime(vol||.15,c.currentTime+t0+.01);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+t0+d);o.connect(g);g.connect(c.destination);o.start(c.currentTime+t0);o.stop(c.currentTime+t0+d+.02)}
+var SND={click:function(){tone(660,0,.07,"triangle",.12,880)},pick:function(){tone(520,0,.09,"sine",.14,780)},tab:function(){tone(440,0,.06,"square",.05,520)},
+ ok:function(){tone(523,0,.12,"sine",.18);tone(659,.1,.12,"sine",.18);tone(784,.2,.2,"sine",.18)},
+ bad:function(){tone(200,0,.25,"sawtooth",.12,110);tone(150,.12,.25,"sawtooth",.1,90)},
+ win:function(){[523,659,784,1047].forEach(function(f,i){tone(f,i*.12,.18,"triangle",.18)})}};
+var lastTick=0;function tick(){var n=Date.now();if(n-lastTick>90){lastTick=n;tone(900,0,.03,"sine",.04)}}
+$("#muteBtn").onclick=function(){muted=!muted;this.setAttribute("aria-pressed",muted);this.textContent=muted?"🔇 Đã tắt":"🔊 Âm thanh";if(!muted)SND.click()};
+
+/* ---------- Dữ liệu nội dung ---------- */
+var INFO={
+f1_mang:{t:"Màng tế bào",tag:"Hình 19.1",d:"Là thành phần có ở mọi tế bào, bao bọc tế bào chất. Màng tế bào tham gia vào quá trình trao đổi chất giữa tế bào và môi trường.",q:"Thử mô phỏng: kéo thanh “Trao đổi chất qua màng” để thấy chất đi vào và chất thải đi ra nhiều hay ít. Trên màng có rất nhiều lỗ nhỏ li ti cho các chất đi qua."},
+f1_tbc:{t:"Tế bào chất",tag:"Hình 19.1",d:"Là vùng nằm giữa màng tế bào và nhân (hoặc vùng nhân). Phần lớn các hoạt động trao đổi chất của tế bào (hấp thụ chất dinh dưỡng, chuyển hoá năng lượng, tạo các chất để tăng trưởng,…) xảy ra ở tế bào chất.",q:"Trong tế bào chất có các bào quan như ti thể (hình bầu dục đỏ) và các túi nhỏ."},
+f1_nhan:{t:"Nhân (hoặc vùng nhân)",tag:"Hình 19.1",d:"Là nơi chứa vật chất di truyền, là trung tâm điều khiển các hoạt động sống của tế bào.",q:"Thử mô phỏng: kéo thanh “Mức điều khiển của nhân” về 0, mức hoạt động sống của tế bào giảm mạnh."},
+f1_vcdt:{t:"Vật chất di truyền",tag:"Hình 19.1",d:"Nằm trong nhân (hoặc vùng nhân). Nhân chứa vật chất di truyền nên là trung tâm điều khiển các hoạt động sống của tế bào.",q:"Trên hình, vật chất di truyền được vẽ dạng các sợi đỏ ở giữa nhân."},
+f2_vn_a:{t:"Vùng nhân (tế bào nhân sơ)",tag:"Hình 19.2a",d:"Tế bào nhân sơ chưa có nhân hoàn chỉnh (không có màng nhân ngăn cách giữa chất nhân và tế bào chất). Vùng chứa vật chất di truyền được gọi là vùng nhân.",q:"Bật “Làm nổi bật” để so sánh với nhân thực, có màng nhân bao bọc."},
+f2_tbc_a:{t:"Tế bào chất (nhân sơ)",tag:"Hình 19.2a",d:"Tế bào chất không có hệ thống nội màng cũng như các bào quan có màng bao bọc, chỉ có bào quan duy nhất là ribosome.",q:"Kéo thanh “Số ribosome” để thấy các hạt ribosome trong tế bào chất."},
+f2_mang_a:{t:"Màng tế bào (nhân sơ)",tag:"Hình 19.2a",d:"Màng tế bào là thành phần có ở mọi tế bào, bao bọc tế bào chất. Tế bào vi khuẩn là tế bào nhân sơ.",q:""},
+f2_roi:{t:"Roi của vi khuẩn",tag:"Hình 19.2a",d:"Hình vẽ tế bào vi khuẩn (nhân sơ) có các sợi roi kéo dài ra ngoài tế bào.",q:"Kéo thanh “Tốc độ vẫy roi” để thay đổi chuyển động."},
+f2_nhan_b:{t:"Nhân (tế bào nhân thực)",tag:"Hình 19.2b",d:"Tế bào nhân thực đã có nhân hoàn chỉnh, vật chất di truyền nằm trong nhân được bao bọc bởi màng nhân.",q:"Bật “Làm nổi bật” để thấy màng nhân và các bào quan có màng bao."},
+f2_tbc_b:{t:"Tế bào chất (nhân thực)",tag:"Hình 19.2b",d:"Tế bào chất được chia thành nhiều khoang bởi hệ thống nội màng và có các bào quan có màng bao bọc.",q:""},
+f2_mang_b:{t:"Màng tế bào (nhân thực)",tag:"Hình 19.2b",d:"Màng tế bào bao bọc tế bào chất, có ở mọi tế bào, kể cả nhân sơ và nhân thực.",q:""},
+f2_tbc:{t:"Tế bào chất (cả hai loại)",tag:"Hình 19.2",d:"Nhân sơ: không có hệ thống nội màng và bào quan có màng bao, chỉ có ribosome. Nhân thực: chia thành nhiều khoang bởi hệ thống nội màng, có các bào quan có màng bao bọc.",q:""},
+f2_mang:{t:"Màng tế bào (cả hai loại)",tag:"Hình 19.2",d:"Màng tế bào là thành phần thiết yếu, có ở mọi tế bào, xác định sự tồn tại của tế bào.",q:""},
+f3_nhan:{t:"Nhân",tag:"Hình 19.3",d:"Cả tế bào động vật và tế bào thực vật đều là tế bào nhân thực nên đều có nhân, chứa vật chất di truyền.",q:""},
+f3_nhan_a:{t:"Nhân (tế bào động vật)",tag:"Hình 19.3a",d:"Tế bào động vật là tế bào nhân thực, có nhân hoàn chỉnh.",q:""},
+f3_nhan_b:{t:"Nhân (tế bào thực vật)",tag:"Hình 19.3b",d:"Tế bào thực vật là tế bào nhân thực, có nhân hoàn chỉnh.",q:""},
+f3_tbc:{t:"Tế bào chất",tag:"Hình 19.3",d:"Cả hai loại tế bào đều có tế bào chất, nơi diễn ra phần lớn các hoạt động sống.",q:""},
+f3_tbc_a:{t:"Tế bào chất (động vật)",tag:"Hình 19.3a",d:"Tế bào chất của tế bào động vật chứa nhân và các bào quan như ti thể.",q:""},
+f3_tbc_b:{t:"Tế bào chất (thực vật)",tag:"Hình 19.3b",d:"Tế bào chất của tế bào thực vật chứa nhân, ti thể, lục lạp và không bào.",q:""},
+f3_ti:{t:"Ti thể",tag:"Hình 19.3",d:"Ti thể có ở cả tế bào động vật và tế bào thực vật.",q:""},
+f3_ti_a:{t:"Ti thể (động vật)",tag:"Hình 19.3a",d:"Ti thể có ở tế bào động vật.",q:""},
+f3_ti_b:{t:"Ti thể (thực vật)",tag:"Hình 19.3b",d:"Ti thể cũng có ở tế bào thực vật.",q:""},
+f3_ves_a:{t:"Không bào (động vật)",tag:"Hình 19.3a",d:"(Một số tế bào động vật đơn bào có không bào giữ chức năng co bóp, tiêu hoá).",q:"Kéo “Lượng nước trong tế bào” để thấy tế bào động vật phồng lên hay co lại."},
+f3_mang:{t:"Màng tế bào",tag:"Hình 19.3",d:"Màng tế bào có ở cả hai loại tế bào, bao bọc tế bào chất.",q:""},
+f3_mang_a:{t:"Màng tế bào (động vật)",tag:"Hình 19.3a",d:"Ở tế bào động vật, màng tế bào là lớp ngoài cùng nên hình dạng tế bào dễ thay đổi.",q:"Kéo “Lượng nước trong tế bào” để quan sát."},
+f3_mang_b:{t:"Màng tế bào (thực vật)",tag:"Hình 19.3b",d:"Ở tế bào thực vật, màng tế bào nằm sát bên trong thành tế bào.",q:"Cho nước về mức thấp, màng co lại, thành tế bào vẫn giữ nguyên."},
+f3_luclap:{t:"Lục lạp",tag:"Chỉ có ở thực vật",d:"Chứa diệp lục giúp hấp thu năng lượng ánh sáng mặt trời để tổng hợp chất hữu cơ trong quá trình quang hợp.",q:"Kéo “Cường độ ánh sáng” để thấy lục lạp hoạt động và chất hữu cơ tăng lên."},
+f3_khongbao:{t:"Không bào",tag:"Chỉ có ở thực vật",d:"Kích thước lớn, giữ các chức năng khác nhau: chứa sắc tố, chất thải; dự trữ dinh dưỡng,... tuỳ thuộc từng loại tế bào.",q:"Kéo “Lượng nước trong tế bào” để thấy không bào to ra hoặc nhỏ lại."},
+f3_thanh:{t:"Thành tế bào",tag:"Chỉ có ở thực vật",d:"Bao bọc bên ngoài màng tế bào, có chức năng quy định hình dạng và bảo vệ tế bào.",q:"Dù lượng nước thay đổi, thành tế bào giúp tế bào thực vật vẫn giữ hình dạng ổn định."}
+};
+var FIGS={1:{n:"Hình 19.1 · Sơ đồ các thành phần chính của tế bào",h:"Bấm vào màng, tế bào chất, nhân hoặc vật chất di truyền.",
+ parts:["f1_mang","f1_tbc","f1_nhan","f1_vcdt"]},
+ 2:{n:"Hình 19.2 · Cấu tạo tế bào nhân sơ và tế bào nhân thực",h:"So sánh (a) tế bào nhân sơ và (b) tế bào nhân thực.",parts:["f2_vn_a","f2_tbc_a","f2_mang_a","f2_nhan_b","f2_tbc_b","f2_mang_b"]},
+ 3:{n:"Hình 19.3 · Cấu tạo tế bào động vật và tế bào thực vật",h:"Bấm vào lục lạp, không bào, thành tế bào hoặc các nhãn.",parts:["f3_nhan","f3_tbc","f3_ti","f3_mang","f3_luclap","f3_khongbao","f3_thanh"]}};
+var cur=1, curPart=null, challenge=null;
+var SEC={
+1:'<h4>I. Cấu tạo của tế bào</h4><p>Các loại tế bào khác nhau thường có hình dạng, kích thước và chức năng khác nhau nhưng chúng đều được cấu tạo từ các thành phần cơ bản: <b>màng tế bào</b>, <b>tế bào chất</b> và <b>nhân</b> (hoặc vùng nhân).</p><h4>Câu hỏi</h4><details><summary>1. Nêu các thành phần chính của tế bào và chức năng của chúng.</summary><p>Màng tế bào: bao bọc tế bào chất, tham gia trao đổi chất giữa tế bào và môi trường. Tế bào chất: nơi diễn ra phần lớn hoạt động trao đổi chất. Nhân (vùng nhân): chứa vật chất di truyền, điều khiển hoạt động sống.</p></details><details><summary>2. Dự đoán vai trò của các lỗ nhỏ li ti trên màng tế bào.</summary><p>Gợi ý: các lỗ nhỏ giúp các chất đi vào và đi ra tế bào, nên màng tham gia quá trình trao đổi chất với môi trường. Hãy kéo thanh trao đổi chất để kiểm chứng.</p></details>',
+2:'<h4>II. Tế bào nhân sơ và tế bào nhân thực</h4><p>Mọi sinh vật đều được cấu tạo từ tế bào. Có hai loại tế bào: tế bào nhân sơ và tế bào nhân thực.</p><p><b>Nhân sơ:</b> chưa có nhân hoàn chỉnh (không có màng nhân). Vùng chứa vật chất di truyền gọi là vùng nhân. Tế bào chất không có hệ thống nội màng và bào quan có màng bao, chỉ có ribosome. Tế bào vi khuẩn là tế bào nhân sơ.</p><p><b>Nhân thực:</b> có nhân hoàn chỉnh, vật chất di truyền nằm trong nhân được bao bởi màng nhân. Tế bào chất chia thành nhiều khoang bởi hệ thống nội màng và có các bào quan có màng bao bọc.</p><h4>Hoạt động</h4><div class="card"><b>Quan sát và mô tả sự khác nhau về cấu tạo giữa tế bào nhân sơ và nhân thực.</b><br>Quan sát và vẽ hình dạng, cấu tạo mỗi tế bào; so sánh sự giống và khác nhau.</div>',
+3:'<h4>III. Tế bào động vật và tế bào thực vật</h4><p>Tế bào động vật và tế bào thực vật đều là các tế bào nhân thực. Chúng giống nhau về một số thành phần chính giúp tế bào thực hiện các quá trình sống, song cũng có những thành phần khác nhau liên quan đến chức năng của từng loại tế bào.</p><h4>Câu hỏi</h4><details><summary>1. Lập bảng so sánh tế bào động vật và thực vật.</summary><p>Xem tab Ôn tập, mục “Bảng so sánh”.</p></details><details><summary>2. Điểm khác nhau liên quan gì đến hình thức dinh dưỡng? Cấu trúc nào giúp cây cứng cáp?</summary><p>Tế bào thực vật có lục lạp chứa diệp lục nên quang hợp, tự tổng hợp chất hữu cơ. Thành tế bào giúp quy định hình dạng, bảo vệ tế bào, nên cây cứng cáp dù không có hệ xương nâng đỡ như động vật.</p></details>'};
+function renderP0(){
+  var h='<h3>Nội dung mô tả</h3>';
+  if(curPart&&INFO[curPart]){var i=INFO[curPart];
+    h+='<div class="card sel"><span class="tag'+(i.tag.indexOf("Chỉ")===0?' o':'')+'">'+i.tag+'</span><h3>'+i.t+'</h3><p>'+i.d+'</p>'+(i.q?'<p><i>'+i.q+'</i></p>':'')+'</div>';
+  }else h+='<div class="card"><p>Bấm vào một bộ phận hoặc nhãn trên mô hình để xem chức năng chi tiết ở đây.</p></div>';
+  h+=SEC[cur];$("#pane0").innerHTML=h;
+}
+function highlight(id){
+  $$('[data-part]').forEach(function(n){n.classList.remove("sel")});
+  if(!id)return;
+  $$('svg.on [data-part]').forEach(function(n){var p=n.getAttribute("data-part");if(p===id||p.indexOf(id+"_")===0)n.classList.add("sel")});
+}
+function select(id){curPart=id;highlight(id);renderP0();setTab(0,true)}
+function score(){}
+function onHot(e){
+  var n=e.target.closest("[data-part]");if(!n||!n.closest("svg.on"))return;
+  var id=n.getAttribute("data-part");
+  if(challenge){return answer(id)}
+  SND.pick();select(id);
+}
+$("#stage").addEventListener("click",onHot);
+
+/* ---------- Chuyển hình ---------- */
+function showFig(n){
+  cur=n;curPart=null;highlight(null);
+  [1,2,3].forEach(function(i){$("#s"+i).classList.toggle("on",i===n);$("#fb"+i).setAttribute("aria-pressed",i===n);$("#c"+i).hidden=i!==n});
+  $("#figName").textContent=FIGS[n].n;$("#hint").textContent=FIGS[n].h;
+  if(challenge)stopChallenge();
+  renderP0();
+}
+[1,2,3].forEach(function(i){$("#fb"+i).onclick=function(){SND.click();showFig(i)}});
+
+/* ---------- Thử thách: tìm đúng bộ phận ---------- */
+var chScore=0,chTotal=0,chTarget=null;
+function nextTarget(){var ps=FIGS[cur].parts,t;do{t=ps[Math.floor(Math.random()*ps.length)]}while(t===chTarget&&ps.length>1);chTarget=t;
+  $("#hint").textContent="Hãy bấm vào: "+INFO[t].t+" ("+INFO[t].tag+")"}
+function startChallenge(){challenge=true;chScore=0;chTotal=0;$("#stage").classList.add("hide-labels");$("#scoreBox").style.display="block";$("#scoreBox").textContent="Điểm: 0/0";$("#challengeBtn").textContent="⏹ Dừng thử thách";highlight(null);nextTarget()}
+function stopChallenge(){challenge=null;$("#stage").classList.remove("hide-labels");$("#scoreBox").style.display="none";$("#challengeBtn").textContent="🎯 Thử thách";$("#hint").textContent=FIGS[cur].h}
+function answer(id){
+  chTotal++;
+  var ok=(id===chTarget||id.indexOf(chTarget+"_")===0||chTarget.indexOf(id+"_")===0||(chTarget.replace(/_[ab]$/,"")===id.replace(/_[ab]$/,"")&&chTarget.indexOf("f3")===0));
+  if(ok){chScore++;SND.ok();highlight(id)}else{SND.bad()}
+  $("#scoreBox").textContent="Điểm: "+chScore+"/"+chTotal;
+  setTimeout(function(){highlight(null);nextTarget()},ok?700:400);
+}
+$("#challengeBtn").onclick=function(){SND.click();challenge?stopChallenge():startChallenge()};
+/* ---------- Mô phỏng ---------- */
+function rng(seed){var s=seed;return function(){s=(s*16807)%2147483647;return (s-1)/2147483646}}
+var A=50,B=50,inC=0,outC=0,parts=[],pulses=[],spawnAcc=0,pulseAcc=0;
+var CX=960,CY=733,RX=118,RY=108;
+var p1l=$("#p1layer"),f1p=$("#f1pulse");
+function life(){return Math.round(Math.sqrt(A*B))}
+function upd1(){$("#o1a").textContent=A;$("#o1b").textContent=B;var l=life();$("#life1").textContent=l+"%";$("#m1").style.width=l+"%";
+  $("#f1nucGlow").setAttribute("opacity",(B/100*.45).toFixed(2));
+  $("#f1mito").style.filter="saturate("+(0.35+l/100*1.1).toFixed(2)+")"}
+$("#r1a").oninput=function(){A=+this.value;tick();upd1()};
+$("#r1b").oninput=function(){B=+this.value;tick();upd1()};
+function step1(dt){
+  spawnAcc+=dt*A/100*7;
+  while(spawnAcc>=1&&parts.length<70){spawnAcc--;
+    var a=Math.random()*6.283,inn=Math.random()<.5;
+    var e=el(inn?"circle":"rect",inn?{r:3.6,fill:"#2f80ed",stroke:"#fff","stroke-width":1}:{width:6,height:6,fill:"#8a5a2b",stroke:"#fff","stroke-width":1},p1l);
+    parts.push({e:e,a:a,t:0,inn:inn,crossed:false,sp:.35+Math.random()*.25});}
+  for(var i=parts.length-1;i>=0;i--){var p=parts[i];p.t+=dt*p.sp*(.4+A/100*1.2);
+    var k=p.inn?(1.45-p.t*.95):(.5+p.t*.95);
+    if(!p.crossed&&((p.inn&&k<1)||(!p.inn&&k>1))){p.crossed=true;if(p.inn)inC++;else outC++;
+      $("#in1").textContent=inC;$("#out1").textContent=outC}
+    var x=CX+Math.cos(p.a)*RX*k,y=CY+Math.sin(p.a)*RY*k;
+    if(p.inn){p.e.setAttribute("cx",x);p.e.setAttribute("cy",y)}else{p.e.setAttribute("x",x-3);p.e.setAttribute("y",y-3)}
+    var op=Math.min(1,p.t*4,(1-p.t)*4);p.e.setAttribute("opacity",Math.max(0,op).toFixed(2));
+    if(p.t>=1){p1l.removeChild(p.e);parts.splice(i,1)}}
+  pulseAcc+=dt;var per=2.8-B/100*2.4;
+  if(B>3&&pulseAcc>per){pulseAcc=0;pulses.push({e:el("circle",{cx:961,cy:729,r:47,fill:"none",stroke:"#ff9800","stroke-width":3},f1p),t:0})}
+  for(var j=pulses.length-1;j>=0;j--){var q=pulses[j];q.t+=dt*.7;q.e.setAttribute("r",47+q.t*85);q.e.setAttribute("opacity",(1-q.t).toFixed(2));
+    if(q.t>=1){f1p.removeChild(q.e);pulses.splice(j,1)}}
+}
+/* Hình 19.2 */
+(function(){var r=rng(7),g=$("#pili");
+  function hair(x,y,nx,ny,L){var ex=x+nx*L,ey=y+ny*L,cx=x+nx*L*.5-ny*5*(r()-.5)*2,cy=y+ny*L*.5+nx*5*(r()-.5)*2;
+    el("path",{d:"M"+x.toFixed(1)+","+y.toFixed(1)+" Q"+cx.toFixed(1)+","+cy.toFixed(1)+" "+ex.toFixed(1)+","+ey.toFixed(1),fill:"none",stroke:"#e7c79b","stroke-width":3.6,"stroke-linecap":"round"},g)}
+  for(var x=186;x<=348;x+=9){var j=r();hair(x,1443,(j-.5)*.5,-1,16+r()*10);hair(x,1527,(r()-.5)*.5,1,16+r()*10)}
+  for(var a=90;a<=270;a+=14){var t=a*Math.PI/180;hair(182+Math.cos(t)*42,1485-Math.sin(t)*42,Math.cos(t),-Math.sin(t),18+r()*8)}
+  for(var a2=-90;a2<=90;a2+=14){var t2=a2*Math.PI/180;hair(350+Math.cos(t2)*42,1485+Math.sin(t2)*42,Math.cos(t2),Math.sin(t2),16+r()*8)}
+  var ra=rng(11),rb=rng(23),i,PA=[],PB=[];
+  for(i=0;i<60;i++){PA.push([230+ra()*132,1455+ra()*48]);
+    var x2,y2;do{x2=910+rb()*226;y2=1385+rb()*105}while((x2>985&&x2<1130&&y2<1458)||(Math.pow((x2-1023)/125,2)+Math.pow((y2-1428)/62,2)>1)||(Math.pow((x2-950)/46,2)+Math.pow((y2-1440)/33,2)<1));PB.push([x2,y2])}
+  window.__ribo=function(n){var ga=$("#ribo2a"),gb=$("#ribo2b");ga.innerHTML="";gb.innerHTML="";
+    for(var k=0;k<n;k++){el("circle",{cx:PA[k][0],cy:PA[k][1],r:2.6},ga);el("circle",{cx:PB[k][0],cy:PB[k][1],r:2.8},gb)}
+    $("#o2a").textContent=n;$("#rb2a").textContent=n};
+  window.__ribo(20);
+})();
+$("#r2a").oninput=function(){tick();window.__ribo(+this.value)};
+var FS=40;$("#r2b").oninput=function(){FS=+this.value;tick();$("#o2b").textContent=FS};
+var note2=el("text",{x:265,y:1585,"font-size":17,"text-anchor":"middle",fill:"#d9680a","font-weight":700,"font-family":"Arial,sans-serif",opacity:0,"pointer-events":"none"},$("#s2"));
+note2.textContent="Không có màng nhân";
+var note2b=el("text",{x:265,y:1605,"font-size":17,"text-anchor":"middle",fill:"#d9680a","font-weight":700,"font-family":"Arial,sans-serif",opacity:0,"pointer-events":"none"},$("#s2"));
+note2b.textContent="Không có bào quan có màng bao";
+$("#k2").onchange=function(){SND.click();var on=this.checked?1:0;$("#orgOutline").setAttribute("opacity",on);$("#envRing").setAttribute("opacity",on);note2.setAttribute("opacity",on);note2b.setAttribute("opacity",on)};
+function step2(t){var amp=FS/100*7,w=2+FS/18;
+  ["fl1","fl2","fl3"].forEach(function(id,i){$("#"+id).setAttribute("transform","rotate("+(amp*Math.sin(t*w+i*1.3)).toFixed(2)+" 400 "+(1482+i*8)+")")})}
+/* Hình 19.3 */
+var L=60,W=60,sugar=0,bubs=[],bAcc=0,bg=$("#bub3"),rays=$("#rays3"),sun=$("#sun3");
+for(var ri=0;ri<10;ri++)el("line",{},rays);
+function cl(v,a,b){return Math.max(a,Math.min(b,v))}
+function updLight(){$("#o3a").textContent=L;var s=L/100;sun.setAttribute("opacity",(.12+s*.88).toFixed(2));
+  var c=sun.firstChild;c.setAttribute("cx",610);c.setAttribute("cy",908);c.setAttribute("r",(9+s*12).toFixed(1));
+  $$("line",rays).forEach(function(l,i){var a=i/10*6.283,r0=13+s*12,r1=r0+5+s*14;l.setAttribute("x1",610+Math.cos(a)*r0);l.setAttribute("y1",908+Math.sin(a)*r0);l.setAttribute("x2",610+Math.cos(a)*r1);l.setAttribute("y2",908+Math.sin(a)*r1)});
+  $("#chlo").style.filter=s>0.02?"drop-shadow(0 0 "+(2+s*8).toFixed(1)+"px #8dff4a)":"none"}
+function updWater(){$("#o3b").textContent=W;
+  var sa=W>=60?1+(W-60)/40*.12:1-(60-W)/60*.18,v=W>=60?1+(W-60)/40*.2:1-(60-W)/60*.55,m=W>=60?1:1-(60-W)/60*.07;
+  $("#animal").setAttribute("transform","translate(276 1120) scale("+sa.toFixed(3)+") translate(-276 -1120)");
+  $("#vac").setAttribute("transform","translate(857 1090) scale("+v.toFixed(3)+") translate(-857 -1090)");
+  $("#pmem").setAttribute("transform","translate(800 1120) scale("+m.toFixed(3)+") translate(-800 -1120)");
+  $("#note3").textContent=W<25?"Thiếu nước: tế bào động vật co nhỏ; ở thực vật màng co lại nhưng thành tế bào vẫn giữ hình dạng.":W>85?"Nhiều nước: tế bào động vật phồng to; tế bào thực vật vẫn giữ hình dạng nhờ thành tế bào.":"Tế bào thực vật giữ hình dạng ổn định nhờ thành tế bào."}
+$("#r3a").oninput=function(){L=+this.value;tick();updLight()};
+$("#r3b").oninput=function(){W=+this.value;tick();updWater()};
+$("#k3").onchange=function(){SND.click();$("#hl3").setAttribute("opacity",this.checked?1:0)};
+var CH=[[790,1040],[755,1097],[852,1157]];
+function step3(dt){var s=L/100;bAcc+=dt*s*3;
+  while(bAcc>=1&&bubs.length<30){bAcc--;var c=CH[Math.floor(Math.random()*3)];
+    bubs.push({e:el("circle",{r:4,fill:"#d6f1ff",stroke:"#5aa6c8","stroke-width":1.5},bg),x:c[0]+(Math.random()-.5)*30,y:c[1],t:0})}
+  for(var i=bubs.length-1;i>=0;i--){var b=bubs[i];b.t+=dt*.5;b.e.setAttribute("cx",b.x+Math.sin(b.t*9)*4);b.e.setAttribute("cy",b.y-b.t*110);b.e.setAttribute("opacity",(1-b.t).toFixed(2));
+    if(b.t>=1){bg.removeChild(b.e);bubs.splice(i,1)}}
+  sugar+=dt*s*5;$("#sugar3").textContent=Math.floor(sugar)}
+var last=0;
+function loop(ts){var dt=Math.min(.05,(ts-last)/1000||0);last=ts;
+  if(!document.hidden){if(cur===1)step1(dt);else if(cur===2)step2(ts/1000);else step3(dt)}
+  requestAnimationFrame(loop)}
+upd1();updLight();updWater();
+requestAnimationFrame(loop);
+/* ---------- Tab ---------- */
+function setTab(i,silent){$$(".tabs button").forEach(function(b,k){b.setAttribute("aria-selected",k===i)});$$(".pane").forEach(function(p,k){p.classList.toggle("on",k===i)});if(!silent)SND.tab()}
+$$(".tabs button").forEach(function(b){b.onclick=function(){setTab(+b.getAttribute("data-p"))}});
+
+/* ---------- Ôn tập ---------- */
+var CARDS=[["Màng tế bào","Bao bọc tế bào chất, tham gia trao đổi chất giữa tế bào và môi trường. Có ở mọi tế bào."],
+["Tế bào chất","Vùng giữa màng tế bào và nhân (vùng nhân); nơi diễn ra phần lớn hoạt động trao đổi chất."],
+["Nhân / vùng nhân","Chứa vật chất di truyền, là trung tâm điều khiển hoạt động sống của tế bào."],
+["Tế bào nhân sơ","Chưa có nhân hoàn chỉnh (không có màng nhân), chỉ có ribosome. Ví dụ: tế bào vi khuẩn."],
+["Tế bào nhân thực","Có nhân hoàn chỉnh, hệ thống nội màng và bào quan có màng bao bọc."],
+["Lục lạp","Chứa diệp lục, hấp thu ánh sáng để quang hợp. Chỉ có ở tế bào thực vật."],
+["Không bào","Kích thước lớn, chứa sắc tố, chất thải, dự trữ dinh dưỡng. Nổi bật ở tế bào thực vật."],
+["Thành tế bào","Bao ngoài màng tế bào, quy định hình dạng và bảo vệ tế bào thực vật."]];
+function renderP1(){
+  var h='<h3>Em đã học</h3><ul><li>Tế bào có ba thành phần chính là <b>màng tế bào, tế bào chất và nhân</b> (hoặc vùng nhân). Màng tế bào là thành phần thiết yếu xác định sự tồn tại của tế bào.</li><li>Có hai loại tế bào: <b>nhân sơ</b> (chưa có màng nhân, không có hệ thống nội màng và bào quan có màng bao bọc) và <b>nhân thực</b> (có màng nhân, hệ thống nội màng và các bào quan có màng bao bọc).</li><li>Tế bào thực vật khác tế bào động vật là có <b>thành tế bào</b> (giữ hình dạng ổn định), <b>lục lạp</b> (chứa sắc tố quang hợp) và <b>không bào lớn</b>.</li></ul>';
+  h+='<h4>Bảng so sánh</h4><table><tr><th></th><th>Nhân sơ</th><th>Nhân thực</th></tr><tr><td>Màng nhân</td><td>Không</td><td>Có</td></tr><tr><td>Vật chất di truyền</td><td>Ở vùng nhân</td><td>Trong nhân</td></tr><tr><td>Bào quan có màng</td><td>Không (chỉ có ribosome)</td><td>Có</td></tr><tr><td>Ví dụ</td><td>Vi khuẩn</td><td>Động vật, thực vật</td></tr></table>';
+  h+='<table><tr><th></th><th>Động vật</th><th>Thực vật</th></tr><tr><td>Nhân, tế bào chất, màng, ti thể</td><td>Có</td><td>Có</td></tr><tr><td>Thành tế bào</td><td>Không</td><td>Có</td></tr><tr><td>Lục lạp</td><td>Không</td><td>Có</td></tr><tr><td>Không bào lớn</td><td>Không</td><td>Có</td></tr></table>';
+  h+='<h4>Thẻ ghi nhớ (bấm để lật)</h4>';
+  CARDS.forEach(function(c,i){h+='<div class="fc"><button data-i="'+i+'">'+c[0]+'</button></div>'});
+  h+='<h4>Em có thể</h4><div class="card"><b>Tạo mô hình mô phỏng tế bào thực vật và động vật.</b><br>Dùng túi nylon có khoá kéo (thực vật đặt trong hộp nhựa trong suốt), gelatine lỏng đến khoảng 1/2 thể tích, thêm rau, củ, quả mô phỏng bào quan rồi bổ sung gelatine, kéo khoá kín. Túi nylon, hộp nhựa, gelatine mô phỏng cho màng tế bào, thành tế bào và tế bào chất.</div>';
+  h+='<h4>Em có biết?</h4><p>Màu xanh của Trái Đất nhìn từ vũ trụ là do những lục lạp (có chứa chất diệp lục) vô cùng nhỏ bé trong mỗi tế bào thực vật tạo nên.</p>';
+  $("#pane1").innerHTML=h;
+  $$("#pane1 .fc button").forEach(function(b){b.onclick=function(){SND.click();var i=+b.getAttribute("data-i"),f=b.classList.toggle("flip");b.textContent=f?CARDS[i][1]:CARDS[i][0]}});
+}
+
+/* ---------- Trắc nghiệm ---------- */
+var Q=[
+["Thành phần nào có ở mọi tế bào, bao bọc tế bào chất?",["Thành tế bào","Màng tế bào","Lục lạp","Không bào"],1,"Màng tế bào có ở mọi tế bào và trao đổi chất giữa tế bào với môi trường."],
+["Phần lớn hoạt động trao đổi chất của tế bào diễn ra ở đâu?",["Nhân","Màng tế bào","Tế bào chất","Thành tế bào"],2,"Hấp thụ dinh dưỡng, chuyển hoá năng lượng, tạo chất để tăng trưởng… đều xảy ra ở tế bào chất."],
+["Trung tâm điều khiển các hoạt động sống của tế bào là:",["Nhân (vùng nhân)","Tế bào chất","Màng tế bào","Ti thể"],0,"Nhân chứa vật chất di truyền nên điều khiển hoạt động sống của tế bào."],
+["Tế bào nhân sơ khác tế bào nhân thực ở điểm nào?",["Không có màng tế bào","Chưa có nhân hoàn chỉnh (không có màng nhân)","Không có tế bào chất","Có lục lạp"],1,"Tế bào nhân sơ chưa có màng nhân; vật chất di truyền nằm ở vùng nhân."],
+["Bào quan duy nhất của tế bào nhân sơ là:",["Ti thể","Lục lạp","Ribosome","Không bào"],2,"Tế bào chất nhân sơ không có bào quan có màng bao bọc, chỉ có ribosome."],
+["Sinh vật nào sau đây có tế bào nhân sơ?",["Vi khuẩn","Cây lúa","Con gà","Nấm men"],0,"Tế bào vi khuẩn là tế bào nhân sơ."],
+["Tế bào động vật và tế bào thực vật đều là:",["Tế bào nhân sơ","Tế bào nhân thực","Không có nhân","Không có màng tế bào"],1,"Cả hai đều có nhân hoàn chỉnh, hệ thống nội màng và bào quan có màng bao."],
+["Cấu trúc nào chỉ có ở tế bào thực vật?",["Nhân","Ti thể","Thành tế bào","Màng tế bào"],2,"Thành tế bào bao ngoài màng tế bào, quy định hình dạng và bảo vệ tế bào thực vật."],
+["Lục lạp có chức năng gì?",["Dự trữ chất thải","Hấp thu ánh sáng để quang hợp, tổng hợp chất hữu cơ","Điều khiển hoạt động của tế bào","Quy định hình dạng tế bào"],1,"Lục lạp chứa diệp lục, hấp thu năng lượng ánh sáng để tổng hợp chất hữu cơ."],
+["Vì sao cây cứng cáp dù không có hệ xương như động vật?",["Nhờ có ti thể","Nhờ có nhân lớn","Nhờ thành tế bào giữ hình dạng tế bào","Nhờ có màng tế bào"],2,"Thành tế bào quy định hình dạng và bảo vệ tế bào, giúp cây cứng cáp."]];
+var qi=0,qs=0,qd=false;
+function renderQ(){
+  var p=$("#pane2");
+  if(qi>=Q.length){SND.win();p.innerHTML='<h3>Kết quả</h3><div class="card"><p style="font-size:20px;font-weight:700;color:var(--orange)">'+qs+'/'+Q.length+' câu đúng</p><p>'+(qs>=9?"Xuất sắc! Em nắm rất vững bài.":qs>=6?"Khá tốt! Hãy xem lại các câu sai trong tab Ôn tập.":"Em hãy đọc lại tab Ôn tập và thử lại nhé.")+'</p></div><button class="btn o" id="qre">Làm lại</button>';
+    $("#qre").onclick=function(){SND.click();qi=0;qs=0;renderQ()};return}
+  var q=Q[qi],h='<h3>Trắc nghiệm</h3><div class="prog"><i style="width:'+(qi/Q.length*100)+'%"></i></div><p><b>Câu '+(qi+1)+'/'+Q.length+'</b> · Điểm: '+qs+'</p><p>'+q[0]+'</p>';
+  q[1].forEach(function(o,i){h+='<button class="opt" data-i="'+i+'">'+String.fromCharCode(65+i)+'. '+o+'</button>'});
+  h+='<div id="qx"></div>';p.innerHTML=h;qd=false;
+  $$("#pane2 .opt").forEach(function(b){b.onclick=function(){
+    if(qd)return;qd=true;var i=+b.getAttribute("data-i"),ok=i===q[2];
+    $$("#pane2 .opt").forEach(function(x,k){x.disabled=true;if(k===q[2])x.classList.add("ok")});
+    if(ok){qs++;SND.ok()}else{b.classList.add("bad");SND.bad()}
+    $("#qx").innerHTML='<div class="expl"><b>'+(ok?"Chính xác! ":"Chưa đúng. ")+'</b>'+q[3]+'</div><button class="btn" id="qn">'+(qi+1<Q.length?"Câu tiếp theo":"Xem kết quả")+'</button>';
+    $("#qn").onclick=function(){SND.click();qi++;renderQ()};
+    $("#pane2").scrollTop=$("#pane2").scrollHeight}})}
+
+renderP0();renderP1();renderQ();
+})();
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Chặn phím tắt: F12, Ctrl+U, Ctrl+Shift+I/J/C, Ctrl+S
+    document.addEventListener('keydown', function(e) {
+      const key = e.key.toLowerCase();
+
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) || 
+        (e.ctrlKey && (key === 'u' || key === 's'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 2. Chặn chuột phải (Context Menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  });
+</script>
+</body></html>
