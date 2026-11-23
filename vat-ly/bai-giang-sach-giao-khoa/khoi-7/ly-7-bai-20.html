@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô phỏng Nam Châm Điện & STEM Xe Hút Đinh - LucianEdu</title>
+    <!-- Tải Tailwind CSS qua CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font chữ Inter chuẩn sư phạm, rõ nét -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+        }
+        /* Tùy chỉnh thanh cuộn mượt mà cho vùng nội dung bên phải */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Hiệu ứng dòng điện chạy trong dây dẫn */
+        @keyframes flowCurrent {
+            to {
+                stroke-dashoffset: -24;
+            }
+        }
+        @keyframes flowCurrentReverse {
+            to {
+                stroke-dashoffset: 24;
+            }
+        }
+        .current-flow-cw {
+            stroke-dasharray: 6 6;
+            animation: flowCurrent 0.6s linear infinite;
+        }
+        .current-flow-ccw {
+            stroke-dasharray: 6 6;
+            animation: flowCurrentReverse 0.6s linear infinite;
+        }
+        /* Hiệu ứng rung khi chuông điện kêu */
+        @keyframes bellRing {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+        .ringing-hammer {
+            transform-origin: 360px 100px;
+            animation: bellRing 0.12s infinite;
+        }
+        /* Hiệu ứng hover tương tác bộ phận SVG */
+        .interactive-part {
+            cursor: pointer;
+            transition: filter 0.2s ease, opacity 0.2s ease;
+        }
+        .interactive-part:hover {
+            filter: drop-shadow(0 0 6px rgba(249, 115, 22, 0.75));
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 h-screen w-screen overflow-hidden flex flex-col lg:flex-row">
+
+    <!-- ===================================================================== -->
+    <!-- KHU VỰC 1: MÔ HÌNH MÔ PHỎNG TƯƠNG TÁC (CHIẾM 3/4 MÀN HÌNH = 75%)     -->
+    <!-- ===================================================================== -->
+    <main class="w-full lg:w-3/4 h-[62vh] lg:h-full flex flex-col bg-white border-b lg:border-b-0 lg:border-r border-slate-200 relative shadow-sm">
+        
+        <!-- Thanh điều hướng các chế độ mô phỏng theo đúng SGK & 5 Hoạt động Kế hoạch bài dạy STEM -->
+        <header class="bg-gradient-to-r from-orange-600 to-amber-600 text-white px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 shrink-0 shadow-md z-10">
+            <div class="flex items-center gap-2.5">
+                <span class="bg-white text-orange-600 font-extrabold px-2.5 py-0.5 rounded-lg text-sm shadow-sm">Bài 20</span>
+                <h1 class="font-bold text-sm sm:text-base md:text-lg tracking-tight uppercase">Chế tạo Nam châm điện & STEM Xe Hút Đinh</h1>
+            </div>
+
+            <!-- Bộ chuyển đổi 4 mô hình từ SGK & Dự án STEM -->
+            <div class="flex flex-wrap items-center gap-1.5 bg-black/20 p-1 rounded-xl">
+                <button onclick="switchScene('h20_1')" id="btn-h20_1" class="scene-btn px-2.5 py-1 rounded-lg text-xs font-semibold transition bg-white text-orange-700 shadow">
+                    Hình 20.1: Cấu tạo
+                </button>
+                <button onclick="switchScene('h20_2')" id="btn-h20_2" class="scene-btn px-2.5 py-1 rounded-lg text-xs font-semibold transition text-white hover:bg-white/20">
+                    Hình 20.2: Thí nghiệm
+                </button>
+                <button onclick="switchScene('h20_4')" id="btn-h20_4" class="scene-btn px-2.5 py-1 rounded-lg text-xs font-semibold transition text-white hover:bg-white/20">
+                    Hình 20.4: Chuông điện
+                </button>
+                <button onclick="switchScene('stem_car')" id="btn-stem_car" class="scene-btn px-2.5 py-1 rounded-lg text-xs font-semibold transition text-white hover:bg-white/20 flex items-center gap-1">
+                    <span>🚜</span> STEM: Xe hút đinh
+                </button>
+            </div>
+        </header>
+
+        <!-- Thanh công cụ chọn cấp độ kiến thức & Bật/Tắt âm thanh -->
+        <div class="bg-slate-50 border-b border-slate-200 px-4 py-1.5 flex flex-wrap items-center justify-between gap-2 text-xs shrink-0">
+            <div class="flex items-center gap-2">
+                <span class="font-semibold text-slate-600">Phân hóa sư phạm:</span>
+                <div class="inline-flex rounded-lg bg-slate-200 p-0.5">
+                    <button onclick="setEduLevel('tieuhoc')" id="lvl-tieuhoc" class="lvl-btn px-2 py-0.5 rounded-md font-medium text-slate-600 hover:text-slate-900">Tiểu học</button>
+                    <button onclick="setEduLevel('thcs')" id="lvl-thcs" class="lvl-btn px-2 py-0.5 rounded-md font-semibold bg-white text-orange-600 shadow-sm">THCS (Lớp 7)</button>
+                    <button onclick="setEduLevel('thpt')" id="lvl-thpt" class="lvl-btn px-2 py-0.5 rounded-md font-medium text-slate-600 hover:text-slate-900">THPT (Nâng cao)</button>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <span id="hint-banner" class="hidden sm:inline-block text-slate-500 italic">💡 Click/hover vào từng bộ phận trên mô hình để xem chú thích chi tiết</span>
+                <button onclick="toggleAudio()" id="btn-audio" class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium transition">
+                    <span id="audio-icon">🔊</span> <span id="audio-label">Âm thanh: Bật</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Khung chính hiển thị Canvas/SVG mô phỏng & Bảng điều khiển thông số -->
+        <div class="flex-1 relative overflow-hidden flex flex-col md:flex-row bg-gradient-to-b from-slate-50 to-slate-100">
+            
+            <!-- Vùng đồ họa SVG/Canvas tương tác chính -->
+            <div class="flex-1 relative flex items-center justify-center p-2 sm:p-4 overflow-hidden" id="sim-stage">
+                
+                <!-- ========================================================= -->
+                <!-- MÔ HÌNH 1: HÌNH 20.1 - CẤU TẠO NAM CHÂM ĐIỆN (SGK TR.96)  -->
+                <!-- ========================================================= -->
+                <svg id="svg-h20_1" viewBox="0 0 760 440" class="w-full h-full max-h-full select-none">
+                    <defs>
+                        <linearGradient id="ironCoreGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#64748b"/>
+                            <stop offset="35%" stop-color="#cbd5e1"/>
+                            <stop offset="70%" stop-color="#94a3b8"/>
+                            <stop offset="100%" stop-color="#475569"/>
+                        </linearGradient>
+                        <linearGradient id="copperCoilGrad" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stop-color="#b45309"/>
+                            <stop offset="50%" stop-color="#f59e0b"/>
+                            <stop offset="100%" stop-color="#b45309"/>
+                        </linearGradient>
+                        <marker id="magArrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#0ea5e9"/>
+                        </marker>
+                    </defs>
+                    <rect x="20" y="15" width="720" height="395" rx="16" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+                    
+                    <!-- Đường sức từ trường (Số lượng hiển thị động theo độ mạnh từ trường) -->
+                    <g id="h20_1-mag-field" opacity="0" class="transition-opacity duration-300">
+                        <ellipse cx="380" cy="115" rx="235" ry="68" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-dasharray="6 4" marker-mid="url(#magArrow)"/>
+                        <ellipse cx="380" cy="115" rx="205" ry="44" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-dasharray="6 4"/>
+                        <line x1="125" y1="115" x2="635" y2="115" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="8 4"/>
+                        
+                        <!-- Các đường sức từ bổ sung hiển thị khi từ trường mạnh -->
+                        <g id="h20_1-extra-field-lines" opacity="0" style="transition: opacity 0.3s ease;">
+                            <ellipse cx="380" cy="115" rx="260" ry="92" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-dasharray="5 3"/>
+                            <ellipse cx="380" cy="115" rx="170" ry="24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-dasharray="5 3"/>
+                            <line x1="110" y1="75" x2="650" y2="75" stroke="#38bdf8" stroke-width="1.8" stroke-dasharray="6 3"/>
+                            <line x1="110" y1="155" x2="650" y2="155" stroke="#38bdf8" stroke-width="1.8" stroke-dasharray="6 3"/>
+                        </g>
+
+                        <g id="h20_1-poles">
+                            <rect x="135" y="99" width="28" height="32" rx="6" fill="#ef4444"/>
+                            <text id="h20_1-pole-left" x="149" y="121" text-anchor="middle" fill="#fff" font-weight="bold" font-size="16">N</text>
+                            <rect x="597" y="99" width="28" height="32" rx="6" fill="#3b82f6"/>
+                            <text id="h20_1-pole-right" x="611" y="121" text-anchor="middle" fill="#fff" font-weight="bold" font-size="16">S</text>
+                        </g>
+                    </g>
+
+                    <!-- Kim nam châm thử -->
+                    <g id="h20_1-compass" class="interactive-part" onclick="inspectPart('compass_20_1')" transform="translate(675, 115)">
+                        <circle cx="0" cy="0" r="28" fill="#f8fafc" stroke="#94a3b8" stroke-width="2.5"/>
+                        <circle cx="0" cy="0" r="23" fill="none" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="2 2"/>
+                        <g id="h20_1-needle" style="transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); transform: rotate(-35deg);">
+                            <polygon points="-20,0 0,-5 0,5" fill="#ef4444"/>
+                            <polygon points="20,0 0,-5 0,5" fill="#2563eb"/>
+                            <circle cx="0" cy="0" r="3" fill="#1e293b"/>
+                        </g>
+                        <text x="0" y="42" text-anchor="middle" font-size="11" font-weight="600" fill="#475569">Kim nam châm</text>
+                    </g>
+
+                    <!-- BỘ PHẬN B: Thỏi sắt non -->
+                    <g id="part-core-B" class="interactive-part" onclick="inspectPart('core_B')">
+                        <rect id="h20_1-iron-core" x="175" y="94" width="410" height="42" rx="4" fill="url(#ironCoreGrad)" stroke="#475569" stroke-width="1.5" style="transition: transform 0.4s ease;"/>
+                        <text id="label-B-20_1" x="602" y="122" font-size="20" font-weight="800" fill="#1e293b">B</text>
+                    </g>
+
+                    <!-- Dây dẫn mạch điện -->
+                    <g id="h20_1-wires">
+                        <polyline points="225,136 225,195" fill="none" stroke="#b91c1c" stroke-width="3.5" stroke-linecap="round"/>
+                        <polyline points="225,245 225,335 342,335" fill="none" stroke="#b91c1c" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <polyline points="535,136 535,335 418,335" fill="none" stroke="#b91c1c" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        
+                        <g id="h20_1-current-anim" opacity="0">
+                            <polyline points="225,136 225,335 342,335" fill="none" stroke="#fde047" stroke-width="2.5" class="current-flow-ccw"/>
+                            <polyline points="535,136 535,335 418,335" fill="none" stroke="#fde047" stroke-width="2.5" class="current-flow-cw"/>
+                        </g>
+                    </g>
+
+                    <!-- BỘ PHẬN A: Ống dây dẫn -->
+                    <g id="part-coil-A" class="interactive-part" onclick="inspectPart('coil_A')">
+                        <g id="h20_1-coil-turns"></g>
+                        <text x="380" y="68" text-anchor="middle" font-size="20" font-weight="800" fill="#1e293b">A</text>
+                    </g>
+
+                    <!-- BỘ PHẬN K: Khóa K -->
+                    <g id="part-switch-K" class="interactive-part" onclick="toggleSwitch('h20_1')" transform="translate(225, 195)">
+                        <rect x="-45" y="-10" width="75" height="70" fill="transparent"/>
+                        <circle cx="0" cy="0" r="4.5" fill="#1e293b"/>
+                        <circle cx="0" cy="50" r="4.5" fill="#1e293b"/>
+                        <line id="h20_1-switch-blade" x1="0" y1="50" x2="-24" y2="10" stroke="#b91c1c" stroke-width="4" stroke-linecap="round" style="transition: all 0.25s ease;"/>
+                        <text x="-34" y="34" font-size="20" font-weight="800" fill="#1e293b">K</text>
+                        <text id="h20_1-switch-status" x="-42" y="54" font-size="11" font-weight="700" fill="#dc2626">(Mở)</text>
+                    </g>
+
+                    <!-- BỘ PHẬN E: Nguồn điện E -->
+                    <g id="part-source-E" class="interactive-part" onclick="inspectPart('source_E')" transform="translate(342, 315)">
+                        <rect x="0" y="0" width="76" height="40" rx="6" fill="#7dd3fc" stroke="#0284c7" stroke-width="2.5"/>
+                        <text x="38" y="27" text-anchor="middle" font-size="20" font-weight="800" fill="#0f172a">E</text>
+                        <text id="h20_1-pol-left" x="14" y="-7" text-anchor="middle" font-size="18" font-weight="800" fill="#dc2626">+</text>
+                        <text id="h20_1-pol-right" x="62" y="-7" text-anchor="middle" font-size="20" font-weight="800" fill="#2563eb">−</text>
+                    </g>
+
+                    <g transform="translate(380, 388)">
+                        <rect x="-185" y="-16" width="105" height="24" rx="6" fill="#f97316"/>
+                        <text x="-132" y="1" text-anchor="middle" fill="#ffffff" font-weight="700" font-size="13">Hình 20.1</text>
+                        <text x="35" y="1" text-anchor="middle" fill="#1e293b" font-weight="700" font-size="14">Cấu tạo của một nam châm điện</text>
+                    </g>
+                </svg>
+
+                <!-- ========================================================= -->
+                <!-- MÔ HÌNH 2: HÌNH 20.2 - THÍ NGHIỆM NAM CHÂM ĐIỆN ĐƠN GIẢN  -->
+                <!-- ========================================================= -->
+                <svg id="svg-h20_2" viewBox="0 0 760 440" class="w-full h-full max-h-full hidden select-none">
+                    <rect x="20" y="15" width="720" height="395" rx="16" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+
+                    <g transform="translate(210, 45)">
+                        <g id="part-nail-20_2" class="interactive-part" onclick="inspectPart('nail_20_2')">
+                            <rect x="-24" y="0" width="48" height="10" rx="3" fill="#94a3b8" stroke="#475569" stroke-width="1.5"/>
+                            <rect x="-9" y="10" width="18" height="240" fill="url(#ironCoreGrad)" stroke="#475569" stroke-width="1.5"/>
+                            <polygon points="-9,250 9,250 0,274" fill="#64748b" stroke="#475569" stroke-width="1.5"/>
+                        </g>
+
+                        <g id="part-tube-20_2" class="interactive-part" onclick="inspectPart('tube_20_2')">
+                            <rect x="-15" y="24" width="30" height="205" rx="3" fill="#38bdf8" fill-opacity="0.7" stroke="#0284c7" stroke-width="1.5"/>
+                        </g>
+
+                        <g id="part-wire-20_2" class="interactive-part" onclick="inspectPart('wire_20_2')">
+                            <g id="h20_2-coil-visual"></g>
+                        </g>
+
+                        <polyline points="17,44 135,44" fill="none" stroke="#d97706" stroke-width="3"/>
+                        <polyline points="17,210 135,210" fill="none" stroke="#d97706" stroke-width="3"/>
+
+                        <g font-size="14" font-weight="700" fill="#1e293b">
+                            <text x="-135" y="38">Ống nhựa</text>
+                            <line x1="-60" y1="33" x2="-20" y2="33" stroke="#dc2626" stroke-width="2" marker-end="url(#redArrow)"/>
+                            <text x="-135" y="112">Dây đồng</text>
+                            <line x1="-60" y1="107" x2="-22" y2="107" stroke="#dc2626" stroke-width="2" marker-end="url(#redArrow)"/>
+                            <text x="-135" y="255">Đinh sắt</text>
+                            <line x1="-65" y1="250" x2="-15" y2="250" stroke="#dc2626" stroke-width="2" marker-end="url(#redArrow)"/>
+                        </g>
+
+                        <g id="h20_2-paperclips" transform="translate(0, 295)">
+                            <rect x="-75" y="22" width="150" height="14" rx="4" fill="#e2e8f0" stroke="#94a3b8"/>
+                            <text x="0" y="50" text-anchor="middle" font-size="12" font-weight="600" fill="#475569">
+                                Số ghim sắt hút được: <tspan id="h20_2-clip-count" fill="#ea580c" font-weight="800" font-size="14">0</tspan> ghim
+                            </text>
+                            <g id="h20_2-clips-group"></g>
+                        </g>
+                    </g>
+
+                    <defs>
+                        <marker id="redArrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                            <path d="M 0 1 L 10 5 L 0 9 z" fill="#dc2626"/>
+                        </marker>
+                    </defs>
+
+                    <g transform="translate(345, 45)">
+                        <polyline points="0,44 95,44" fill="none" stroke="#1e293b" stroke-width="2.5"/>
+                        <polyline points="175,44 275,44 275,210 170,210" fill="none" stroke="#1e293b" stroke-width="2.5"/>
+                        <polyline points="0,210 105,210" fill="none" stroke="#1e293b" stroke-width="2.5"/>
+
+                        <g id="h20_2-current-anim" opacity="0">
+                            <polyline points="0,44 95,44" fill="none" stroke="#f59e0b" stroke-width="2.5" class="current-flow-cw"/>
+                            <polyline points="175,44 275,44 275,210 170,210" fill="none" stroke="#f59e0b" stroke-width="2.5" class="current-flow-cw"/>
+                            <polyline points="0,210 105,210" fill="none" stroke="#f59e0b" stroke-width="2.5" class="current-flow-cw"/>
+                        </g>
+
+                        <g class="interactive-part" onclick="inspectPart('source_E')" transform="translate(95, 24)">
+                            <rect x="0" y="0" width="80" height="40" rx="5" fill="#7dd3fc" stroke="#0284c7" stroke-width="2"/>
+                            <text x="40" y="27" text-anchor="middle" font-size="18" font-weight="800" fill="#0f172a">E</text>
+                            <text id="h20_2-pol-l" x="15" y="-6" text-anchor="middle" font-size="16" font-weight="800" fill="#dc2626">+</text>
+                            <text id="h20_2-pol-r" x="65" y="-6" text-anchor="middle" font-size="18" font-weight="800" fill="#2563eb">−</text>
+                            <text x="40" y="58" text-anchor="middle" font-size="14" font-weight="700" fill="#1e293b">Nguồn cấp điện</text>
+                            <text id="h20_2-volt-badge" x="40" y="76" text-anchor="middle" font-size="12" font-weight="700" fill="#ea580c">(1 Pin - 1,5V)</text>
+                        </g>
+
+                        <g class="interactive-part" onclick="toggleSwitch('h20_2')" transform="translate(105, 210)">
+                            <rect x="-10" y="-35" width="85" height="60" fill="transparent"/>
+                            <circle cx="0" cy="0" r="4.5" fill="#1e293b"/>
+                            <circle cx="65" cy="0" r="4.5" fill="#1e293b"/>
+                            <line id="h20_2-switch-blade" x1="0" y1="0" x2="55" y2="-26" stroke="#1e293b" stroke-width="3.5" stroke-linecap="round" style="transition: all 0.25s ease;"/>
+                            <text x="32" y="24" text-anchor="middle" font-size="14" font-weight="700" fill="#1e293b">Công tắc điện</text>
+                        </g>
+
+                        <g transform="translate(215, 130)" class="interactive-part" onclick="inspectPart('compass_20_1')">
+                            <circle cx="0" cy="0" r="24" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+                            <g id="h20_2-needle" style="transition: transform 0.5s ease; transform: rotate(0deg);">
+                                <polygon points="0,-18 -5,0 5,0" fill="#ef4444"/>
+                                <polygon points="0,18 -5,0 5,0" fill="#2563eb"/>
+                                <circle cx="0" cy="0" r="2.5" fill="#1e293b"/>
+                            </g>
+                            <text x="0" y="38" text-anchor="middle" font-size="11" font-weight="600" fill="#475569">Kim từ thử</text>
+                        </g>
+                    </g>
+
+                    <g transform="translate(490, 365)">
+                        <rect x="-140" y="-16" width="95" height="24" rx="6" fill="#f97316"/>
+                        <text x="-92" y="1" text-anchor="middle" fill="#ffffff" font-weight="700" font-size="13">Hình 20.2</text>
+                        <text x="45" y="1" text-anchor="middle" fill="#1e293b" font-weight="700" font-size="14">Sơ đồ cấu tạo</text>
+                        <text x="45" y="20" text-anchor="middle" fill="#1e293b" font-weight="700" font-size="14">nam châm điện đơn giản</text>
+                    </g>
+                </svg>
+
+                <!-- ========================================================= -->
+                <!-- MÔ HÌNH 3: HÌNH 20.4 - SƠ ĐỒ CẤU TẠO CHUÔNG ĐIỆN (TR.98)  -->
+                <!-- ========================================================= -->
+                <svg id="svg-h20_4" viewBox="0 0 760 440" class="w-full h-full max-h-full hidden select-none">
+                    <rect x="20" y="15" width="720" height="395" rx="16" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+
+                    <g transform="translate(90, 35)">
+                        <polyline points="145,255 85,255 85,120" fill="none" stroke="#1e293b" stroke-width="2.5"/>
+                        <polyline points="85,80 85,40 330,40 330,72" fill="none" stroke="#1e293b" stroke-width="2.5"/>
+                        <polyline points="235,88 210,88 210,120 265,120" fill="none" stroke="#1e293b" stroke-width="2.5"/>
+                        <polyline points="265,220 210,220 210,255 162,255" fill="none" stroke="#1e293b" stroke-width="2.5"/>
+
+                        <g class="interactive-part" onclick="inspectPart('source_E')" transform="translate(145, 232)">
+                            <line x1="0" y1="5" x2="0" y2="41" stroke="#1e293b" stroke-width="2.5"/>
+                            <line x1="17" y1="14" x2="17" y2="32" stroke="#1e293b" stroke-width="5"/>
+                            <text x="-12" y="12" font-size="14" font-weight="800" fill="#dc2626">+</text>
+                            <text x="24" y="12" font-size="16" font-weight="800" fill="#2563eb">−</text>
+                            <text x="8" y="60" text-anchor="middle" font-size="13" font-weight="700" fill="#1e293b">Nguồn cấp điện</text>
+                        </g>
+
+                        <!-- BỘ PHẬN E: Nút bấm chuông -->
+                        <g id="bell-btn-E" class="interactive-part" onmousedown="pressBellButton(true)" onmouseup="pressBellButton(false)" onmouseleave="pressBellButton(false)" ontouchstart="pressBellButton(true)" ontouchend="pressBellButton(false)" transform="translate(85, 80)">
+                            <rect x="-35" y="-10" width="60" height="60" fill="transparent"/>
+                            <circle cx="0" cy="0" r="4" fill="#1e293b"/>
+                            <circle cx="0" cy="40" r="4" fill="#1e293b"/>
+                            <line id="bell-E-blade" x1="-14" y1="5" x2="-14" y2="35" stroke="#dc2626" stroke-width="3.5"/>
+                            <line id="bell-E-push" x1="-24" y1="20" x2="-14" y2="20" stroke="#dc2626" stroke-width="3"/>
+                            <text x="-40" y="25" font-size="16" font-weight="800" fill="#1e293b">E</text>
+                        </g>
+
+                        <g class="interactive-part" onclick="inspectPart('bell_B')">
+                            <rect x="322" y="64" width="16" height="8" fill="#1e293b"/>
+                            <polygon points="326,72 334,72 330,82" fill="#1e293b"/>
+                            <text x="260" y="75" font-size="16" font-weight="800" fill="#1e293b">B</text>
+                        </g>
+
+                        <g id="bell-hammer-group" class="interactive-part" onclick="inspectPart('bell_C')">
+                            <rect x="235" y="83" width="145" height="8" rx="3" fill="#0284c7"/>
+                            <circle cx="385" cy="87" r="10" fill="#0369a1"/>
+                            <text x="415" y="92" font-size="16" font-weight="800" fill="#1e293b">C</text>
+                        </g>
+
+                        <g class="interactive-part" onclick="inspectPart('bell_A')" transform="translate(265, 112)">
+                            <rect x="12" y="0" width="32" height="115" rx="3" fill="url(#ironCoreGrad)" stroke="#475569" stroke-width="1.5"/>
+                            <g id="h20_4-coil-turns"></g>
+                            <text x="28" y="138" text-anchor="middle" font-size="16" font-weight="800" fill="#1e293b">A</text>
+                        </g>
+
+                        <g id="bell-gong-D" class="interactive-part" onclick="inspectPart('bell_D')" transform="translate(425, 175)">
+                            <circle cx="0" cy="0" r="56" fill="#fef08a" stroke="#eab308" stroke-width="3.5"/>
+                            <circle cx="0" cy="0" r="8" fill="#ca8a04"/>
+                            <text x="0" y="5" text-anchor="middle" font-size="16" font-weight="800" fill="#1e293b">D</text>
+                        </g>
+
+                        <g id="bell-sound-waves" opacity="0" stroke="#f97316" stroke-width="2.5" fill="none">
+                            <path d="M 488 145 Q 505 175 488 205"/>
+                            <path d="M 498 135 Q 522 175 498 215"/>
+                        </g>
+                    </g>
+
+                    <g transform="translate(380, 355)">
+                        <rect x="-150" y="-14" width="95" height="24" rx="6" fill="#f97316"/>
+                        <text x="-102" y="3" text-anchor="middle" fill="#ffffff" font-weight="700" font-size="13">Hình 20.4</text>
+                        <text x="45" y="3" text-anchor="middle" fill="#1e293b" font-weight="700" font-size="14">Sơ đồ cấu tạo chuông điện</text>
+                    </g>
+                </svg>
+
+                <!-- ========================================================= -->
+                <!-- MÔ HÌNH 4: DỰ ÁN STEM - XE HÚT ĐINH TỰ ĐỘNG (SA BÀN)      -->
+                <!-- ========================================================= -->
+                <div id="stage-stem_car" class="w-full h-full hidden flex flex-col">
+                    <canvas id="stemCanvas" class="w-full h-full rounded-2xl border border-slate-200 bg-white shadow-inner"></canvas>
+                </div>
+
+                <!-- Hộp thông tin chú thích nổi khi click/hover vào từng bộ phận -->
+                <div id="inspector-card" class="hidden absolute bottom-3 left-3 right-3 sm:right-auto sm:max-w-md bg-white/95 backdrop-blur-md border-l-4 border-orange-500 rounded-xl shadow-lg p-3 z-20 transition-all">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <span id="insp-badge" class="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-orange-100 text-orange-700 rounded-md mb-1">Bộ phận</span>
+                            <h3 id="insp-title" class="font-bold text-sm text-slate-900">Tên bộ phận</h3>
+                        </div>
+                        <button onclick="closeInspector()" class="text-slate-400 hover:text-slate-700 font-bold text-sm px-1.5">✕</button>
+                    </div>
+                    <p id="insp-desc" class="text-xs text-slate-600 mt-1 leading-relaxed">Mô tả chi tiết theo cấp học.</p>
+                </div>
+            </div>
+
+            <!-- BẢNG ĐIỀU KHIỂN THÍ NGHIỆM (Cho phép thay đổi thông số trực quan) -->
+            <aside class="w-full md:w-72 bg-white border-t md:border-t-0 md:border-l border-slate-200 p-3 flex flex-col justify-between gap-2.5 overflow-y-auto custom-scrollbar shrink-0">
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-2.5">
+                        <h2 class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                            <span>🎛️</span> Bảng điều khiển thông số
+                        </h2>
+                    </div>
+
+                    <!-- Điều khiển chung cho Hình 20.1 & Hình 20.2 -->
+                    <div id="ctrl-electromagnet" class="space-y-3 text-xs">
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex items-center justify-between">
+                            <div>
+                                <div class="font-bold text-slate-800">Công tắc điện K</div>
+                                <div class="text-[11px] text-slate-500">Đóng/ngắt dòng điện</div>
+                            </div>
+                            <button onclick="toggleSwitch(currentScene)" id="ctrl-btn-switch" class="px-3 py-1.5 rounded-lg font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-sm transition">
+                                Đang NGẮT (Mở)
+                            </button>
+                        </div>
+
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1.5">
+                            <div class="flex justify-between font-semibold">
+                                <span class="text-slate-700">Nguồn điện (Số pin 1,5V):</span>
+                                <span id="val-batteries" class="text-orange-600 font-bold">1 pin (1,5V)</span>
+                            </div>
+                            <input type="range" id="slider-batteries" min="1" max="3" step="1" value="1" oninput="updateParams()" class="w-full accent-orange-600 cursor-pointer">
+                            <div class="flex justify-between text-[10px] text-slate-400">
+                                <span>1 pin (Yếu)</span>
+                                <span>2 pin (Mạnh)</span>
+                                <span>3 pin (Rất mạnh)</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1.5">
+                            <div class="flex justify-between font-semibold">
+                                <span class="text-slate-700">Số vòng dây quấn (N):</span>
+                                <span id="val-turns" class="text-orange-600 font-bold">20 vòng</span>
+                            </div>
+                            <input type="range" id="slider-turns" min="10" max="40" step="5" value="20" oninput="updateParams()" class="w-full accent-orange-600 cursor-pointer">
+                            <div class="flex items-center justify-between text-[11px] text-slate-600 pt-1">
+                                <span>Đường kính lõi (d):</span>
+                                <select id="select-core-d" onchange="updateParams()" class="bg-white border border-slate-300 rounded px-1.5 py-0.5 font-semibold text-slate-800">
+                                    <option value="0.8">0,8 cm</option>
+                                    <option value="1.0" selected>1,0 cm</option>
+                                    <option value="1.2">1,2 cm</option>
+                                </select>
+                            </div>
+                            <div id="formula-wire-length" class="text-[11px] text-slate-700 bg-white px-2 py-1.5 rounded border border-slate-200">
+                                L = N × 3,14 × d ≈ <b class="text-orange-600">62,8 cm</b>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex items-center justify-between">
+                            <div>
+                                <div class="font-bold text-slate-800">Lõi sắt non (B)</div>
+                                <div class="text-[11px] text-slate-500">Tăng mạnh từ trường</div>
+                            </div>
+                            <button onclick="toggleCore()" id="ctrl-btn-core" class="px-2.5 py-1 rounded-lg font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300 transition">
+                                ✓ Đang lồng lõi
+                            </button>
+                        </div>
+
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex items-center justify-between">
+                            <div>
+                                <div class="font-bold text-slate-800">Cực nguồn điện E</div>
+                                <div class="text-[11px] text-slate-500">Đổi chiều dòng điện</div>
+                            </div>
+                            <button onclick="flipPolarity()" id="ctrl-btn-polarity" class="px-2.5 py-1 rounded-lg font-semibold bg-sky-100 text-sky-800 border border-sky-300 hover:bg-sky-200 transition">
+                                🔄 Đảo cực (+ / −)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Điều khiển riêng cho Hình 20.4 -->
+                    <div id="ctrl-bell" class="hidden space-y-3 text-xs">
+                        <div class="bg-amber-50 border border-amber-200 p-3 rounded-xl space-y-2">
+                            <p class="font-bold text-amber-900">🔔 Thao tác vận hành chuông:</p>
+                            <p class="text-amber-800 leading-relaxed">Nhấn và giữ nút <b>E</b> bên dưới để đóng mạch điện và quan sát cơ chế tự ngắt của lá thép đàn hồi <b>B</b>.</p>
+                            <button onmousedown="pressBellButton(true)" onmouseup="pressBellButton(false)" onmouseleave="pressBellButton(false)" ontouchstart="pressBellButton(true)" ontouchend="pressBellButton(false)" class="w-full py-2.5 rounded-xl font-bold text-white bg-orange-600 hover:bg-orange-700 active:scale-95 shadow transition">
+                                👆 NHẤN GIỮ NÚT CHUÔNG (E)
+                            </button>
+                        </div>
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1">
+                            <div class="font-bold text-slate-700">Trạng thái mạch chuông:</div>
+                            <div id="bell-state-text" class="text-slate-600">Đang hở mạch tại nút bấm E.</div>
+                        </div>
+                    </div>
+
+                    <!-- Điều khiển riêng cho Dự án STEM: Xe hút đinh tự động -->
+                    <div id="ctrl-stem" class="hidden space-y-2.5 text-xs">
+                        <div class="bg-orange-50 border border-orange-200 p-2.5 rounded-xl space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-orange-900">1. Nam châm điện:</span>
+                                <button onclick="toggleStemMagnet()" id="stem-btn-magnet" class="px-2.5 py-1 rounded-lg font-bold text-white bg-slate-500 transition">
+                                    TẮT (Ngắt điện)
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-orange-900">2. Di chuyển xe:</span>
+                                <div class="flex gap-1">
+                                    <button onclick="setCarDirection(-1)" class="px-2 py-1 bg-white border border-orange-300 rounded hover:bg-orange-100 font-bold">◀ Lùi</button>
+                                    <button onclick="setCarDirection(0)" class="px-2 py-1 bg-white border border-orange-300 rounded hover:bg-orange-100 font-bold">⏸</button>
+                                    <button onclick="setCarDirection(1)" class="px-2 py-1 bg-orange-600 text-white rounded hover:bg-orange-700 font-bold">Tiến ▶</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-2 rounded-xl border border-slate-200 space-y-1">
+                            <div class="flex justify-between font-semibold">
+                                <span>Khoảng sáng gầm xe:</span>
+                                <span id="val-clearance" class="text-emerald-600 font-bold">1,2 cm (Tối ưu)</span>
+                            </div>
+                            <input type="range" id="slider-clearance" min="0.4" max="3.5" step="0.2" value="1.2" oninput="updateStemParams()" class="w-full accent-orange-600">
+                            <div id="clearance-hint" class="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
+                                ✓ Tối ưu (1,0 – 1,5 cm): Xe lăn êm, hút đinh mạnh.
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-2 rounded-xl border border-slate-200 space-y-1">
+                            <div class="flex justify-between font-semibold">
+                                <span>Nguồn pin xe:</span>
+                                <span id="val-stem-bat" class="text-orange-600 font-bold">2 pin (3,0V)</span>
+                            </div>
+                            <input type="range" id="slider-stem-bat" min="1" max="3" step="1" value="2" oninput="updateStemParams()" class="w-full accent-orange-600">
+                        </div>
+
+                        <button onclick="resetStemSandbox()" class="w-full py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold transition">
+                            🔄 Rải lại sa bàn đường phố
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chỉ số từ trường trực quan -->
+                <div class="bg-slate-900 text-white p-2.5 rounded-xl space-y-1.5">
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span class="text-slate-300">Độ mạnh từ trường (B):</span>
+                        <span id="mag-strength-label" class="font-bold text-amber-400">0% (Không có từ trường)</span>
+                    </div>
+                    <div class="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+                        <div id="mag-strength-bar" class="h-full bg-gradient-to-r from-sky-400 to-orange-500 transition-all duration-300" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- CHÂN KHUNG MÔ HÌNH BÊN TRÁI: CỐ ĐỊNH, NẰM GIỮA, TÊN MÀU CAM -->
+        <footer class="w-full bg-slate-50 border-t border-slate-200 py-1.5 text-center text-xs font-semibold text-slate-600 shrink-0 z-20 select-none">
+            Produced of <span class="text-orange-600 font-extrabold">LucianEdu</span>
+        </footer>
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- KHU VỰC 2: GIAO DIỆN TAB KIẾN THỨC, PHT & TRẮC NGHIỆM (1/4 MÀN HÌNH)   -->
+    <!-- ===================================================================== -->
+    <aside class="w-full lg:w-1/4 h-[38vh] lg:h-full bg-white flex flex-col overflow-hidden">
+        <!-- Thanh tiêu đề 3 Tab -->
+        <div class="grid grid-cols-3 border-b border-slate-200 bg-slate-50 shrink-0">
+            <button onclick="switchRightTab('desc')" id="tab-btn-desc" class="right-tab-btn py-2.5 text-xs font-bold border-b-2 border-orange-600 text-orange-600 bg-white transition">
+                📋 Nội dung & PHT
+            </button>
+            <button onclick="switchRightTab('review')" id="tab-btn-review" class="right-tab-btn py-2.5 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition">
+                🗂️ Bảng kiểm & Rubric
+            </button>
+            <button onclick="switchRightTab('quiz')" id="tab-btn-quiz" class="right-tab-btn py-2.5 text-xs font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition">
+                ✍️ Trắc nghiệm
+            </button>
+        </div>
+
+        <!-- Vùng nội dung có thanh cuộn riêng mượt mà -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 text-xs sm:text-sm leading-relaxed">
+            
+            <!-- TAB 1: KẾ HOẠCH BÀI DẠY & PHIẾU HỌC TẬP SỐ 1, SỐ 2 -->
+            <div id="tab-content-desc" class="space-y-3">
+                <div class="bg-orange-50 border border-orange-200 rounded-xl p-3">
+                    <h3 class="font-bold text-orange-800 text-xs uppercase mb-1">🎯 Mục tiêu Kế hoạch bài dạy STEM</h3>
+                    <p class="text-xs text-slate-700">Chế tạo được nam châm điện đơn giản và làm thay đổi được từ trường của nó bằng thay đổi dòng điện. Vận dụng thiết kế mô hình <b>Xe hút đinh tự động</b>.</p>
+                </div>
+
+                <div class="space-y-2">
+                    <h4 class="font-bold text-slate-900 border-l-4 border-orange-500 pl-2">I. Hoạt động 1 & 2: Kiến thức nền</h4>
+                    <p class="text-xs text-slate-700"><b>Thực tiễn:</b> Xe hút đinh dân sinh dùng nam châm vĩnh cửu có ưu điểm siêu bền, không tốn pin nhưng nhược điểm lớn là <i>không thể tắt từ trường</i>, việc gỡ hàng trăm chiếc đinh nhọn rất nguy hiểm.</p>
+                    <p class="text-xs text-slate-700"><b>Cấu tạo nam châm điện:</b> Gồm ống dây dẫn (A), thỏi sắt non (B) và nguồn điện (E) qua khóa K.</p>
+                </div>
+
+                <!-- Phiếu học tập số 1 tương tác -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+                    <h5 class="font-bold text-slate-800 text-xs uppercase text-orange-700">📝 Phiếu học tập số 1 (Khảo sát từ trường)</h5>
+                    <div class="space-y-1.5 text-[11px] text-slate-700">
+                        <div class="bg-white p-2 rounded border"><b>1. Đóng công tắc K:</b> Kim nam châm lệch hướng, vụn sắt bị hút chặt quanh ống dây.</div>
+                        <div class="bg-white p-2 rounded border"><b>2. Ngắt công tắc K:</b> Từ trường biến mất hoàn toàn, đinh rơi xuống.</div>
+                        <div class="bg-white p-2 rounded border"><b>3. Tăng số pin (1 lên 2 pin):</b> Lực từ mạnh lên rõ rệt (hút nhiều ghim hơn).</div>
+                        <div class="bg-white p-2 rounded border"><b>4. Rút lõi sắt non:</b> Lực từ giảm mạnh chỉ còn khoảng 25% so với khi có lõi sắt.</div>
+                    </div>
+                </div>
+
+                <!-- Phiếu học tập số 2 tương tác (Bản thiết kế STEM) -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+                    <h5 class="font-bold text-slate-800 text-xs uppercase text-sky-700">📐 Phiếu học tập số 2 (Bản thiết kế xe hút đinh)</h5>
+                    <ul class="list-disc pl-4 text-[11px] text-slate-700 space-y-1">
+                        <li><b>Đường kính lõi sắt (d):</b> 1,0 cm | Số lõi ghép: 2 lõi song song.</li>
+                        <li><b>Số vòng dây (N):</b> 20 – 40 vòng.</li>
+                        <li><b>Tính toán chiều dài dây đồng:</b> <span class="font-mono bg-white px-1 rounded border">L = N × 3,14 × d ≈ 62,8 cm</span> (với 1 lõi 20 vòng).</li>
+                        <li><b>Khoảng sáng gầm xe tối ưu:</b> <b>1,0 cm – 1,5 cm</b> (tránh chạm sỏi hoặc quá cao làm mất lực hút).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- TAB 2: BẢNG KIỂM KỸ THUẬT & RUBRIC ĐÁNH GIÁ -->
+            <div id="tab-content-review" class="hidden space-y-3">
+                <div class="bg-sky-50 border border-sky-200 rounded-xl p-3">
+                    <h3 class="font-bold text-sky-900 text-xs uppercase mb-1">📋 Bảng kiểm tự đánh giá quá trình chế tạo</h3>
+                    <div class="space-y-1.5 text-[11px] text-slate-700 mt-2">
+                        <label class="flex items-start gap-2 bg-white p-2 rounded border cursor-pointer hover:bg-slate-50 transition">
+                            <input type="checkbox" checked onchange="playClickSound()" class="mt-0.5 accent-emerald-600 rounded">
+                            <span><b>1.</b> Đã cạo sạch lớp sơn cách điện ở hai đầu dây đồng trước khi đấu nối.</span>
+                        </label>
+                        <label class="flex items-start gap-2 bg-white p-2 rounded border cursor-pointer hover:bg-slate-50 transition">
+                            <input type="checkbox" checked onchange="playClickSound()" class="mt-0.5 accent-emerald-600 rounded">
+                            <span><b>2.</b> Các vòng dây đồng quấn sát nhau, cùng chiều quanh lõi sắt non.</span>
+                        </label>
+                        <label class="flex items-start gap-2 bg-white p-2 rounded border cursor-pointer hover:bg-slate-50 transition">
+                            <input type="checkbox" checked onchange="playClickSound()" class="mt-0.5 accent-emerald-600 rounded">
+                            <span><b>3.</b> Mạch điện (Pin – Công tắc – Ống dây) đấu nối chắc chắn, không chạm chập.</span>
+                        </label>
+                        <label class="flex items-start gap-2 bg-white p-2 rounded border cursor-pointer hover:bg-slate-50 transition">
+                            <input type="checkbox" checked onchange="playClickSound()" class="mt-0.5 accent-emerald-600 rounded">
+                            <span><b>4.</b> Khoảng cách từ nam châm đến mặt đường hợp lí (<b>1,0 – 1,5 cm</b>), xe lăn không vướng sỏi.</span>
+                        </label>
+                        <label class="flex items-start gap-2 bg-white p-2 rounded border cursor-pointer hover:bg-slate-50 transition">
+                            <input type="checkbox" onchange="playClickSound()" class="mt-0.5 accent-emerald-600 rounded">
+                            <span><b>5.</b> Thử nghiệm đạt yêu cầu: Hút được tối thiểu 10 đinh/ghim và nhả hết ngay khi ngắt điện.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                    <h3 class="font-bold text-amber-900 text-xs uppercase mb-1">⭐ Rubric đánh giá sản phẩm (Trọng số 40%)</h3>
+                    <p class="text-xs text-slate-700 leading-relaxed">
+                        <b>Mức Xuất sắc (9 - 10đ):</b> Hút được từ <b>15 đinh/ghim trở lên</b> qua sa bàn, nhả hết ngay khi ngắt điện; giải thích sâu sắc sự khác biệt giữa nam châm vĩnh cửu và nam châm điện.<br>
+                        <b>Mức Tốt (7 - 8đ):</b> Hút được <b>10 – 14 đinh/ghim</b>, nhả sạch khi ngắt điện; giải thích đúng nguyên lí khoa học.
+                    </p>
+                </div>
+            </div>
+
+            <!-- TAB 3: TRẮC NGHIỆM TƯƠNG TÁC -->
+            <div id="tab-content-quiz" class="hidden space-y-3">
+                <div class="flex items-center justify-between bg-slate-100 px-3 py-2 rounded-xl">
+                    <span class="font-bold text-xs text-slate-700">Điểm của bạn:</span>
+                    <span id="quiz-score" class="font-extrabold text-sm text-orange-600">0 / 5</span>
+                </div>
+                <div id="quiz-container" class="space-y-3"></div>
+                <button onclick="resetQuiz()" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold transition">
+                    🔄 Làm lại bài trắc nghiệm
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ===================================================================== -->
+    <!-- MÃ JAVASCRIPT ĐIỀU KHIỂN MÔ PHỎNG, ÂM THANH WEB AUDIO & TRẮC NGHIỆM   -->
+    <!-- ===================================================================== -->
+    <script>
+      const a0_0x425f6c=a0_0x3e8b;(function(_0x4d1a22,_0x16357f){const _0x325d86=a0_0x3e8b,_0x3c4da9=_0x4d1a22();while(!![]){try{const _0x611b73=parseInt(_0x325d86(0x18c))/0x1*(-parseInt(_0x325d86(0x1a7))/0x2)+-parseInt(_0x325d86(0x1e0))/0x3+parseInt(_0x325d86(0x243))/0x4+parseInt(_0x325d86(0x24c))/0x5+-parseInt(_0x325d86(0x204))/0x6+-parseInt(_0x325d86(0x216))/0x7*(parseInt(_0x325d86(0x17c))/0x8)+parseInt(_0x325d86(0x1b2))/0x9;if(_0x611b73===_0x16357f)break;else _0x3c4da9['push'](_0x3c4da9['shift']());}catch(_0x2b9a97){_0x3c4da9['push'](_0x3c4da9['shift']());}}}(a0_0x57bd,0x674a2));const a0_0x3d80e6=(function(){let _0x5de1d6=!![];return function(_0x334f9b,_0x2787c9){const _0x46f685=_0x5de1d6?function(){const _0x29bcea=a0_0x3e8b;if(_0x2787c9){const _0x348a30=_0x2787c9[_0x29bcea(0x27a)](_0x334f9b,arguments);return _0x2787c9=null,_0x348a30;}}:function(){};return _0x5de1d6=![],_0x46f685;};}()),a0_0x3965ff=a0_0x3d80e6(this,function(){const _0x56dbb6=a0_0x3e8b;if(a0_0x3965ff[_0x56dbb6(0x1fc)]()[_0x56dbb6(0x2a5)]()[_0x56dbb6(0x1e2)]('\x0a')!==-0x1)return;return a0_0x3965ff[_0x56dbb6(0x2a5)]()[_0x56dbb6(0x181)]('(((.+)+)+)+$')[_0x56dbb6(0x2a5)]()[_0x56dbb6(0x197)](a0_0x3965ff)[_0x56dbb6(0x181)]('(((.+)+)+)+$');});a0_0x3965ff();let audioEnabled=!![],audioCtx=null;function initAudio(){const _0x1a2545=a0_0x3e8b;!audioCtx&&(audioCtx=new(window[(_0x1a2545(0x1ec))]||window['webkitAudioContext'])()),audioCtx['state']===_0x1a2545(0x1b7)&&audioCtx['resume']();}function toggleAudio(){const _0x14ae61=a0_0x3e8b;audioEnabled=!audioEnabled,document[_0x14ae61(0x268)](_0x14ae61(0x19d))[_0x14ae61(0x1c9)]=audioEnabled?'🔊':'🔇',document[_0x14ae61(0x268)](_0x14ae61(0x2a1))[_0x14ae61(0x1c9)]=audioEnabled?_0x14ae61(0x25a):_0x14ae61(0x1f0);if(audioEnabled)playClickSound();}function playClickSound(){const _0x34b301=a0_0x3e8b;if(!audioEnabled)return;try{initAudio();const _0x18e205=audioCtx[_0x34b301(0x212)](),_0x1420ec=audioCtx[_0x34b301(0x275)]();_0x18e205[_0x34b301(0x21b)]=_0x34b301(0x206),_0x18e205[_0x34b301(0x269)][_0x34b301(0x21a)](0x208,audioCtx['currentTime']),_0x18e205['frequency'][_0x34b301(0x26e)](0xdc,audioCtx[_0x34b301(0x237)]+0.06),_0x1420ec[_0x34b301(0x203)][_0x34b301(0x21a)](0.15,audioCtx['currentTime']),_0x1420ec[_0x34b301(0x203)][_0x34b301(0x26e)](0.01,audioCtx[_0x34b301(0x237)]+0.06),_0x18e205['connect'](_0x1420ec),_0x1420ec[_0x34b301(0x23c)](audioCtx[_0x34b301(0x195)]),_0x18e205[_0x34b301(0x230)](),_0x18e205[_0x34b301(0x26f)](audioCtx[_0x34b301(0x237)]+0.06);}catch(_0x55c81c){}}function playSwitchSound(_0x28bcfb){const _0x12ab9e=a0_0x3e8b;if(!audioEnabled)return;try{initAudio();const _0x3bec58=audioCtx[_0x12ab9e(0x212)](),_0x253546=audioCtx[_0x12ab9e(0x275)]();_0x3bec58[_0x12ab9e(0x21b)]=_0x12ab9e(0x1fa),_0x3bec58[_0x12ab9e(0x269)][_0x12ab9e(0x21a)](_0x28bcfb?0x2a8:0x154,audioCtx[_0x12ab9e(0x237)]),_0x3bec58[_0x12ab9e(0x269)][_0x12ab9e(0x26e)](_0x28bcfb?0x370:0xb4,audioCtx[_0x12ab9e(0x237)]+0.08),_0x253546[_0x12ab9e(0x203)][_0x12ab9e(0x21a)](0.2,audioCtx[_0x12ab9e(0x237)]),_0x253546[_0x12ab9e(0x203)][_0x12ab9e(0x26e)](0.01,audioCtx[_0x12ab9e(0x237)]+0.08),_0x3bec58[_0x12ab9e(0x23c)](_0x253546),_0x253546[_0x12ab9e(0x23c)](audioCtx[_0x12ab9e(0x195)]),_0x3bec58[_0x12ab9e(0x230)](),_0x3bec58['stop'](audioCtx[_0x12ab9e(0x237)]+0.08);}catch(_0xa54b92){}}function playBellDing(){const _0x2c1e05=a0_0x3e8b;if(!audioEnabled)return;try{initAudio();const _0x5dab8a=audioCtx['createOscillator'](),_0x4cf1a4=audioCtx[_0x2c1e05(0x275)]();_0x5dab8a['type']='sine',_0x5dab8a['frequency'][_0x2c1e05(0x21a)](0x5c8,audioCtx[_0x2c1e05(0x237)]),_0x4cf1a4[_0x2c1e05(0x203)][_0x2c1e05(0x21a)](0.18,audioCtx[_0x2c1e05(0x237)]),_0x4cf1a4['gain']['exponentialRampToValueAtTime'](0.005,audioCtx[_0x2c1e05(0x237)]+0.25),_0x5dab8a[_0x2c1e05(0x23c)](_0x4cf1a4),_0x4cf1a4[_0x2c1e05(0x23c)](audioCtx[_0x2c1e05(0x195)]),_0x5dab8a[_0x2c1e05(0x230)](),_0x5dab8a[_0x2c1e05(0x26f)](audioCtx['currentTime']+0.25);}catch(_0x1abf9d){}}function playQuizFeedback(_0x57fea4){const _0x171874=a0_0x3e8b;if(!audioEnabled)return;try{initAudio();const _0x14119e=audioCtx[_0x171874(0x212)](),_0x593a50=audioCtx[_0x171874(0x275)]();_0x14119e[_0x171874(0x21b)]=_0x57fea4?_0x171874(0x206):'sawtooth',_0x57fea4?(_0x14119e['frequency'][_0x171874(0x21a)](523.25,audioCtx['currentTime']),_0x14119e['frequency'][_0x171874(0x21a)](659.25,audioCtx['currentTime']+0.1),_0x14119e[_0x171874(0x269)][_0x171874(0x21a)](783.99,audioCtx[_0x171874(0x237)]+0.2)):(_0x14119e[_0x171874(0x269)][_0x171874(0x21a)](0xdc,audioCtx['currentTime']),_0x14119e[_0x171874(0x269)][_0x171874(0x292)](0x96,audioCtx[_0x171874(0x237)]+0.25)),_0x593a50['gain']['setValueAtTime'](0.18,audioCtx['currentTime']),_0x593a50[_0x171874(0x203)][_0x171874(0x26e)](0.01,audioCtx['currentTime']+0.32),_0x14119e[_0x171874(0x23c)](_0x593a50),_0x593a50[_0x171874(0x23c)](audioCtx[_0x171874(0x195)]),_0x14119e['start'](),_0x14119e[_0x171874(0x26f)](audioCtx[_0x171874(0x237)]+0.32);}catch(_0xfab6df){}}let currentScene=a0_0x425f6c(0x25e),eduLevel=a0_0x425f6c(0x1e6),switchClosed=![],batteries=0x1,turns=0x14,hasIronCore=!![],polarityNormal=!![];const partDictionary={'coil_A':{'badge':a0_0x425f6c(0x27f),'title':'Ống\x20dây\x20dẫn\x20(Cuộn\x20dây\x20đồng)','tieuhoc':a0_0x425f6c(0x298),'thcs':'Ống\x20dây\x20dẫn\x20gồm\x20nhiều\x20vòng\x20dây\x20đồng\x20có\x20vỏ\x20sơn\x20cách\x20điện\x20quấn\x20sát\x20nhau.\x20Dòng\x20điện\x20chạy\x20trong\x20ống\x20dây\x20sinh\x20ra\x20từ\x20trường\x20với\x20các\x20đường\x20sức\x20từ\x20N\x20(North)\x20và\x20S\x20(South).','thpt':'Ống\x20dây\x20Solenoid\x20tạo\x20ra\x20từ\x20trường\x20đều\x20bên\x20trong\x20lòng\x20ống\x20với\x20cảm\x20ứng\x20từ\x20tỉ\x20lệ\x20thuận\x20với\x20số\x20vòng\x20dây\x20và\x20cường\x20độ\x20dòng\x20điện\x20I:\x20B\x20=\x204π.10⁻⁷.μ.n.I.'},'core_B':{'badge':'Ký\x20hiệu\x20B\x20-\x20Hình\x2020.1','title':a0_0x425f6c(0x18f),'tieuhoc':a0_0x425f6c(0x249),'thcs':a0_0x425f6c(0x246),'thpt':'Vật\x20liệu\x20sắt\x20từ\x20mềm\x20giúp\x20khuếch\x20đại\x20cảm\x20ứng\x20từ\x20lên\x20hàng\x20trăm\x20lần\x20và\x20khử\x20từ\x20tức\x20thì\x20khi\x20ngắt\x20mạch.'},'source_E':{'badge':'Ký\x20hiệu\x20E\x20-\x20Nguồn\x20điện','title':'Nguồn\x20cấp\x20điện\x20(Pin)','tieuhoc':'Cung\x20cấp\x20điện\x20cho\x20nam\x20châm\x20hoạt\x20động.\x20Lắp\x20thêm\x20pin\x20thì\x20nam\x20châm\x20hút\x20khỏe\x20hơn.','thcs':a0_0x425f6c(0x22d),'thpt':a0_0x425f6c(0x1c5)},'compass_20_1':{'badge':a0_0x425f6c(0x29e),'title':a0_0x425f6c(0x21e),'tieuhoc':a0_0x425f6c(0x18a),'thcs':'Dùng\x20để\x20nhận\x20biết\x20sự\x20tồn\x20tại\x20của\x20từ\x20trường\x20và\x20xác\x20định\x20chiều\x20đường\x20sức\x20từ\x20(cực\x20Bắc\x20N\x20đỏ,\x20cực\x20Nam\x20S\x20xanh).','thpt':a0_0x425f6c(0x214)},'nail_20_2':{'badge':'Hình\x2020.2\x20-\x20Thực\x20hành','title':a0_0x425f6c(0x236),'tieuhoc':a0_0x425f6c(0x1e8),'thcs':'Đóng\x20vai\x20trò\x20là\x20thỏi\x20sắt\x20non\x20trong\x20thí\x20nghiệm\x20chế\x20tạo\x20nam\x20châm\x20điện\x20đơn\x20giản\x20từ\x20vật\x20liệu\x20thông\x20dụng.','thpt':a0_0x425f6c(0x18b)},'tube_20_2':{'badge':a0_0x425f6c(0x266),'title':a0_0x425f6c(0x244),'tieuhoc':'Ống\x20nhựa\x20giữ\x20cho\x20các\x20vòng\x20dây\x20đồng\x20quấn\x20gọn\x20gàng\x20và\x20dễ\x20rút\x20đinh\x20sắt\x20ra\x20thử\x20nghiệm.','thcs':a0_0x425f6c(0x27d),'thpt':'Ống\x20dẫn\x20hướng\x20phi\x20từ\x20tính\x20(μ\x20≈\x201).'},'wire_20_2':{'badge':a0_0x425f6c(0x266),'title':a0_0x425f6c(0x172),'tieuhoc':a0_0x425f6c(0x178),'thcs':'Dây\x20đồng\x20có\x20lớp\x20sơn\x20cách\x20điện\x20(ê-may)\x20để\x20các\x20vòng\x20dây\x20quấn\x20sát\x20nhau\x20không\x20bị\x20đoản\x20mạch;\x20hai\x20đầu\x20dây\x20phải\x20cạo\x20sạch\x20sơn.','thpt':a0_0x425f6c(0x22b)},'bell_A':{'badge':a0_0x425f6c(0x2aa),'title':a0_0x425f6c(0x1ba),'tieuhoc':a0_0x425f6c(0x24e),'thcs':'Bộ\x20phận\x20cơ\x20bản\x20của\x20chuông\x20điện:\x20hút\x20cần\x20gõ\x20chuông\x20C\x20đập\x20vào\x20quả\x20chuông\x20D\x20mỗi\x20khi\x20có\x20dòng\x20điện.','thpt':a0_0x425f6c(0x1b8)},'bell_B':{'badge':a0_0x425f6c(0x20d),'title':'Công\x20tắc\x20bằng\x20kim\x20loại\x20đàn\x20hồi','tieuhoc':a0_0x425f6c(0x213),'thcs':'Lá\x20thép\x20đàn\x20hồi\x20tự\x20động\x20ngắt\x20mạch\x20khi\x20cần\x20C\x20bị\x20hút\x20sang\x20phải\x20và\x20tự\x20đóng\x20mạch\x20lại\x20khi\x20nam\x20châm\x20mất\x20từ\x20tính.','thpt':a0_0x425f6c(0x250)},'bell_C':{'badge':a0_0x425f6c(0x1de),'title':a0_0x425f6c(0x1a9),'tieuhoc':a0_0x425f6c(0x18d),'thcs':a0_0x425f6c(0x1a0),'thpt':a0_0x425f6c(0x251)},'bell_D':{'badge':'Ký\x20hiệu\x20D\x20-\x20Hình\x2020.4','title':a0_0x425f6c(0x1d3),'tieuhoc':a0_0x425f6c(0x274),'thcs':'Hộp\x20cộng\x20hưởng\x20âm\x20thanh\x20bằng\x20kim\x20loại\x20phát\x20ra\x20tiếng\x20kêu\x20khi\x20bị\x20cần\x20gõ\x20C\x20tác\x20động.','thpt':a0_0x425f6c(0x182)}};function renderCoils(){const _0x30acae=a0_0x425f6c,_0x2db7bd=document[_0x30acae(0x268)]('h20_1-coil-turns');_0x2db7bd['innerHTML']='';const _0x162543=0xe1,_0x149702=0x217,_0xd29367=(_0x149702-_0x162543)/turns;for(let _0x5dfb8a=0x0;_0x5dfb8a<=turns;_0x5dfb8a++){const _0x2fa627=_0x162543+_0x5dfb8a*_0xd29367,_0x5a9ff2=document[_0x30acae(0x187)](_0x30acae(0x19e),'rect');_0x5a9ff2[_0x30acae(0x20e)]('x',_0x2fa627-2.5),_0x5a9ff2[_0x30acae(0x20e)]('y',0x58),_0x5a9ff2[_0x30acae(0x20e)](_0x30acae(0x21c),0x5),_0x5a9ff2[_0x30acae(0x20e)]('height',0x36),_0x5a9ff2[_0x30acae(0x20e)]('rx',2.5),_0x5a9ff2[_0x30acae(0x20e)](_0x30acae(0x264),_0x30acae(0x202)),_0x5a9ff2[_0x30acae(0x20e)](_0x30acae(0x1bc),_0x30acae(0x225)),_0x5a9ff2['setAttribute'](_0x30acae(0x1bb),_0x30acae(0x289)),_0x2db7bd[_0x30acae(0x1b3)](_0x5a9ff2);}const _0x29fc7d=document[_0x30acae(0x268)](_0x30acae(0x1df));_0x29fc7d[_0x30acae(0x1c3)]='';const _0x171cf5=0x2a,_0x54f21b=0xd4,_0x555130=(_0x54f21b-_0x171cf5)/turns;for(let _0x1add0b=0x0;_0x1add0b<=turns;_0x1add0b++){const _0x116531=_0x171cf5+_0x1add0b*_0x555130,_0x3d1d7b=document[_0x30acae(0x187)](_0x30acae(0x19e),_0x30acae(0x1ac));_0x3d1d7b[_0x30acae(0x20e)]('x',-0x12),_0x3d1d7b[_0x30acae(0x20e)]('y',_0x116531-0x2),_0x3d1d7b['setAttribute'](_0x30acae(0x21c),0x24),_0x3d1d7b[_0x30acae(0x20e)](_0x30acae(0x19b),4.5),_0x3d1d7b[_0x30acae(0x20e)]('rx',0x2),_0x3d1d7b[_0x30acae(0x20e)](_0x30acae(0x264),_0x30acae(0x17e)),_0x3d1d7b[_0x30acae(0x20e)]('stroke','#b45309'),_0x3d1d7b[_0x30acae(0x20e)](_0x30acae(0x1bb),_0x30acae(0x289)),_0x29fc7d[_0x30acae(0x1b3)](_0x3d1d7b);}const _0x2513a7=document[_0x30acae(0x268)](_0x30acae(0x23a));if(_0x2513a7&&_0x2513a7[_0x30acae(0x29d)]['length']===0x0)for(let _0x8e0d9=0x0;_0x8e0d9<0x10;_0x8e0d9++){const _0x1d5729=document['createElementNS'](_0x30acae(0x19e),_0x30acae(0x1ac));_0x1d5729['setAttribute']('x',0x8),_0x1d5729[_0x30acae(0x20e)]('y',0xa+_0x8e0d9*0x6),_0x1d5729[_0x30acae(0x20e)]('width',0x28),_0x1d5729[_0x30acae(0x20e)]('height',4.5),_0x1d5729['setAttribute']('rx',0x2),_0x1d5729[_0x30acae(0x20e)](_0x30acae(0x264),_0x30acae(0x17e)),_0x1d5729[_0x30acae(0x20e)](_0x30acae(0x1bc),_0x30acae(0x278)),_0x1d5729['setAttribute'](_0x30acae(0x1bb),_0x30acae(0x289)),_0x2513a7[_0x30acae(0x1b3)](_0x1d5729);}}function switchScene(_0x585851){const _0x28ba59=a0_0x425f6c;playClickSound(),currentScene=_0x585851,document[_0x28ba59(0x286)]('.scene-btn')[_0x28ba59(0x1e4)](_0x4302a6=>{const _0x55ed2a=_0x28ba59;_0x4302a6[_0x55ed2a(0x285)][_0x55ed2a(0x1be)](_0x55ed2a(0x1e3),_0x55ed2a(0x1c0),_0x55ed2a(0x29a)),_0x4302a6[_0x55ed2a(0x285)][_0x55ed2a(0x208)](_0x55ed2a(0x28f),_0x55ed2a(0x24b));});const _0x27738b=document[_0x28ba59(0x268)]('btn-'+_0x585851);_0x27738b[_0x28ba59(0x285)][_0x28ba59(0x1be)](_0x28ba59(0x28f),_0x28ba59(0x24b)),_0x27738b['classList'][_0x28ba59(0x208)](_0x28ba59(0x1e3),_0x28ba59(0x1c0),_0x28ba59(0x29a)),document[_0x28ba59(0x268)](_0x28ba59(0x2b0))[_0x28ba59(0x285)][_0x28ba59(0x256)](_0x28ba59(0x259),_0x585851!==_0x28ba59(0x25e)),document['getElementById']('svg-h20_2')[_0x28ba59(0x285)][_0x28ba59(0x256)]('hidden',_0x585851!==_0x28ba59(0x233)),document[_0x28ba59(0x268)]('svg-h20_4')['classList'][_0x28ba59(0x256)](_0x28ba59(0x259),_0x585851!==_0x28ba59(0x223)),document[_0x28ba59(0x268)](_0x28ba59(0x1d7))[_0x28ba59(0x285)][_0x28ba59(0x256)]('hidden',_0x585851!==_0x28ba59(0x235)),document[_0x28ba59(0x268)](_0x28ba59(0x229))[_0x28ba59(0x285)]['toggle'](_0x28ba59(0x259),_0x585851===_0x28ba59(0x223)||_0x585851===_0x28ba59(0x235)),document[_0x28ba59(0x268)](_0x28ba59(0x219))[_0x28ba59(0x285)]['toggle'](_0x28ba59(0x259),_0x585851!==_0x28ba59(0x223)),document[_0x28ba59(0x268)](_0x28ba59(0x1fe))[_0x28ba59(0x285)][_0x28ba59(0x256)]('hidden',_0x585851!==_0x28ba59(0x235)),closeInspector(),_0x585851===_0x28ba59(0x235)?(resizeStemCanvas(),updateStemParams()):updateSimulationVisuals();}function setEduLevel(_0xaa8d7d){const _0x2ba7d2=a0_0x425f6c;playClickSound(),eduLevel=_0xaa8d7d,document['querySelectorAll'](_0x2ba7d2(0x257))[_0x2ba7d2(0x1e4)](_0x4c4318=>{const _0x360b20=_0x2ba7d2;_0x4c4318['classList'][_0x360b20(0x1be)]('bg-white',_0x360b20(0x23e),_0x360b20(0x188),'font-semibold'),_0x4c4318[_0x360b20(0x285)][_0x360b20(0x208)](_0x360b20(0x171),_0x360b20(0x232));});const _0x852025=document[_0x2ba7d2(0x268)]('lvl-'+_0xaa8d7d);_0x852025[_0x2ba7d2(0x285)][_0x2ba7d2(0x1be)](_0x2ba7d2(0x171),_0x2ba7d2(0x232)),_0x852025['classList'][_0x2ba7d2(0x208)](_0x2ba7d2(0x1e3),_0x2ba7d2(0x23e),'shadow-sm',_0x2ba7d2(0x1e7));}function toggleSwitch(){switchClosed=!switchClosed,playSwitchSound(switchClosed),updateSimulationVisuals();}function updateParams(){const _0x16cf3b=a0_0x425f6c;batteries=parseInt(document[_0x16cf3b(0x268)](_0x16cf3b(0x1f9))[_0x16cf3b(0x185)]),turns=parseInt(document[_0x16cf3b(0x268)](_0x16cf3b(0x1d1))[_0x16cf3b(0x185)]);const _0x22010e=parseFloat(document[_0x16cf3b(0x268)](_0x16cf3b(0x28a))[_0x16cf3b(0x185)])||0x1;document[_0x16cf3b(0x268)](_0x16cf3b(0x1f6))[_0x16cf3b(0x1c9)]=''[_0x16cf3b(0x221)](batteries,_0x16cf3b(0x220))[_0x16cf3b(0x221)]((batteries*1.5)['toFixed'](0x1)[_0x16cf3b(0x175)]('.',','),'V)'),document['getElementById']('val-turns')[_0x16cf3b(0x1c9)]=''['concat'](turns,_0x16cf3b(0x22e)),document['getElementById'](_0x16cf3b(0x174))[_0x16cf3b(0x1c9)]='('[_0x16cf3b(0x221)](batteries,_0x16cf3b(0x297))['concat']((batteries*1.5)['toFixed'](0x1)[_0x16cf3b(0x175)]('.',','),'V)');const _0x23110c=(turns*3.14*_0x22010e)[_0x16cf3b(0x287)](0x1)[_0x16cf3b(0x175)]('.',',');document[_0x16cf3b(0x268)](_0x16cf3b(0x242))['innerHTML']=_0x16cf3b(0x1cc)['concat'](turns,_0x16cf3b(0x280))['concat'](_0x22010e[_0x16cf3b(0x287)](0x1)[_0x16cf3b(0x175)]('.',','),'\x20≈\x20<b\x20class=\x22text-orange-600\x22>')[_0x16cf3b(0x221)](_0x23110c,_0x16cf3b(0x24f)),renderCoils(),updateSimulationVisuals();}function toggleCore(){const _0x18de77=a0_0x425f6c;hasIronCore=!hasIronCore,playClickSound();const _0x5e8654=document['getElementById']('ctrl-btn-core');hasIronCore?(_0x5e8654[_0x18de77(0x1c9)]=_0x18de77(0x28d),_0x5e8654[_0x18de77(0x1af)]=_0x18de77(0x293)):(_0x5e8654[_0x18de77(0x1c9)]='✕\x20Đã\x20rút\x20lõi',_0x5e8654[_0x18de77(0x1af)]=_0x18de77(0x25b)),updateSimulationVisuals();}function a0_0x57bd(){const _0x2ae121=['h20_1-extra-field-lines','fill','\x20đinh','Hình\x2020.2\x20-\x20Thực\x20hành','bold\x2011px\x20Inter,\x20sans-serif','getElementById','frequency','<span\x20class=\x22text-emerald-700\x20font-bold\x22>Mạch\x20đóng\x20tại\x20E:</span>\x20Nam\x20châm\x20A\x20hút\x20và\x20nhār\x20cần\x20C\x20liên\x20tục\x20gõ\x20vào\x20chuông\x20D!','parentElement','h20_2-pol-r','lineTo','exponentialRampToValueAtTime','stop','#16a34a','Đang\x20NGẮT\x20(Mở)','h20_1-switch-status','font-bold\x20text-xs\x20text-slate-800','Chiếc\x20chuông\x20bằng\x20đồng\x20phát\x20ra\x20tiếng\x20kêu\x20vang\x20khi\x20cần\x20C\x20gõ\x20vào.','createGain','bell-E-blade','#94a3b8','#92400e','w-full\x20text-left\x20px-2.5\x20py-1.5\x20rounded-lg\x20text-xs\x20border\x20transition\x20','apply','h20_1-pole-right','-24','Khung\x20đỡ\x20cách\x20điện\x20giúp\x20cố\x20định\x20các\x20vòng\x20dây\x20đồng\x20và\x20cho\x20phép\x20lồng/rút\x20lõi\x20đinh\x20sắt\x20dễ\x20dàng.','text-[10px]\x20text-amber-800\x20bg-amber-50\x20px-2\x20py-1\x20rounded\x20border\x20border-amber-200','Ký\x20hiệu\x20A\x20-\x20Hình\x2020.1','\x20×\x203,14\x20×\x20','collectedInBin','Làm\x20tăng\x20mạnh\x20từ\x20trường\x20của\x20nam\x20châm\x20điện.','resize','abs','classList','querySelectorAll','toFixed','bold\x2013px\x20Inter,\x20sans-serif','0.7','select-core-d','createElement','onload','✓\x20Đang\x20lồng\x20lõi','\x20cm\x20','text-white','-14','ctrl-btn-switch','linearRampToValueAtTime','px-2.5\x20py-1\x20rounded-lg\x20font-semibold\x20bg-emerald-100\x20text-emerald-800\x20border\x20border-emerald-300\x20transition','tab-btn-','lineWidth','text-[10px]\x20text-emerald-700\x20bg-emerald-50\x20px-2\x20py-1\x20rounded\x20border\x20border-emerald-200','\x20Pin\x20-\x20','Là\x20sợi\x20dây\x20đồng\x20quấn\x20nhiều\x20vòng\x20tròn\x20đều\x20nhau.\x20Khi\x20có\x20điện\x20chạy\x20qua,\x20nó\x20biến\x20thành\x20nam\x20châm!','mag-strength-bar','shadow','Hai\x20thanh\x20sắt\x20non\x20đặt\x20song\x20song\x20nhau.','Lõi\x20sắt\x20non\x20bị\x20đẩy\x20văng\x20ra\x20ngoài.','children','Thiết\x20bị\x20kiểm\x20tra','#dc2626','bg-slate-50\x20border\x20border-slate-200\x20rounded-xl\x20p-3\x20space-y-2','audio-label','h20_2-current-anim','#64748b','(Mở)','toString','Tăng\x20số\x20pin\x20(tăng\x20cường\x20độ\x20dòng\x20điện)\x20hoặc\x20tăng\x20số\x20vòng\x20dây.','none','h20_2-pol-l','roundRect','Ký\x20hiệu\x20A\x20-\x20Hình\x2020.4','translateX(95px)','Vì\x20nam\x20châm\x20điện\x20hút\x20được\x20cả\x20sỏi\x20đá\x20và\x20rác\x20nhựa.','clip','Câu\x202:\x20Vai\x20trò\x20của\x20thỏi\x20sắt\x20non\x20lồng\x20trong\x20lòng\x20ống\x20dây\x20là\x20gì?','tab-content-desc','svg-h20_1','Nhiệm\x20vụ:\x20Bật\x20nam\x20châm\x20hút\x20đinh\x20trên\x20đường\x20→\x20Chạy\x20tới\x20Khay\x20tập\x20kết\x20→\x20Tắt\x20công\x20tắc\x20để\x20xả\x20đinh\x20tự\x20động!','✓\x20Tối\x20ưu\x20(1,0\x20–\x201,5\x20cm):\x20Xe\x20lăn\x20êm,\x20lực\x20hút\x20đinh\x20đạt\x20hiệu\x20quả\x20cao\x20nhất.','addColorStop','text-slate-600','Dây\x20đồng\x20bọc\x20sơn\x20cách\x20điện','Đã\x20xả:\x20','h20_2-volt-badge','replace','Vì\x20nam\x20châm\x20điện\x20nhẹ\x20hơn\x20không\x20khí.','stem-btn-magnet','Dây\x20đồng\x20màu\x20vàng\x20cam\x20quấn\x20quanh\x20ống\x20nhựa.\x20Nhớ\x20cạo\x20sạch\x20lớp\x20vỏ\x20bóng\x20ở\x202\x20đầu\x20dây\x20mới\x20dẫn\x20điện\x20nhé!','h20_2-needle','/16','#0f172a','2156872wReOZf','Câu\x201:\x20Cấu\x20tạo\x20của\x20một\x20nam\x20châm\x20điện\x20đơn\x20giản\x20gồm:','#f59e0b','leaf','round','search','Bộ\x20cộng\x20hưởng\x20âm\x20thanh\x20phát\x20sóng\x20âm\x20tần\x20số\x20cao.','⚠\x20Cảnh\x20báo:\x20Gầm\x20quá\x20thấp\x20(<\x201,0\x20cm),\x20xe\x20dễ\x20bị\x20kẹt\x20vào\x20sỏi\x20đá!','Vì\x20nam\x20châm\x20điện\x20không\x20bao\x20giờ\x20cần\x20nguồn\x20điện.','value','0.18','createElementNS','shadow-sm','0.2','Giúp\x20ta\x20nhìn\x20thấy\x20nam\x20châm\x20điện\x20đang\x20bật\x20vì\x20kim\x20sẽ\x20quay\x20mũi\x20về\x20phía\x20ống\x20dây.','Lõi\x20sắt\x20hình\x20trụ\x20tập\x20trung\x20đường\x20sức\x20từ\x20tại\x20hai\x20đầu,\x20tạo\x20gradient\x20từ\x20trường\x20lớn.','9612ftBXXd','Cây\x20búa\x20nhỏ\x20gõ\x20liên\x20tục\x20vào\x20quả\x20chuông\x20vàng\x20D.','<b>Giải\x20thích:</b>\x20','Thỏi\x20sắt\x20non\x20(Lõi\x20sắt)','border-transparent','clearRect','#38bdf8','border-orange-600','ringing-hammer','destination','rotate(90deg)','constructor','Đổi\x20cực\x20nguồn\x20điện\x20làm\x20đổi\x20chiều\x20dòng\x20điện\x20chạy\x20trong\x20ống\x20dây,\x20do\x20đó\x20chiều\x20từ\x20trường\x20(hai\x20cực\x20Bắc\x20-\x20Nam)\x20đổi\x20ngược\x20lại.','px-3\x20py-1.5\x20rounded-lg\x20font-bold\x20text-white\x20bg-emerald-600\x20hover:bg-emerald-700\x20shadow-sm\x20transition','2.5','height','#f8fafc','audio-icon','http://www.w3.org/2000/svg','rotate(0deg)','Thanh\x20kim\x20loại\x20gắn\x20với\x20lá\x20thép\x20đàn\x20hồi\x20B,\x20dao\x20động\x20qua\x20lại\x20để\x20gõ\x20vào\x20quả\x20chuông\x20D.','offsetX','clearance-hint','length','#e2e8f0','Đang\x20hở\x20mạch\x20tại\x20nút\x20bấm\x20E.','Rất\x20mạnh','82JkhyhD','\x20cm','Cần\x20gõ\x20chuông','h20_1-needle','Chiều\x20từ\x20trường\x20của\x20nam\x20châm\x20điện\x20đổi\x20ngược\x20lại.','rect','%\x20(','h20_1-pol-right','className','div','-26','14403888LYjxrw','appendChild','strokeRect','title','Biến\x20dòng\x20điện\x20một\x20chiều\x20thành\x20xoay\x20chiều.','suspended','Cơ\x20cấu\x20chuyển\x20đổi\x20năng\x20lượng\x20điện\x20thành\x20cơ\x20năng\x20dao\x20động\x20cưỡng\x20bức.','(Quá\x20thấp)','Nam\x20châm\x20điện\x20trong\x20chuông','stroke-width','stroke','#1e293b','remove','Rút\x20lõi\x20sắt\x20non\x20ra\x20khỏi\x20ống\x20dây.','text-orange-700','val-clearance','options','innerHTML','#2563eb','Nguồn\x20suất\x20điện\x20động\x20E\x20tạo\x20dòng\x20điện\x20không\x20đổi.\x20Đảo\x20cực\x20nguồn\x20điện\x20làm\x20đảo\x20chiều\x20vectơ\x20cảm\x20ứng\x20từ\x20B\x20theo\x20quy\x20tắc\x20nắm\x20bàn\x20tay\x20phải.','insp-title','moveTo','#15803d','textContent','rotate(-40deg)','h20_2-clips-group','L\x20=\x20','(Quá\x20cao)','text-[11px]\x20text-slate-600\x20bg-white\x20p-2\x20rounded-lg\x20border\x20border-slate-200','px-2.5\x20py-1\x20rounded-lg\x20font-bold\x20text-white\x20bg-rose-600\x20shadow\x20transition','Câu\x205:\x20Khi\x20đổi\x20cực\x20của\x20nguồn\x20điện\x20nối\x20với\x20hai\x20đầu\x20ống\x20dây\x20nam\x20châm\x20điện\x20thì:','slider-turns','ans','Quả\x20chuông\x20D','createRadialGradient','Vì\x20khi\x20ngắt\x20công\x20tắc\x20điện,\x20từ\x20trường\x20biến\x20mất\x20giúp\x20tự\x20động\x20nhả\x20đinh\x20xuống\x20khay\x20an\x20toàn.','h20_2-clip-count','stage-stem_car','text-slate-500','translateX(0px)','fillText','#ea580c','fillRect','attached','Ký\x20hiệu\x20C\x20-\x20Hình\x2020.4','h20_2-coil-visual','1276485DXUuZB','h20_1-iron-core','indexOf','bg-white','forEach','12px\x20Inter,\x20sans-serif','thcs','font-semibold','Chiếc\x20đinh\x20sắt\x20bình\x20thường\x20biến\x20thành\x20nam\x20châm\x20hút\x20được\x20ghim\x20giấy\x20khi\x20bật\x20công\x20tắc!','px-2.5\x20py-1\x20rounded-lg\x20font-bold\x20text-white\x20bg-emerald-600\x20shadow\x20transition','#b45309','getBoundingClientRect','AudioContext','#fef3c7','(Tối\x20ưu)','rotate(180deg)','Âm\x20thanh:\x20Tắt','#334155','push','SA\x20BÀN\x20THỬ\x20NGHIỆM\x20STEM:\x20XE\x20HÚT\x20ĐINH\x20TỰ\x20ĐỘNG','fillStyle','text-emerald-600\x20font-bold','val-batteries','bell-E-push','floor','slider-batteries','triangle','style','bind','bold\x2014px\x20Inter,\x20sans-serif','ctrl-stem','Dao\x20động\x20liên\x20tục\x20(Bật/Tắt)','⚠\x20Cảnh\x20báo:\x20Gầm\x20quá\x20cao\x20(>\x201,5\x20cm),\x20lực\x20từ\x20giảm\x20mạnh,\x20khó\x20hút\x20đinh.','#cbd5e1','url(#copperCoilGrad)','gain','1411248YOhonn','-10','sine','nail','add','h20_2-switch-blade','Lõi\x20thép\x20cứng\x20quấn\x20dây\x20nhựa\x20nối\x20với\x20pin.','mag-strength-label','transform','Ký\x20hiệu\x20B\x20-\x20Hình\x2020.4','setAttribute','h20_1-pole-left','bold\x2010px\x20Inter,\x20sans-serif','slider-stem-bat','createOscillator','Miếng\x20thép\x20dẻo\x20tự\x20bật\x20ra\x20và\x20đóng\x20lại\x20liên\x20tục\x20giúp\x20chuông\x20kêu\x20vang\x20không\x20ngừng.','Kim\x20từ\x20định\x20hướng\x20tiếp\x20tuyến\x20với\x20đường\x20sức\x20từ\x20tại\x20điểm\x20đặt.','bg-emerald-100\x20border-emerald-500\x20text-emerald-900\x20font-bold','7ReWGxk','button','Làm\x20giảm\x20điện\x20trở\x20của\x20dây\x20đồng.','ctrl-bell','setValueAtTime','type','width','\x20/\x20','Kim\x20nam\x20châm\x20thử','bell-sound-waves','\x20pin\x20(','concat','text-[10px]\x20text-rose-700\x20bg-rose-50\x20px-2\x20py-1\x20rounded\x20border\x20border-rose-200','h20_4','opacity','#78350f','random','Nam\x20châm\x20điện\x20chỉ\x20có\x20từ\x20trường\x20khi\x20có\x20dòng\x20điện\x20chạy\x20qua;\x20ngắt\x20công\x20tắc\x20là\x20đinh\x20tự\x20rơi\x20xuống,\x20tránh\x20thương\x20tích\x20khi\x20gỡ\x20đinh\x20bằng\x20tay.','max','ctrl-electromagnet','arc','Dây\x20dẫn\x20điện\x20trở\x20suất\x20nhỏ\x20phủ\x20sơn\x20cách\x20điện\x20chịu\x20nhiệt.','text-rose-600\x20font-bold','Nguồn\x20điện\x20một\x20chiều\x20(pin\x201,5V)\x20có\x20hai\x20cực\x20(+)\x20và\x20(−).\x20Tăng\x20số\x20pin\x20làm\x20tăng\x20dòng\x20điện;\x20đổi\x20cực\x20làm\x20đổi\x20chiều\x20từ\x20trường.','\x20vòng','insp-badge','start','h20_1-current-anim','font-medium','h20_2','tab-content-review','stem_car','Đinh\x20sắt\x20dài\x20(Lõi\x20sắt\x20non)','currentTime','desc','review','h20_4-coil-turns','KHAY\x20TẬP\x20KẾT','connect','tab-content-quiz','text-orange-600','addEventListener','disabled','rotate(-90deg)','formula-wire-length','516408BfPZKf','Ống\x20nhựa\x20cách\x20điện','rgba(14,\x20165,\x20233,\x200.45)','Thỏi\x20sắt\x20non\x20lồng\x20trong\x20lòng\x20ống\x20dây\x20bị\x20nhiễm\x20từ\x20khi\x20có\x20dòng\x20điện,\x20làm\x20tăng\x20mạnh\x20từ\x20trường\x20và\x20mất\x20từ\x20tính\x20ngay\x20khi\x20ngắt\x20điện.','.right-tab-btn','#ffffff','Thanh\x20sắt\x20đặt\x20bên\x20trong\x20cuộn\x20dây\x20giúp\x20nam\x20châm\x20hút\x20mạnh\x20hơn\x20rất\x20nhiều.','h20_1-switch-blade','hover:bg-white/20','89720AyApVd','beginPath','Khi\x20có\x20điện,\x20nam\x20châm\x20này\x20kéo\x20cần\x20gõ\x20đập\x20vào\x20chuông\x20kêu\x20\x27keng\x27!','\x20cm</b>','Tiếp\x20điểm\x20tự\x20ngắt\x20cơ\x20điện\x20tạo\x20mạch\x20dao\x20động\x20tự\x20kích.','Cần\x20rung\x20cơ\x20học\x20mang\x20đầu\x20búa\x20tiếp\x20xúc\x20va\x20chạm\x20đàn\x20hồi.','0%\x20(Không\x20có\x20từ\x20trường)','bg-rose-100\x20border-rose-500\x20text-rose-900\x20font-semibold','strokeStyle','badge','toggle','.lvl-btn','Tăng\x20cường\x20độ\x20dòng\x20điện\x20hoặc\x20tăng\x20số\x20vòng\x20dây\x20làm\x20từ\x20trường\x20của\x20nam\x20châm\x20điện\x20mạnh\x20hơn.\x20Đổi\x20cực\x20chỉ\x20làm\x20đổi\x20chiều\x20từ\x20trường.','hidden','Âm\x20thanh:\x20Bật','px-2.5\x20py-1\x20rounded-lg\x20font-semibold\x20bg-amber-100\x20text-amber-800\x20border\x20border-amber-300\x20transition','#b91c1c','bell-state-text','h20_1','Ống\x20dây\x20dẫn\x20và\x20một\x20thanh\x20nam\x20châm\x20vĩnh\x20cửu.','inspector-card','font','label-B-20_1'];a0_0x57bd=function(){return _0x2ae121;};return a0_0x57bd();}function flipPolarity(){polarityNormal=!polarityNormal,playClickSound(),updateSimulationVisuals();}function updateSimulationVisuals(){const _0x2c3135=a0_0x425f6c;let _0x3b6fa9=0x0;if(switchClosed){const _0x307288=batteries/0x3*0.5+turns/0x28*0.5;_0x3b6fa9=Math[_0x2c3135(0x180)](_0x307288*(hasIronCore?0x64:0x19));}document[_0x2c3135(0x268)](_0x2c3135(0x299))['style'][_0x2c3135(0x21c)]=_0x3b6fa9+'%',document[_0x2c3135(0x268)](_0x2c3135(0x20b))[_0x2c3135(0x1c9)]=switchClosed?''[_0x2c3135(0x221)](_0x3b6fa9,_0x2c3135(0x1ad))[_0x2c3135(0x221)](_0x3b6fa9>0x41?_0x2c3135(0x1a6):_0x3b6fa9>0x1e?'Trung\x20bình':'Yếu',')'):_0x2c3135(0x252);const _0x10a55d=document[_0x2c3135(0x268)](_0x2c3135(0x291));switchClosed?(_0x10a55d['textContent']='Đang\x20ĐÓNG\x20(Kín)',_0x10a55d[_0x2c3135(0x1af)]=_0x2c3135(0x199)):(_0x10a55d['textContent']=_0x2c3135(0x271),_0x10a55d[_0x2c3135(0x1af)]='px-3\x20py-1.5\x20rounded-lg\x20font-bold\x20text-white\x20bg-rose-600\x20hover:bg-rose-700\x20shadow-sm\x20transition');const _0x179605=document[_0x2c3135(0x268)](_0x2c3135(0x24a)),_0x46232b=document[_0x2c3135(0x268)](_0x2c3135(0x272));switchClosed?(_0x179605[_0x2c3135(0x20e)]('x2','0'),_0x179605[_0x2c3135(0x20e)]('y2','0'),_0x179605[_0x2c3135(0x20e)](_0x2c3135(0x1bc),_0x2c3135(0x270)),_0x46232b[_0x2c3135(0x1c9)]='(Đóng)',_0x46232b[_0x2c3135(0x20e)](_0x2c3135(0x264),_0x2c3135(0x270))):(_0x179605[_0x2c3135(0x20e)]('x2',_0x2c3135(0x27c)),_0x179605['setAttribute']('y2','10'),_0x179605['setAttribute'](_0x2c3135(0x1bc),_0x2c3135(0x25c)),_0x46232b[_0x2c3135(0x1c9)]=_0x2c3135(0x2a4),_0x46232b[_0x2c3135(0x20e)](_0x2c3135(0x264),_0x2c3135(0x29f)));const _0x19415d=document[_0x2c3135(0x268)](_0x2c3135(0x1e1)),_0x1370f7=document[_0x2c3135(0x268)](_0x2c3135(0x262));_0x19415d[_0x2c3135(0x1fb)]['opacity']=hasIronCore?'1':_0x2c3135(0x186),_0x19415d[_0x2c3135(0x1fb)][_0x2c3135(0x20c)]=hasIronCore?_0x2c3135(0x1d9):_0x2c3135(0x2ab),_0x1370f7['style'][_0x2c3135(0x20c)]=hasIronCore?_0x2c3135(0x1d9):_0x2c3135(0x2ab),document[_0x2c3135(0x268)]('h20_1-pol-left')[_0x2c3135(0x1c9)]=polarityNormal?'+':'−',document[_0x2c3135(0x268)]('h20_1-pol-left')[_0x2c3135(0x20e)](_0x2c3135(0x264),polarityNormal?_0x2c3135(0x29f):_0x2c3135(0x1c4)),document['getElementById'](_0x2c3135(0x1ae))[_0x2c3135(0x1c9)]=polarityNormal?'−':'+',document['getElementById'](_0x2c3135(0x1ae))[_0x2c3135(0x20e)](_0x2c3135(0x264),polarityNormal?_0x2c3135(0x1c4):_0x2c3135(0x29f));const _0x1c02ef=document['getElementById']('h20_1-mag-field'),_0x3e7243=document[_0x2c3135(0x268)](_0x2c3135(0x263)),_0x51f5e5=document['getElementById'](_0x2c3135(0x231)),_0x393d7=document[_0x2c3135(0x268)](_0x2c3135(0x1aa));switchClosed?(_0x1c02ef['setAttribute'](_0x2c3135(0x224),Math[_0x2c3135(0x228)](0.3,_0x3b6fa9/0x64)),_0x3e7243[_0x2c3135(0x20e)]('opacity',_0x3b6fa9>0x3c?'1':_0x2c3135(0x189)),_0x51f5e5[_0x2c3135(0x20e)](_0x2c3135(0x224),'1'),document[_0x2c3135(0x268)](_0x2c3135(0x20f))[_0x2c3135(0x1c9)]=polarityNormal?'N':'S',document[_0x2c3135(0x268)](_0x2c3135(0x27b))['textContent']=polarityNormal?'S':'N',_0x393d7[_0x2c3135(0x1fb)]['transform']=polarityNormal?_0x2c3135(0x19f):_0x2c3135(0x1ef)):(_0x1c02ef[_0x2c3135(0x20e)](_0x2c3135(0x224),'0'),_0x3e7243['setAttribute']('opacity','0'),_0x51f5e5[_0x2c3135(0x20e)](_0x2c3135(0x224),'0'),_0x393d7[_0x2c3135(0x1fb)][_0x2c3135(0x20c)]=_0x2c3135(0x1ca));const _0x84f3af=document['getElementById'](_0x2c3135(0x209));switchClosed?(_0x84f3af['setAttribute']('x2','65'),_0x84f3af[_0x2c3135(0x20e)]('y2','0'),_0x84f3af[_0x2c3135(0x20e)](_0x2c3135(0x1bc),'#16a34a')):(_0x84f3af['setAttribute']('x2','55'),_0x84f3af[_0x2c3135(0x20e)]('y2',_0x2c3135(0x1b1)),_0x84f3af['setAttribute'](_0x2c3135(0x1bc),'#1e293b'));document['getElementById'](_0x2c3135(0x2a2))[_0x2c3135(0x20e)](_0x2c3135(0x224),switchClosed?'1':'0'),document[_0x2c3135(0x268)](_0x2c3135(0x2a8))[_0x2c3135(0x1c9)]=polarityNormal?'+':'−',document[_0x2c3135(0x268)](_0x2c3135(0x26c))[_0x2c3135(0x1c9)]=polarityNormal?'−':'+';const _0x4a21b2=document[_0x2c3135(0x268)](_0x2c3135(0x179));_0x4a21b2['style'][_0x2c3135(0x20c)]=switchClosed?polarityNormal?_0x2c3135(0x241):_0x2c3135(0x196):'rotate(0deg)';const _0x41e0d0=document['getElementById'](_0x2c3135(0x1cb));_0x41e0d0[_0x2c3135(0x1c3)]='';const _0x3bc749=switchClosed?Math[_0x2c3135(0x228)](0x1,Math['round'](_0x3b6fa9/0x64*0xc)):0x0;document['getElementById'](_0x2c3135(0x1d6))['textContent']=_0x3bc749;for(let _0x113a88=0x0;_0x113a88<0xc;_0x113a88++){const _0x3982d0=document['createElementNS'](_0x2c3135(0x19e),'rect');_0x3982d0[_0x2c3135(0x20e)](_0x2c3135(0x21c),'14'),_0x3982d0[_0x2c3135(0x20e)](_0x2c3135(0x19b),'5'),_0x3982d0['setAttribute']('rx',_0x2c3135(0x19a)),_0x3982d0[_0x2c3135(0x20e)](_0x2c3135(0x264),_0x2c3135(0x2a7)),_0x3982d0[_0x2c3135(0x20e)](_0x2c3135(0x1bc),_0x113a88<_0x3bc749?_0x2c3135(0x1db):_0x2c3135(0x2a3)),_0x3982d0[_0x2c3135(0x20e)](_0x2c3135(0x1bb),'1.8');if(_0x113a88<_0x3bc749){const _0x145de4=_0x113a88%0x3-0x1,_0x42d174=Math[_0x2c3135(0x1f8)](_0x113a88/0x3);_0x3982d0[_0x2c3135(0x20e)]('x',_0x145de4*0xb-0x7),_0x3982d0[_0x2c3135(0x20e)]('y',-0x12+_0x42d174*0x6),_0x3982d0[_0x2c3135(0x20e)](_0x2c3135(0x20c),'rotate('[_0x2c3135(0x221)](_0x145de4*0x19,',\x20')['concat'](_0x145de4*0xb,',\x20')[_0x2c3135(0x221)](-0xf+_0x42d174*0x6,')'));}else _0x3982d0[_0x2c3135(0x20e)]('x',-0x3c+_0x113a88*0xa),_0x3982d0[_0x2c3135(0x20e)]('y',0xf);_0x41e0d0[_0x2c3135(0x1b3)](_0x3982d0);}}function inspectPart(_0x31b29f){const _0x36603f=a0_0x425f6c;playClickSound();const _0x4243b4=partDictionary[_0x31b29f];if(!_0x4243b4)return;document[_0x36603f(0x268)](_0x36603f(0x22f))[_0x36603f(0x1c9)]=_0x4243b4[_0x36603f(0x255)],document[_0x36603f(0x268)](_0x36603f(0x1c6))[_0x36603f(0x1c9)]=_0x4243b4[_0x36603f(0x1b5)],document[_0x36603f(0x268)]('insp-desc')[_0x36603f(0x1c9)]=_0x4243b4[eduLevel],document[_0x36603f(0x268)](_0x36603f(0x260))['classList']['remove'](_0x36603f(0x259));}function closeInspector(){const _0x2ba222=a0_0x425f6c;document[_0x2ba222(0x268)](_0x2ba222(0x260))[_0x2ba222(0x285)][_0x2ba222(0x208)](_0x2ba222(0x259));}let bellInterval=null;function a0_0x3e8b(_0x18384c,_0x5ba2d9){_0x18384c=_0x18384c-0x16f;const _0x4e1802=a0_0x57bd();let _0x3965ff=_0x4e1802[_0x18384c];return _0x3965ff;}function pressBellButton(_0x22f71e){const _0x1779c3=a0_0x425f6c,_0x501af5=document['getElementById'](_0x1779c3(0x276)),_0x279179=document['getElementById'](_0x1779c3(0x1f7)),_0x110891=document[_0x1779c3(0x268)]('bell-hammer-group'),_0x39b47f=document[_0x1779c3(0x268)](_0x1779c3(0x21f)),_0x3a58ee=document[_0x1779c3(0x268)](_0x1779c3(0x25d));if(_0x22f71e){playSwitchSound(!![]),_0x501af5[_0x1779c3(0x20e)]('x1','0'),_0x501af5[_0x1779c3(0x20e)]('x2','0'),_0x279179[_0x1779c3(0x20e)]('x1',_0x1779c3(0x205)),_0x279179[_0x1779c3(0x20e)]('x2','0'),_0x110891[_0x1779c3(0x285)][_0x1779c3(0x208)](_0x1779c3(0x194)),_0x39b47f[_0x1779c3(0x20e)](_0x1779c3(0x224),'1'),_0x3a58ee[_0x1779c3(0x1c3)]=_0x1779c3(0x26a),document['getElementById'](_0x1779c3(0x299))[_0x1779c3(0x1fb)][_0x1779c3(0x21c)]='85%',document[_0x1779c3(0x268)]('mag-strength-label')[_0x1779c3(0x1c9)]=_0x1779c3(0x1ff),playBellDing();if(bellInterval)clearInterval(bellInterval);bellInterval=setInterval(playBellDing,0x104);}else _0x501af5[_0x1779c3(0x20e)]('x1','-14'),_0x501af5['setAttribute']('x2',_0x1779c3(0x290)),_0x279179[_0x1779c3(0x20e)]('x1',_0x1779c3(0x27c)),_0x279179[_0x1779c3(0x20e)]('x2',_0x1779c3(0x290)),_0x110891[_0x1779c3(0x285)][_0x1779c3(0x1be)](_0x1779c3(0x194)),_0x39b47f[_0x1779c3(0x20e)](_0x1779c3(0x224),'0'),_0x3a58ee[_0x1779c3(0x1c9)]=_0x1779c3(0x1a5),document[_0x1779c3(0x268)](_0x1779c3(0x299))['style'][_0x1779c3(0x21c)]='0%',document[_0x1779c3(0x268)](_0x1779c3(0x20b))['textContent']=_0x1779c3(0x252),bellInterval&&(clearInterval(bellInterval),bellInterval=null);}const stemCanvas=document[a0_0x425f6c(0x268)]('stemCanvas'),ctx=stemCanvas['getContext']('2d');let stemMagnetOn=![],carX=0x5a,carDir=0x0,clearanceCm=1.2,stemBatteries=0x2,roadItems=[];function initStemSandbox(){const _0x86ee92=a0_0x425f6c;roadItems=[];for(let _0x36952c=0x0;_0x36952c<0x10;_0x36952c++){roadItems['push']({'type':_0x36952c%0x2===0x0?'nail':_0x86ee92(0x2ad),'x':0xbe+_0x36952c*0x1a+(Math[_0x86ee92(0x226)]()*0xa-0x5),'y':0x0,'attached':![],'collectedInBin':![],'offsetX':Math['random']()*0x2e-0x17});}for(let _0x13e95b=0x0;_0x13e95b<0x9;_0x13e95b++){roadItems[_0x86ee92(0x1f2)]({'type':_0x13e95b%0x2===0x0?'stone':_0x86ee92(0x17f),'x':0xc8+_0x13e95b*0x2d,'y':0x0,'attached':![],'collectedInBin':![]});}}function resetStemSandbox(){playClickSound(),carX=0x5a,carDir=0x0,stemMagnetOn=![],updateStemMagnetBtn(),initStemSandbox();}function toggleStemMagnet(){stemMagnetOn=!stemMagnetOn,playSwitchSound(stemMagnetOn),updateStemMagnetBtn(),updateStemParams();}function updateStemMagnetBtn(){const _0x1f5c87=a0_0x425f6c,_0x540ad7=document[_0x1f5c87(0x268)](_0x1f5c87(0x177));stemMagnetOn?(_0x540ad7[_0x1f5c87(0x1c9)]='BẬT\x20(Đang\x20hút)',_0x540ad7[_0x1f5c87(0x1af)]=_0x1f5c87(0x1e9)):(_0x540ad7['textContent']='TẮT\x20(Nhả\x20đinh)',_0x540ad7[_0x1f5c87(0x1af)]=_0x1f5c87(0x1cf),roadItems[_0x1f5c87(0x1e4)](_0x36a83f=>{const _0x607faa=_0x1f5c87;_0x36a83f[_0x607faa(0x1dd)]&&(_0x36a83f['attached']=![],_0x36a83f['x']=carX+0x41+_0x36a83f['offsetX'],_0x36a83f['x']>=0x27b&&(_0x36a83f[_0x607faa(0x281)]=!![]));}));}function setCarDirection(_0x43bac7){playClickSound(),carDir=_0x43bac7;}function updateStemParams(){const _0x162588=a0_0x425f6c;clearanceCm=parseFloat(document[_0x162588(0x268)]('slider-clearance')['value']),stemBatteries=parseInt(document[_0x162588(0x268)](_0x162588(0x211))['value']);const _0x498f42=document[_0x162588(0x268)](_0x162588(0x1c1)),_0x14d632=document[_0x162588(0x268)](_0x162588(0x1a2));let _0x1a6a31=''[_0x162588(0x221)](clearanceCm[_0x162588(0x287)](0x1)[_0x162588(0x175)]('.',','),_0x162588(0x28e));if(clearanceCm<0x1)_0x1a6a31+=_0x162588(0x1b9),_0x498f42[_0x162588(0x1af)]=_0x162588(0x22c),_0x14d632[_0x162588(0x1af)]=_0x162588(0x222),_0x14d632[_0x162588(0x1c9)]=_0x162588(0x183);else clearanceCm<=1.5?(_0x1a6a31+=_0x162588(0x1ee),_0x498f42[_0x162588(0x1af)]=_0x162588(0x1f5),_0x14d632[_0x162588(0x1af)]=_0x162588(0x296),_0x14d632[_0x162588(0x1c9)]=_0x162588(0x16f)):(_0x1a6a31+=_0x162588(0x1cd),_0x498f42[_0x162588(0x1af)]='text-amber-600\x20font-bold',_0x14d632[_0x162588(0x1af)]=_0x162588(0x27e),_0x14d632[_0x162588(0x1c9)]=_0x162588(0x200));_0x498f42['textContent']=_0x1a6a31,document[_0x162588(0x268)]('val-stem-bat')[_0x162588(0x1c9)]=''[_0x162588(0x221)](stemBatteries,'\x20pin\x20(')[_0x162588(0x221)]((stemBatteries*1.5)['toFixed'](0x1)['replace']('.',','),'V)');const _0x1a11d2=stemMagnetOn?Math[_0x162588(0x180)](stemBatteries/0x3*0x64):0x0;document[_0x162588(0x268)](_0x162588(0x299))[_0x162588(0x1fb)]['width']=_0x1a11d2+'%',document['getElementById'](_0x162588(0x20b))[_0x162588(0x1c9)]=stemMagnetOn?''[_0x162588(0x221)](_0x1a11d2,'%\x20(Đang\x20hoạt\x20động)'):'0%\x20(Đã\x20ngắt)';}function resizeStemCanvas(){const _0x127058=a0_0x425f6c;if(!stemCanvas[_0x127058(0x26b)])return;const _0x39b936=stemCanvas['parentElement'][_0x127058(0x1eb)]();stemCanvas[_0x127058(0x21c)]=_0x39b936[_0x127058(0x21c)]||0x2bc,stemCanvas[_0x127058(0x19b)]=_0x39b936['height']||0x17c;}function drawStemLoop(){const _0x4234cf=a0_0x425f6c;if(currentScene===_0x4234cf(0x235)){const _0x188200=stemCanvas['width'],_0x474c66=stemCanvas[_0x4234cf(0x19b)],_0x49157b=_0x474c66-0x4b;ctx[_0x4234cf(0x191)](0x0,0x0,_0x188200,_0x474c66),ctx['fillStyle']=_0x4234cf(0x19c),ctx['fillRect'](0x0,0x0,_0x188200,_0x49157b),ctx[_0x4234cf(0x1f4)]='#0f172a',ctx[_0x4234cf(0x261)]=_0x4234cf(0x1fd),ctx[_0x4234cf(0x1da)](_0x4234cf(0x1f3),0x12,0x1c),ctx[_0x4234cf(0x1f4)]='#64748b',ctx[_0x4234cf(0x261)]=_0x4234cf(0x1e5),ctx['fillText'](_0x4234cf(0x2b1),0x12,0x30),ctx[_0x4234cf(0x1f4)]=_0x4234cf(0x201),ctx['fillRect'](0x0,_0x49157b,_0x188200-0x82,0x2d),ctx['fillStyle']=_0x4234cf(0x277),ctx[_0x4234cf(0x1dc)](0x0,_0x49157b+0x2d,_0x188200,0x1e);const _0x3a3da5=_0x188200-0x7d;ctx[_0x4234cf(0x1f4)]=_0x4234cf(0x1ed),ctx[_0x4234cf(0x254)]='#d97706',ctx['lineWidth']=2.5,ctx['fillRect'](_0x3a3da5,_0x49157b-0x5,0x6e,0x30),ctx[_0x4234cf(0x1b4)](_0x3a3da5,_0x49157b-0x5,0x6e,0x30),ctx[_0x4234cf(0x1f4)]=_0x4234cf(0x278),ctx[_0x4234cf(0x261)]=_0x4234cf(0x267),ctx[_0x4234cf(0x1da)](_0x4234cf(0x23b),_0x3a3da5+0x10,_0x49157b+0xe);if(carDir!==0x0){const _0x21201b=clearanceCm<0x1?0.75:2.6;carX+=carDir*_0x21201b,carX<0x14&&(carX=0x14,carDir=0x0),carX>_0x188200-0xaf&&(carX=_0x188200-0xaf,carDir=0x0);}const _0xad8bb7=carX+0x41,_0x53527e=clearanceCm*0xd,_0x21aae2=_0x49157b-_0x53527e;if(stemMagnetOn){const _0x2add69=stemBatteries*0x12,_0x1c7508=ctx[_0x4234cf(0x1d4)](_0xad8bb7,_0x21aae2,0x5,_0xad8bb7,_0x21aae2,_0x2add69+0x19);_0x1c7508['addColorStop'](0x0,_0x4234cf(0x245)),_0x1c7508[_0x4234cf(0x170)](0x1,'rgba(14,\x20165,\x20233,\x200)'),ctx[_0x4234cf(0x1f4)]=_0x1c7508,ctx[_0x4234cf(0x24d)](),ctx[_0x4234cf(0x22a)](_0xad8bb7,_0x21aae2,_0x2add69+0x19,0x0,Math['PI']*0x2),ctx[_0x4234cf(0x264)]();}let _0x367712=0x0,_0x3a5950=0x0;roadItems[_0x4234cf(0x1e4)](_0x1fcde8=>{const _0x1e4d68=_0x4234cf;if(_0x1fcde8['collectedInBin'])_0x367712++;if(stemMagnetOn&&!_0x1fcde8[_0x1e4d68(0x1dd)]&&!_0x1fcde8['collectedInBin']&&(_0x1fcde8[_0x1e4d68(0x21b)]===_0x1e4d68(0x207)||_0x1fcde8[_0x1e4d68(0x21b)]===_0x1e4d68(0x2ad))){const _0x220c23=Math[_0x1e4d68(0x284)](_0x1fcde8['x']-_0xad8bb7),_0x4e066=0.8+stemBatteries*0.5;_0x220c23<0x22&&clearanceCm<=_0x4e066&&(_0x1fcde8['attached']=!![],playClickSound());}if(_0x1fcde8[_0x1e4d68(0x1dd)])_0x3a5950++,ctx[_0x1e4d68(0x254)]='#dc2626',ctx[_0x1e4d68(0x295)]=2.5,ctx[_0x1e4d68(0x24d)](),ctx[_0x1e4d68(0x1c7)](_0xad8bb7+_0x1fcde8[_0x1e4d68(0x1a1)],_0x21aae2+0x2),ctx[_0x1e4d68(0x26d)](_0xad8bb7+_0x1fcde8[_0x1e4d68(0x1a1)]+0x4,_0x21aae2+0xe),ctx[_0x1e4d68(0x1bc)]();else{const _0x257b64=_0x1fcde8['collectedInBin']?_0x3a3da5+0x14+_0x1fcde8['x']%0x46:_0x1fcde8['x'],_0x4f7581=_0x1fcde8['collectedInBin']?_0x49157b+0x20:_0x49157b-0x3;if(_0x1fcde8[_0x1e4d68(0x21b)]==='nail')ctx[_0x1e4d68(0x254)]=_0x1e4d68(0x1f1),ctx[_0x1e4d68(0x295)]=2.5,ctx[_0x1e4d68(0x24d)](),ctx['moveTo'](_0x257b64-0x7,_0x4f7581),ctx[_0x1e4d68(0x26d)](_0x257b64+0x7,_0x4f7581),ctx[_0x1e4d68(0x1bc)]();else{if(_0x1fcde8[_0x1e4d68(0x21b)]===_0x1e4d68(0x2ad))ctx['strokeStyle']='#475569',ctx[_0x1e4d68(0x295)]=1.8,ctx[_0x1e4d68(0x1b4)](_0x257b64-0x5,_0x4f7581-0x3,0xa,0x4);else{if(_0x1fcde8[_0x1e4d68(0x21b)]==='stone')ctx[_0x1e4d68(0x1f4)]='#78716c',ctx[_0x1e4d68(0x24d)](),ctx[_0x1e4d68(0x22a)](_0x257b64,_0x4f7581-0x2,0x5,0x0,Math['PI']*0x2),ctx['fill']();else _0x1fcde8[_0x1e4d68(0x21b)]===_0x1e4d68(0x17f)&&(ctx[_0x1e4d68(0x1f4)]=_0x1e4d68(0x270),ctx[_0x1e4d68(0x24d)](),ctx['ellipse'](_0x257b64,_0x4f7581-0x2,0x7,0x3,0.3,0x0,Math['PI']*0x2),ctx['fill']());}}}}),ctx['fillStyle']='#ea580c',ctx[_0x4234cf(0x261)]=_0x4234cf(0x288),ctx[_0x4234cf(0x1da)](_0x4234cf(0x173)[_0x4234cf(0x221)](_0x367712,_0x4234cf(0x17a)),_0x3a3da5+0x12,_0x49157b+0x22),ctx[_0x4234cf(0x1f4)]='#f97316',ctx['strokeStyle']='#9a3412',ctx[_0x4234cf(0x295)]=0x2,ctx[_0x4234cf(0x24d)](),ctx[_0x4234cf(0x2a9)](carX,_0x49157b-0x48,0x82,0x26,0x8),ctx[_0x4234cf(0x264)](),ctx[_0x4234cf(0x1bc)](),ctx[_0x4234cf(0x1f4)]=_0x4234cf(0x192),ctx[_0x4234cf(0x1dc)](carX+0x12,_0x49157b-0x5e,0x2a,0x16),ctx[_0x4234cf(0x1b4)](carX+0x12,_0x49157b-0x5e,0x2a,0x16),ctx[_0x4234cf(0x1f4)]=_0x4234cf(0x17b),ctx[_0x4234cf(0x261)]=_0x4234cf(0x210),ctx[_0x4234cf(0x1da)]('Pin\x20'[_0x4234cf(0x221)]((stemBatteries*1.5)[_0x4234cf(0x287)](0x1),'V'),carX+0x15,_0x49157b-0x4f),ctx['strokeStyle']='#475569',ctx[_0x4234cf(0x295)]=0x3,ctx[_0x4234cf(0x24d)](),ctx[_0x4234cf(0x1c7)](_0xad8bb7,_0x49157b-0x22),ctx['lineTo'](_0xad8bb7,_0x21aae2-0xe),ctx[_0x4234cf(0x1bc)](),ctx[_0x4234cf(0x1f4)]=_0x4234cf(0x2a3),ctx[_0x4234cf(0x1dc)](_0xad8bb7-0x1c,_0x21aae2-0xe,0x38,0xe),ctx[_0x4234cf(0x1f4)]=stemMagnetOn?_0x4234cf(0x17e):_0x4234cf(0x1ea);for(let _0x51476d=-0x16;_0x51476d<=0x12;_0x51476d+=0x6){ctx[_0x4234cf(0x1dc)](_0xad8bb7+_0x51476d,_0x21aae2-0x10,0x4,0x12);}[carX+0x1a,carX+0x68][_0x4234cf(0x1e4)](_0x32b9fe=>{const _0x49881b=_0x4234cf;ctx['fillStyle']=_0x49881b(0x1bd),ctx[_0x49881b(0x24d)](),ctx[_0x49881b(0x22a)](_0x32b9fe,_0x49157b-0x10,0x10,0x0,Math['PI']*0x2),ctx[_0x49881b(0x264)](),ctx[_0x49881b(0x1f4)]=_0x49881b(0x1a4),ctx[_0x49881b(0x24d)](),ctx[_0x49881b(0x22a)](_0x32b9fe,_0x49157b-0x10,0x7,0x0,Math['PI']*0x2),ctx[_0x49881b(0x264)]();}),ctx[_0x4234cf(0x1f4)]=_0x4234cf(0x248),ctx[_0x4234cf(0x261)]=_0x4234cf(0x267),ctx['fillText']('Đang\x20hút:\x20'[_0x4234cf(0x221)](_0x3a5950,_0x4234cf(0x265)),carX+0x16,_0x49157b-0x31),ctx[_0x4234cf(0x254)]=clearanceCm<0x1?_0x4234cf(0x29f):clearanceCm<=1.5?_0x4234cf(0x270):'#d97706',ctx[_0x4234cf(0x295)]=1.5,ctx['setLineDash']([0x3,0x2]),ctx[_0x4234cf(0x24d)](),ctx[_0x4234cf(0x1c7)](_0xad8bb7+0x24,_0x21aae2),ctx[_0x4234cf(0x26d)](_0xad8bb7+0x24,_0x49157b),ctx['stroke'](),ctx['setLineDash']([]),ctx['fillStyle']=clearanceCm<0x1?_0x4234cf(0x29f):clearanceCm<=1.5?_0x4234cf(0x1c8):_0x4234cf(0x1ea),ctx[_0x4234cf(0x261)]=_0x4234cf(0x210),ctx[_0x4234cf(0x1da)]('h\x20=\x20'['concat'](clearanceCm['toFixed'](0x1)['replace']('.',','),_0x4234cf(0x1a8)),_0xad8bb7+0x2a,(_0x21aae2+_0x49157b)/0x2+0x3);}requestAnimationFrame(drawStemLoop);}function switchRightTab(_0x13347a){const _0x44661e=a0_0x425f6c;playClickSound(),document[_0x44661e(0x286)](_0x44661e(0x247))[_0x44661e(0x1e4)](_0x34c957=>{const _0xf7738d=_0x44661e;_0x34c957['classList']['remove'](_0xf7738d(0x193),_0xf7738d(0x23e),'bg-white','font-bold'),_0x34c957['classList'][_0xf7738d(0x208)](_0xf7738d(0x190),_0xf7738d(0x1d8),_0xf7738d(0x1e7));});const _0x52f5d1=document[_0x44661e(0x268)](_0x44661e(0x294)+_0x13347a);_0x52f5d1[_0x44661e(0x285)][_0x44661e(0x1be)]('border-transparent',_0x44661e(0x1d8),_0x44661e(0x1e7)),_0x52f5d1['classList'][_0x44661e(0x208)](_0x44661e(0x193),_0x44661e(0x23e),_0x44661e(0x1e3),'font-bold'),document[_0x44661e(0x268)](_0x44661e(0x2af))[_0x44661e(0x285)][_0x44661e(0x256)](_0x44661e(0x259),_0x13347a!==_0x44661e(0x238)),document[_0x44661e(0x268)](_0x44661e(0x234))['classList'][_0x44661e(0x256)](_0x44661e(0x259),_0x13347a!==_0x44661e(0x239)),document['getElementById'](_0x44661e(0x23d))['classList'][_0x44661e(0x256)](_0x44661e(0x259),_0x13347a!=='quiz');}const quizQuestions=[{'q':a0_0x425f6c(0x17d),'options':[a0_0x425f6c(0x25f),'Ống\x20dây\x20dẫn,\x20lõi\x20sắt\x20non\x20lồng\x20trong\x20lòng\x20ống\x20dây\x20và\x20nguồn\x20điện.',a0_0x425f6c(0x20a),a0_0x425f6c(0x29b)],'ans':0x1,'exp':'Theo\x20SGK\x20KHTN\x207\x20(Hình\x2020.1),\x20nam\x20châm\x20điện\x20gồm\x20ống\x20dây\x20dẫn\x20A,\x20thỏi\x20sắt\x20non\x20B\x20lồng\x20trong\x20lòng\x20ống\x20dây\x20và\x20nguồn\x20điện\x20E\x20qua\x20khóa\x20K.'},{'q':a0_0x425f6c(0x2ae),'options':[a0_0x425f6c(0x218),'Giữ\x20cho\x20ống\x20dây\x20không\x20bị\x20nóng.',a0_0x425f6c(0x282),a0_0x425f6c(0x1b6)],'ans':0x2,'exp':'Lõi\x20sắt\x20non\x20bị\x20nhiễm\x20từ\x20khi\x20có\x20dòng\x20điện\x20chạy\x20qua\x20ống\x20dây,\x20giúp\x20tăng\x20mạnh\x20tác\x20dụng\x20từ\x20của\x20nam\x20châm\x20điện.'},{'q':'Câu\x203:\x20Cách\x20nào\x20sau\x20đây\x20làm\x20TĂNG\x20lực\x20từ\x20của\x20nam\x20châm\x20điện?','options':['Giảm\x20số\x20vòng\x20dây\x20quấn.',a0_0x425f6c(0x1bf),a0_0x425f6c(0x2a6),'Đổi\x20chiều\x20hai\x20cực\x20của\x20nguồn\x20điện.'],'ans':0x2,'exp':a0_0x425f6c(0x258)},{'q':'Câu\x204:\x20Vì\x20sao\x20xe\x20hút\x20đinh\x20tự\x20động\x20(STEM)\x20dùng\x20nam\x20châm\x20điện\x20ưu\x20việt\x20hơn\x20nam\x20châm\x20vĩnh\x20cửu\x20ở\x20khâu\x20thu\x20gom?','options':[a0_0x425f6c(0x184),a0_0x425f6c(0x1d5),a0_0x425f6c(0x2ac),a0_0x425f6c(0x176)],'ans':0x1,'exp':a0_0x425f6c(0x227)},{'q':a0_0x425f6c(0x1d0),'options':['Từ\x20trường\x20của\x20nam\x20châm\x20điện\x20biến\x20mất.','Lực\x20từ\x20của\x20nam\x20châm\x20điện\x20tăng\x20gấp\x20đôi.',a0_0x425f6c(0x1ab),a0_0x425f6c(0x29c)],'ans':0x2,'exp':a0_0x425f6c(0x198)}];let userAnswers=new Array(quizQuestions['length'])[a0_0x425f6c(0x264)](null);function renderQuiz(){const _0x271e7d=a0_0x425f6c,_0x593bc3=document[_0x271e7d(0x268)]('quiz-container');_0x593bc3[_0x271e7d(0x1c3)]='';let _0x2e9a61=0x0;quizQuestions[_0x271e7d(0x1e4)]((_0x4ed802,_0x18c50f)=>{const _0x3898cb=_0x271e7d,_0x3c08e2=userAnswers[_0x18c50f]!==null;if(_0x3c08e2&&userAnswers[_0x18c50f]===_0x4ed802[_0x3898cb(0x1d2)])_0x2e9a61++;const _0x1771f3=document[_0x3898cb(0x28b)](_0x3898cb(0x1b0));_0x1771f3['className']=_0x3898cb(0x2a0);const _0x44c7ec=document['createElement'](_0x3898cb(0x1b0));_0x44c7ec['className']=_0x3898cb(0x273),_0x44c7ec[_0x3898cb(0x1c9)]=_0x4ed802['q'],_0x1771f3[_0x3898cb(0x1b3)](_0x44c7ec),_0x4ed802[_0x3898cb(0x1c2)]['forEach']((_0x5cfd5d,_0x489cc1)=>{const _0x383c7e=_0x3898cb,_0x370904=document[_0x383c7e(0x28b)](_0x383c7e(0x217));let _0x5af8b7=_0x383c7e(0x279);if(!_0x3c08e2)_0x5af8b7+='bg-white\x20border-slate-200\x20hover:border-orange-400\x20hover:bg-orange-50\x20text-slate-700';else{if(_0x489cc1===_0x4ed802[_0x383c7e(0x1d2)])_0x5af8b7+=_0x383c7e(0x215);else _0x489cc1===userAnswers[_0x18c50f]?_0x5af8b7+=_0x383c7e(0x253):_0x5af8b7+='bg-white\x20border-slate-200\x20text-slate-400';}_0x370904[_0x383c7e(0x1af)]=_0x5af8b7,_0x370904[_0x383c7e(0x1c9)]=_0x5cfd5d,_0x370904[_0x383c7e(0x240)]=_0x3c08e2,_0x370904['onclick']=()=>{const _0x7d4e15=_0x383c7e;userAnswers[_0x18c50f]=_0x489cc1,playQuizFeedback(_0x489cc1===_0x4ed802[_0x7d4e15(0x1d2)]),renderQuiz();},_0x1771f3[_0x383c7e(0x1b3)](_0x370904);});if(_0x3c08e2){const _0x2504db=document['createElement'](_0x3898cb(0x1b0));_0x2504db[_0x3898cb(0x1af)]=_0x3898cb(0x1ce),_0x2504db[_0x3898cb(0x1c3)]=_0x3898cb(0x18e)['concat'](_0x4ed802['exp']),_0x1771f3['appendChild'](_0x2504db);}_0x593bc3['appendChild'](_0x1771f3);}),document[_0x271e7d(0x268)]('quiz-score')[_0x271e7d(0x1c9)]=''[_0x271e7d(0x221)](_0x2e9a61,_0x271e7d(0x21d))[_0x271e7d(0x221)](quizQuestions['length']);}function resetQuiz(){const _0xef457e=a0_0x425f6c;playClickSound(),userAnswers=new Array(quizQuestions[_0xef457e(0x1a3)])[_0xef457e(0x264)](null),renderQuiz();}window[a0_0x425f6c(0x23f)](a0_0x425f6c(0x283),()=>{if(currentScene==='stem_car')resizeStemCanvas();}),window[a0_0x425f6c(0x28c)]=function(){renderCoils(),updateSimulationVisuals(),initStemSandbox(),renderQuiz(),requestAnimationFrame(drawStemLoop);};
+    </script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Chặn phím tắt: F12, Ctrl+U, Ctrl+Shift+I/J/C, Ctrl+S
+    document.addEventListener('keydown', function(e) {
+      const key = e.key.toLowerCase();
+
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) || 
+        (e.ctrlKey && (key === 'u' || key === 's'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 2. Chặn chuột phải (Context Menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  });
+</script>
+</body>
+</html>
