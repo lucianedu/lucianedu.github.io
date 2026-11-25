@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KHTN 7 - BÀI 20: CHẾ TẠO NAM CHÂM ĐIỆN | LỄ VINH DANH & TRAO GIẢI</title>
+    <!-- Tải Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tải Google Fonts: Be Vietnam Pro & Montserrat hỗ trợ tiếng Việt sắc nét -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Be Vietnam Pro"', 'sans-serif'],
+                        display: ['"Montserrat"', '"Be Vietnam Pro"', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 4s ease-in-out infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'shine': 'shine 3s linear infinite',
+                        'pop-in': 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-8px)' },
+                        },
+                        shine: {
+                            '0%': { backgroundPosition: '200% center' },
+                            '100%': { backgroundPosition: '-200% center' },
+                        },
+                        popIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.85)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Đảm bảo không cuộn trang toàn cục trên màn hình trình chiếu lớn, khóa chặt bố cục 4/5 và 1/5 */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #060b19;
+            color: #f8fafc;
+            user-select: none;
+        }
+
+        /* Nền sân khấu ánh sáng hào quang */
+        .stage-bg {
+            background: 
+                radial-gradient(circle at 20% 15%, rgba(56, 189, 248, 0.16) 0%, transparent 45%),
+                radial-gradient(circle at 50% 10%, rgba(250, 204, 21, 0.18) 0%, transparent 50%),
+                radial-gradient(circle at 80% 15%, rgba(52, 211, 153, 0.16) 0%, transparent 45%),
+                linear-gradient(180deg, #070d1f 0%, #0b132b 60%, #050914 100%);
+        }
+
+        /* Hiệu ứng chữ vàng kim lấp lánh cho tiêu đề */
+        .gold-text-gradient {
+            background: linear-gradient(90deg, #fde047 0%, #f59e0b 25%, #fef08a 50%, #d97706 75%, #fde047 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 5s linear infinite;
+        }
+
+        /* Bục vinh danh hiệu ứng kính mờ & viền phát sáng */
+        .podium-card {
+            backdrop-filter: blur(14px);
+            transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+        }
+        
+        .podium-card.crowned {
+            transform: translateY(-6px) scale(1.015);
+        }
+
+        /* Thanh cuộn tinh gọn cho danh sách 6-10 nhóm ở cột 1/5 */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.5);
+            border-radius: 999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.8);
+        }
+
+        /* Hiệu ứng tia sáng xoay phía sau cúp khi được vinh danh */
+        .sunburst {
+            background: repeating-conic-gradient(
+                from 0deg,
+                rgba(255, 255, 255, 0.08) 0deg 15deg,
+                transparent 15deg 30deg
+            );
+            animation: spinSlow 24s linear infinite;
+        }
+        @keyframes spinSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Đảm bảo chữ hiển thị trọn vẹn, không cắt xén */
+        .full-text-title {
+            white-space: normal;
+            word-break: keep-all;
+            overflow-wrap: break-word;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen w-screen overflow-hidden stage-bg font-sans">
+
+    <!-- Canvas Pháo giấy (Confetti) phủ toàn màn hình không cản thao tác chuột -->
+    <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+    <!-- Hộp thoại thông báo / xác nhận tùy chỉnh (Thay thế alert/confirm) -->
+    <div id="custom-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl transform transition-all">
+            <div class="flex items-center gap-3 mb-3">
+                <div id="modal-icon" class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
+                <h3 id="modal-title" class="text-lg font-bold text-white">Xác nhận thao tác</h3>
+            </div>
+            <p id="modal-message" class="text-slate-300 text-sm leading-relaxed mb-6">Bạn có chắc chắn muốn thực hiện thao tác này?</p>
+            <div class="flex justify-end gap-3">
+                <button id="modal-cancel-btn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold transition">Hủy bỏ</button>
+                <button id="modal-confirm-btn" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold shadow-lg shadow-rose-600/30 transition">Đồng ý</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER TRANG TRỌNG TRÊN CÙNG -->
+    <header class="w-full shrink-0 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md px-4 lg:px-6 py-2.5 flex items-center justify-between gap-3 z-20">
+        <!-- Huy hiệu môn học bên trái -->
+        <div class="flex items-center gap-3 shrink-0">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 via-sky-500 to-indigo-600 p-0.5 shadow-lg shadow-sky-500/25">
+                <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
+                    <!-- Icon Nam châm điện -->
+                    <svg class="w-6 h-6 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 15v-2a6 6 0 1 1 12 0v2"/>
+                        <path d="M6 15h4v4H6z"/>
+                        <path d="M14 15h4v4h-4z"/>
+                        <path d="M12 3v2"/>
+                        <path d="M8 5l1 1.5"/>
+                        <path d="M16 5l-1 1.5"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="hidden md:block">
+                <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider uppercase bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                    DỰ ÁN GIÁO DỤC STEM
+                </span>
+                <p class="text-xs text-slate-300 mt-0.5 font-semibold">Sản phẩm: Xe hút đinh</p>
+            </div>
+        </div>
+
+        <!-- Tiêu đề chính giữa: Hiển thị đầy đủ 100% chữ rõ ràng -->
+        <div class="text-center flex-1 px-2">
+            <div class="inline-flex items-center justify-center px-3 py-0.5 rounded-full bg-sky-500/15 border border-sky-400/30 text-[11px] sm:text-xs font-extrabold tracking-widest uppercase text-sky-300 mb-0.5 full-text-title">
+                DỰ ÁN STEM • KHTN 7 - BÀI 20: CHẾ TẠO NAM CHÂM ĐIỆN
+            </div>
+            <h1 class="font-display font-black uppercase gold-text-gradient leading-tight full-text-title" style="font-size: clamp(1.15rem, 2.2vw, 1.95rem);">
+                LỄ VINH DANH & TRAO GIẢI
+            </h1>
+        </div>
+
+        <!-- Thanh công cụ điều khiển lớp học bên phải -->
+        <div class="flex items-center gap-2 shrink-0">
+            <!-- Nút Vinh danh tất cả -->
+            <button onclick="celebrateAll()" title="Công bố & vinh danh đồng loạt cả 3 giải" class="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-extrabold text-xs sm:text-sm shadow-lg shadow-amber-500/25 flex items-center gap-1.5 transition active:scale-95 cursor-pointer">
+                <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <span class="hidden lg:inline">Vinh danh tất cả</span>
+            </button>
+
+            <!-- Nút Ẩn kết quả / Đặt lại hiển thị -->
+            <button onclick="hideAnnouncements()" title="Ẩn trạng thái công bố trên sân khấu (giữ nguyên số phiếu)" class="px-2.5 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold text-xs flex items-center gap-1.5 transition active:scale-95 cursor-pointer">
+                <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+                <span class="hidden xl:inline">Ẩn công bố</span>
+            </button>
+
+            <!-- Nút Bật/Tắt Âm thanh -->
+            <button id="btn-sound" onclick="toggleSound()" title="Bật/Tắt hiệu ứng âm thanh" class="p-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-sky-400 transition active:scale-95 cursor-pointer">
+                <svg id="icon-sound-on" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+                <svg id="icon-sound-off" class="w-5 h-5 hidden text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/></svg>
+            </button>
+
+            <!-- Nút Toàn màn hình -->
+            <button onclick="toggleFullscreen()" title="Phóng to toàn màn hình trình chiếu" class="p-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-300 transition active:scale-95 cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- KHU VỰC NỘI DUNG CHÍNH: CHIA CỐ ĐỊNH TỈ LỆ 4/5 (80%) VÀ 1/5 (20%) -->
+    <main class="flex-1 w-full h-full flex flex-row overflow-hidden">
+        
+        <!-- ===================================================================== -->
+        <!-- KHU VỰC 4/5 (80% CHIỀU RỘNG CỐ ĐỊNH): SÂN KHẤU VINH DANH 3 DANH HIỆU -->
+        <!-- ===================================================================== -->
+        <section class="w-4/5 basis-4/5 shrink-0 grow-0 h-full p-3.5 lg:p-5 flex flex-col justify-between relative overflow-hidden border-r border-slate-800/90">
+            
+            <!-- Trang trí ánh đèn sân khấu phía trên -->
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-28 bg-amber-400/10 blur-3xl pointer-events-none"></div>
+
+            <!-- Lưới 3 bục vinh danh ngang hàng nhau, chiều cao đồng đều -->
+            <div id="podium-container" class="w-full flex-1 min-h-0 grid grid-cols-3 gap-3.5 lg:gap-5 items-stretch z-10">
+                
+                <!-- DANH HIỆU 1: XE HÚT ĐINH HIỆU SUẤT CAO NHẤT (Vàng Kim Hổ Phách) -->
+                <div id="card-perf" class="podium-card rounded-3xl bg-gradient-to-b from-amber-950/75 via-slate-900/85 to-slate-950/95 border-2 border-amber-400/50 shadow-[0_0_45px_rgba(245,158,11,0.18)] flex flex-col justify-between p-3.5 lg:p-5 relative overflow-hidden">
+                    <div id="sunburst-perf" class="sunburst absolute -top-20 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full opacity-0 transition-opacity duration-700 pointer-events-none"></div>
+                    
+                    <!-- Nhãn hạng mục & Tên danh hiệu đầy đủ chữ -->
+                    <div class="text-center relative z-10">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] lg:text-xs font-extrabold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-400/40">
+                            <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                            Hạng Mục Kỹ Thuật
+                        </span>
+                        <h2 class="font-display font-black text-white mt-2.5 leading-snug uppercase tracking-tight drop-shadow full-text-title" style="font-size: clamp(1.05rem, 1.55vw, 1.5rem);">
+                            Xe hút đinh<br><span class="text-amber-400">hiệu suất cao nhất</span>
+                        </h2>
+                        <p class="text-xs text-amber-200/80 mt-1 font-medium full-text-title">Lực từ nam châm mạnh • Thu gom tối đa</p>
+                    </div>
+
+                    <!-- Biểu tượng Cúp Vàng + Nam châm hút đinh SVG -->
+                    <div class="my-1.5 flex flex-col items-center justify-center relative z-10 flex-1 min-h-0">
+                        <div class="relative animate-float">
+                            <div class="absolute inset-0 bg-amber-400/30 blur-2xl rounded-full"></div>
+                            <svg class="w-20 h-20 lg:w-28 lg:h-28 xl:w-32 xl:h-32 relative drop-shadow-[0_10px_22px_rgba(245,158,11,0.5)]" viewBox="0 0 120 120" fill="none">
+                                <defs>
+                                    <linearGradient id="cupAmberGold" x1="20" y1="15" x2="100" y2="95" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#fef9c3"/>
+                                        <stop offset="40%" stop-color="#facc15"/>
+                                        <stop offset="80%" stop-color="#d97706"/>
+                                        <stop offset="100%" stop-color="#78350f"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M34 32H19C15 32 13 36 14 41C16 52 24 60 36 62" stroke="#fde047" stroke-width="5" stroke-linecap="round"/>
+                                <path d="M86 32H101C105 32 107 36 106 41C104 52 96 60 84 62" stroke="#fde047" stroke-width="5" stroke-linecap="round"/>
+                                <path d="M31 20H89L84 56C82 71 71 79 60 79C49 79 38 71 36 56L31 20Z" fill="url(#cupAmberGold)" stroke="#fef08a" stroke-width="3"/>
+                                <!-- Biểu tượng Nam châm chữ U hút đinh -->
+                                <path d="M51 49V42C51 37 55 33 60 33C65 33 69 37 69 42V49" stroke="#78350f" stroke-width="4.5" stroke-linecap="round"/>
+                                <rect x="48.5" y="47" width="5" height="5" rx="1" fill="#dc2626"/>
+                                <rect x="66.5" y="47" width="5" height="5" rx="1" fill="#2563eb"/>
+                                <path d="M51 56L51 60M69 56L69 60M60 55L60 61" stroke="#78350f" stroke-width="2.5" stroke-linecap="round"/>
+                                <rect x="53" y="79" width="14" height="13" fill="#d97706"/>
+                                <path d="M38 92H82L88 105H32L38 92Z" fill="#1c1917" stroke="#facc15" stroke-width="2.5"/>
+                                <rect x="45" y="96" width="30" height="4" rx="2" fill="#facc15"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Khung hiển thị Nhóm được vinh danh & Số phiếu -->
+                    <div class="relative z-10 flex flex-col gap-2">
+                        <div id="winner-box-perf" class="rounded-2xl bg-slate-950/90 border border-amber-400/45 p-3 text-center shadow-inner min-h-[108px] flex flex-col justify-center items-center">
+                            <span id="status-perf" class="text-[11px] font-bold uppercase tracking-widest text-amber-400/90 mb-1 full-text-title">
+                                Đang bình chọn...
+                            </span>
+                            <div id="winner-name-perf" class="font-display font-black text-xl lg:text-2xl xl:text-3xl text-slate-400 leading-snug full-text-title">
+                                Chưa công bố
+                            </div>
+                            <div id="winner-votes-perf" class="mt-1.5 inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-500/15 text-amber-300 text-xs font-bold">
+                                <span>0 phiếu bình chọn</span>
+                            </div>
+                        </div>
+
+                        <button onclick="announceWinner('perf')" class="w-full py-2.5 lg:py-3 px-3 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs lg:text-sm uppercase tracking-wider shadow-lg shadow-amber-500/30 flex items-center justify-center gap-2 transition transform active:scale-95 cursor-pointer">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                            <span>Công bố giải</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- DANH HIỆU 2: THIẾT KẾ CƠ KHÍ SÁNG TẠO NHẤT (Xanh Cyan Công Nghệ) -->
+                <div id="card-design" class="podium-card rounded-3xl bg-gradient-to-b from-sky-950/75 via-slate-900/85 to-slate-950/95 border-2 border-sky-400/45 shadow-[0_0_40px_rgba(14,165,233,0.16)] flex flex-col justify-between p-3.5 lg:p-5 relative overflow-hidden">
+                    <div id="sunburst-design" class="sunburst absolute -top-20 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full opacity-0 transition-opacity duration-700 pointer-events-none"></div>
+
+                    <!-- Nhãn hạng mục & Tên danh hiệu đầy đủ chữ -->
+                    <div class="text-center relative z-10">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] lg:text-xs font-extrabold uppercase tracking-wider bg-sky-500/20 text-sky-300 border border-sky-400/35">
+                            <span class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
+                            Hạng Mục Chế Tạo
+                        </span>
+                        <h2 class="font-display font-black text-white mt-2.5 leading-snug uppercase tracking-tight drop-shadow full-text-title" style="font-size: clamp(1.05rem, 1.55vw, 1.5rem);">
+                            Thiết kế cơ khí<br><span class="text-sky-400">sáng tạo nhất</span>
+                        </h2>
+                        <p class="text-xs text-sky-200/80 mt-1 font-medium full-text-title">Kết cấu thông minh • Vận hành linh hoạt</p>
+                    </div>
+
+                    <!-- Biểu tượng Cúp Bạc/Xanh + Bánh răng sáng tạo SVG -->
+                    <div class="my-1.5 flex flex-col items-center justify-center relative z-10 flex-1 min-h-0">
+                        <div class="relative animate-float" style="animation-delay: 0.6s;">
+                            <div class="absolute inset-0 bg-sky-400/25 blur-2xl rounded-full"></div>
+                            <svg class="w-20 h-20 lg:w-28 lg:h-28 xl:w-32 xl:h-32 relative drop-shadow-[0_10px_20px_rgba(14,165,233,0.45)]" viewBox="0 0 120 120" fill="none">
+                                <defs>
+                                    <linearGradient id="cupCyanTech" x1="20" y1="15" x2="100" y2="95" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#e0f2fe"/>
+                                        <stop offset="45%" stop-color="#0284c7"/>
+                                        <stop offset="100%" stop-color="#1e3a8a"/>
+                                    </linearGradient>
+                                    <linearGradient id="silverTrim" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#f8fafc"/>
+                                        <stop offset="50%" stop-color="#94a3b8"/>
+                                        <stop offset="100%" stop-color="#475569"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M34 32H20C16 32 14 36 15 41C17 52 25 60 36 62" stroke="url(#silverTrim)" stroke-width="5" stroke-linecap="round"/>
+                                <path d="M86 32H100C104 32 106 36 105 41C103 52 95 60 84 62" stroke="url(#silverTrim)" stroke-width="5" stroke-linecap="round"/>
+                                <path d="M32 22H88L83 56C81 70 71 78 60 78C49 78 39 70 37 56L32 22Z" fill="url(#cupCyanTech)" stroke="url(#silverTrim)" stroke-width="3"/>
+                                <!-- Biểu tượng Bánh răng cơ khí -->
+                                <circle cx="60" cy="48" r="8" stroke="#0f172a" stroke-width="3.5" fill="#bae6fd"/>
+                                <path d="M60 35V38M60 58V61M47 48H50M70 48H73M51 39L53 41M67 55L69 57M69 39L67 41M53 55L51 57" stroke="#e0f2fe" stroke-width="3" stroke-linecap="round"/>
+                                <rect x="54" y="78" width="12" height="14" fill="url(#silverTrim)"/>
+                                <path d="M40 92H80L85 104H35L40 92Z" fill="#0f172a" stroke="url(#silverTrim)" stroke-width="2.5"/>
+                                <rect x="46" y="96" width="28" height="4" rx="2" fill="#38bdf8"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Khung hiển thị Nhóm được vinh danh & Số phiếu -->
+                    <div class="relative z-10 flex flex-col gap-2">
+                        <div id="winner-box-design" class="rounded-2xl bg-slate-950/90 border border-sky-500/40 p-3 text-center shadow-inner min-h-[108px] flex flex-col justify-center items-center">
+                            <span id="status-design" class="text-[11px] font-bold uppercase tracking-widest text-sky-400/90 mb-1 full-text-title">
+                                Đang bình chọn...
+                            </span>
+                            <div id="winner-name-design" class="font-display font-black text-xl lg:text-2xl xl:text-3xl text-slate-400 leading-snug full-text-title">
+                                Chưa công bố
+                            </div>
+                            <div id="winner-votes-design" class="mt-1.5 inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-sky-500/15 text-sky-300 text-xs font-bold">
+                                <span>0 phiếu bình chọn</span>
+                            </div>
+                        </div>
+
+                        <button onclick="announceWinner('design')" class="w-full py-2.5 lg:py-3 px-3 rounded-2xl bg-gradient-to-r from-sky-500 via-cyan-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-extrabold text-xs lg:text-sm uppercase tracking-wider shadow-lg shadow-sky-500/30 flex items-center justify-center gap-2 transition transform active:scale-95 cursor-pointer">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                            <span>Công bố giải</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- DANH HIỆU 3: GIẢI PHÁP XANH NHÂN VĂN (Xanh Ngọc Lục Bảo) -->
+                <div id="card-green" class="podium-card rounded-3xl bg-gradient-to-b from-emerald-950/75 via-slate-900/85 to-slate-950/95 border-2 border-emerald-400/45 shadow-[0_0_40px_rgba(16,185,129,0.16)] flex flex-col justify-between p-3.5 lg:p-5 relative overflow-hidden">
+                    <div id="sunburst-green" class="sunburst absolute -top-20 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full opacity-0 transition-opacity duration-700 pointer-events-none"></div>
+
+                    <!-- Nhãn hạng mục & Tên danh hiệu đầy đủ chữ -->
+                    <div class="text-center relative z-10">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] lg:text-xs font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400/35">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                            Hạng Mục Cộng Đồng
+                        </span>
+                        <h2 class="font-display font-black text-white mt-2.5 leading-snug uppercase tracking-tight drop-shadow full-text-title" style="font-size: clamp(1.05rem, 1.55vw, 1.5rem);">
+                            Giải pháp xanh<br><span class="text-emerald-400">nhân văn</span>
+                        </h2>
+                        <p class="text-xs text-emerald-200/80 mt-1 font-medium full-text-title">Tái chế vật liệu • An toàn giao thông</p>
+                    </div>
+
+                    <!-- Biểu tượng Cúp Ngọc Lục Bảo + Mầm xanh SVG -->
+                    <div class="my-1.5 flex flex-col items-center justify-center relative z-10 flex-1 min-h-0">
+                        <div class="relative animate-float" style="animation-delay: 1.2s;">
+                            <div class="absolute inset-0 bg-emerald-400/25 blur-2xl rounded-full"></div>
+                            <svg class="w-20 h-20 lg:w-28 lg:h-28 xl:w-32 xl:h-32 relative drop-shadow-[0_10px_20px_rgba(16,185,129,0.45)]" viewBox="0 0 120 120" fill="none">
+                                <defs>
+                                    <linearGradient id="cupEmerald" x1="20" y1="15" x2="100" y2="95" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#6ee7b7"/>
+                                        <stop offset="45%" stop-color="#059669"/>
+                                        <stop offset="100%" stop-color="#064e3b"/>
+                                    </linearGradient>
+                                    <linearGradient id="goldLeafTrim" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#fef08a"/>
+                                        <stop offset="50%" stop-color="#f59e0b"/>
+                                        <stop offset="100%" stop-color="#b45309"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M34 32H20C16 32 14 36 15 41C17 52 25 60 36 62" stroke="url(#goldLeafTrim)" stroke-width="5" stroke-linecap="round"/>
+                                <path d="M86 32H100C104 32 106 36 105 41C103 52 95 60 84 62" stroke="url(#goldLeafTrim)" stroke-width="5" stroke-linecap="round"/>
+                                <path d="M32 22H88L83 56C81 70 71 78 60 78C49 78 39 70 37 56L32 22Z" fill="url(#cupEmerald)" stroke="url(#goldLeafTrim)" stroke-width="3"/>
+                                <!-- Biểu tượng Mầm xanh / Lá nhân văn -->
+                                <path d="M60 62C60 62 47 54 47 43C47 37 53 34 60 34C67 34 73 37 73 43C73 54 60 62 60 62Z" fill="#d1fae5"/>
+                                <path d="M60 39V57M60 49L66 44M60 52L54 47" stroke="#059669" stroke-width="2.5" stroke-linecap="round"/>
+                                <rect x="54" y="78" width="12" height="14" fill="url(#goldLeafTrim)"/>
+                                <path d="M40 92H80L85 104H35L40 92Z" fill="#06281e" stroke="url(#goldLeafTrim)" stroke-width="2.5"/>
+                                <rect x="46" y="96" width="28" height="4" rx="2" fill="#34d399"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Khung hiển thị Nhóm được vinh danh & Số phiếu -->
+                    <div class="relative z-10 flex flex-col gap-2">
+                        <div id="winner-box-green" class="rounded-2xl bg-slate-950/90 border border-emerald-500/40 p-3 text-center shadow-inner min-h-[108px] flex flex-col justify-center items-center">
+                            <span id="status-green" class="text-[11px] font-bold uppercase tracking-widest text-emerald-400/90 mb-1 full-text-title">
+                                Đang bình chọn...
+                            </span>
+                            <div id="winner-name-green" class="font-display font-black text-xl lg:text-2xl xl:text-3xl text-slate-400 leading-snug full-text-title">
+                                Chưa công bố
+                            </div>
+                            <div id="winner-votes-green" class="mt-1.5 inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 text-xs font-bold">
+                                <span>0 phiếu bình chọn</span>
+                            </div>
+                        </div>
+
+                        <button onclick="announceWinner('green')" class="w-full py-2.5 lg:py-3 px-3 rounded-2xl bg-gradient-to-r from-emerald-500 via-green-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-extrabold text-xs lg:text-sm uppercase tracking-wider shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2 transition transform active:scale-95 cursor-pointer">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                            <span>Công bố giải</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Thanh chân sân khấu hiển thị tổng số phiếu toàn lớp -->
+            <div class="mt-2.5 pt-2 border-t border-slate-800/70 flex items-center justify-between text-xs text-slate-400 shrink-0 z-10">
+                <div class="flex items-center gap-4">
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-amber-400 inline-block"></span> Hiệu suất cao nhất</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-sky-400 inline-block"></span> Cơ khí sáng tạo nhất</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-400 inline-block"></span> Giải pháp xanh nhân văn</span>
+                </div>
+                <div class="font-semibold text-slate-300">
+                    Tổng lượt bình chọn: <span id="total-votes-badge" class="text-amber-400 font-bold text-sm ml-1">0</span> phiếu
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- KHU VỰC 1/5 (20% CHIỀU RỘNG CỐ ĐỊNH): BẢNG BÌNH CHỌN 6 - 10 NHÓM      -->
+        <!-- ===================================================================== -->
+        <aside class="w-1/5 basis-1/5 min-w-[260px] shrink-0 grow-0 h-full bg-slate-950/90 flex flex-col overflow-hidden z-10">
+            
+            <!-- Tiêu đề bảng bình chọn & Bộ điều chỉnh số nhóm (6 - 10) -->
+            <div class="p-3 border-b border-slate-800 bg-slate-900/90 shrink-0">
+                <div class="flex items-center justify-between gap-1">
+                    <div>
+                        <h3 class="font-display font-extrabold text-xs xl:text-sm text-white uppercase tracking-wide flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>Bình Chọn Nhóm</span>
+                        </h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Bấm vào tên nhóm để sửa</p>
+                    </div>
+
+                    <!-- Điều chỉnh số lượng nhóm từ 6 đến 10 -->
+                    <div class="flex items-center bg-slate-950 border border-slate-700 rounded-lg p-0.5" title="Điều chỉnh số lượng nhóm (từ 6 đến 10 nhóm)">
+                        <button onclick="changeGroupCount(-1)" id="btn-dec-group" class="w-6 h-6 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm flex items-center justify-center transition disabled:opacity-30 disabled:cursor-not-allowed">-</button>
+                        <span id="group-count-label" class="px-1.5 text-xs font-extrabold text-amber-400">8</span>
+                        <button onclick="changeGroupCount(1)" id="btn-inc-group" class="w-6 h-6 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm flex items-center justify-center transition disabled:opacity-30 disabled:cursor-not-allowed">+</button>
+                    </div>
+                </div>
+
+                <!-- Chú thích 3 cột bình chọn thu gọn -->
+                <div class="grid grid-cols-3 gap-1 mt-2.5 pt-2 border-t border-slate-800/80 text-center text-[10px] font-bold">
+                    <div class="text-amber-400 bg-amber-500/10 rounded py-0.5 border border-amber-500/20" title="Xe hút đinh hiệu suất cao nhất">⚡ Hiệu suất</div>
+                    <div class="text-sky-400 bg-sky-500/10 rounded py-0.5 border border-sky-500/20" title="Thiết kế cơ khí sáng tạo nhất">⚙️ Sáng tạo</div>
+                    <div class="text-emerald-400 bg-emerald-500/10 rounded py-0.5 border border-emerald-500/20" title="Giải pháp xanh nhân văn">🌱 Xanh</div>
+                </div>
+            </div>
+
+            <!-- Danh sách cuộn các nhóm từ 6 đến 10 nhóm -->
+            <div id="groups-list" class="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-2">
+                <!-- Các thẻ nhóm sẽ được render tự động bằng JavaScript -->
+            </div>
+
+            <!-- Nút Reset phiếu nằm gọn ở đáy cột 1/5 -->
+            <div class="p-2.5 border-t border-slate-800 bg-slate-900/95 shrink-0">
+                <button onclick="confirmReset()" class="w-full py-2 px-3 rounded-xl bg-rose-950/60 hover:bg-rose-600 border border-rose-500/40 text-rose-300 hover:text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    <span>Reset phiếu bình chọn</span>
+                </button>
+            </div>
+
+        </aside>
+
+    </main>
+
+    <script>
+        /* ==========================================================================
+           1. KHỞI TẠO & LƯU TRỮ TRẠNG THÁI (STATE MANAGEMENT)
+           ========================================================================== */
+        const STORAGE_KEY = 'stem_khtn7_bai20_namchamdien_v1';
+
+        const defaultGroups = Array.from({ length: 10 }, (_, i) => ({
+            id: i + 1,
+            name: `Nhóm ${i + 1}`,
+            votes: { perf: 0, design: 0, green: 0 }
+        }));
+
+        let appState = {
+            groupCount: 8,
+            groups: JSON.parse(JSON.stringify(defaultGroups)),
+            announced: { perf: false, design: false, green: false },
+            soundEnabled: true
+        };
+
+        function loadState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed && Array.isArray(parsed.groups) && parsed.groups.length === 10) {
+                        appState = {
+                            groupCount: Math.min(10, Math.max(6, parsed.groupCount || 8)),
+                            groups: parsed.groups,
+                            announced: parsed.announced || { perf: false, design: false, green: false },
+                            soundEnabled: parsed.soundEnabled !== undefined ? parsed.soundEnabled : true
+                        };
+                    }
+                }
+            } catch (e) {
+                console.warn('Không thể đọc dữ liệu lưu trữ:', e);
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            } catch (e) {
+                console.warn('Không thể lưu dữ liệu:', e);
+            }
+        }
+
+        /* ==========================================================================
+           2. HIỆU ỨNG ÂM THANH (WEB AUDIO API - KHÔNG CẦN FILE NGOÀI)
+           ========================================================================== */
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) {
+                    audioCtx = new AudioContextClass();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function toggleSound() {
+            appState.soundEnabled = !appState.soundEnabled;
+            saveState();
+            updateSoundUI();
+            if (appState.soundEnabled) {
+                playVoteSound(true);
+            }
+        }
+
+        function updateSoundUI() {
+            const onIcon = document.getElementById('icon-sound-on');
+            const offIcon = document.getElementById('icon-sound-off');
+            if (appState.soundEnabled) {
+                onIcon.classList.remove('hidden');
+                offIcon.classList.add('hidden');
+            } else {
+                onIcon.classList.add('hidden');
+                offIcon.classList.remove('hidden');
+            }
+        }
+
+        function playVoteSound(isUp) {
+            if (!appState.soundEnabled) return;
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                const now = ctx.currentTime;
+                osc.frequency.setValueAtTime(isUp ? 580 : 360, now);
+                osc.frequency.exponentialRampToValueAtTime(isUp ? 880 : 240, now + 0.09);
+
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } catch (e) {}
+        }
+
+        function playFanfareSound() {
+            if (!appState.soundEnabled) return;
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                const now = ctx.currentTime;
+
+                notes.forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'triangle';
+                    const startTime = now + idx * 0.11;
+                    const duration = idx === notes.length - 1 ? 0.65 : 0.22;
+
+                    osc.frequency.setValueAtTime(freq, startTime);
+                    gain.gain.setValueAtTime(0.001, startTime);
+                    gain.gain.linearRampToValueAtTime(0.22, startTime + 0.03);
+                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(startTime);
+                    osc.stop(startTime + duration);
+                });
+            } catch (e) {}
+        }
+
+        /* ==========================================================================
+           3. HIỆU ỨNG PHÁO GIẤY SÂN KHẤU (CONFETTI CANVAS)
+           ========================================================================== */
+        let confettiParticles = [];
+        let confettiAnimId = null;
+
+        function launchConfetti(category, originXRatio) {
+            const canvas = document.getElementById('confetti-canvas');
+            if (!canvas) return;
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+
+            const palettes = {
+                perf: ['#facc15', '#f59e0b', '#fef08a', '#fb923c', '#ffffff'],
+                design: ['#38bdf8', '#0284c7', '#bae6fd', '#818cf8', '#ffffff'],
+                green: ['#34d399', '#10b981', '#a7f3d0', '#facc15', '#ffffff'],
+                all: ['#facc15', '#38bdf8', '#34d399', '#f43f5e', '#a855f7', '#ffffff']
+            };
+
+            const colors = palettes[category] || palettes.all;
+            const originX = canvas.width * originXRatio;
+            const originY = canvas.height * 0.48;
+
+            for (let i = 0; i < 110; i++) {
+                const angle = (Math.random() * Math.PI * 2);
+                const speed = 4 + Math.random() * 11;
+                confettiParticles.push({
+                    x: originX,
+                    y: originY,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed - 4,
+                    size: 6 + Math.random() * 7,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rotation: Math.random() * 360,
+                    rotationSpeed: (Math.random() - 0.5) * 12,
+                    gravity: 0.24 + Math.random() * 0.1,
+                    drag: 0.985,
+                    alpha: 1
+                });
+            }
+
+            if (!confettiAnimId) {
+                const renderConfetti = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    for (let i = confettiParticles.length - 1; i >= 0; i--) {
+                        const p = confettiParticles[i];
+                        p.vx *= p.drag;
+                        p.vy = p.vy * p.drag + p.gravity;
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.rotation += p.rotationSpeed;
+                        p.alpha -= 0.008;
+
+                        if (p.alpha <= 0 || p.y > canvas.height + 20) {
+                            confettiParticles.splice(i, 1);
+                            continue;
+                        }
+
+                        ctx.save();
+                        ctx.globalAlpha = Math.max(0, p.alpha);
+                        ctx.translate(p.x, p.y);
+                        ctx.rotate((p.rotation * Math.PI) / 180);
+                        ctx.fillStyle = p.color;
+                        ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+                        ctx.restore();
+                    }
+
+                    if (confettiParticles.length > 0) {
+                        confettiAnimId = requestAnimationFrame(renderConfetti);
+                    } else {
+                        confettiAnimId = null;
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    }
+                };
+                confettiAnimId = requestAnimationFrame(renderConfetti);
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            const canvas = document.getElementById('confetti-canvas');
+            if (canvas) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+        });
+
+        /* ==========================================================================
+           4. LOGIC BÌNH CHỌN, TÍNH KẾT QUẢ & CẬP NHẬT GIAO DIỆN
+           ========================================================================== */
+        function changeGroupCount(delta) {
+            const nextCount = appState.groupCount + delta;
+            if (nextCount >= 6 && nextCount <= 10) {
+                appState.groupCount = nextCount;
+                saveState();
+                renderAll();
+                playVoteSound(delta > 0);
+            }
+        }
+
+        function updateGroupName(index, newName) {
+            const trimmed = newName.trim();
+            appState.groups[index].name = trimmed || `Nhóm ${index + 1}`;
+            saveState();
+            updatePodiums();
+        }
+
+        function updateVote(groupIndex, category, delta) {
+            const current = appState.groups[groupIndex].votes[category];
+            const next = Math.max(0, current + delta);
+            if (next !== current) {
+                appState.groups[groupIndex].votes[category] = next;
+                saveState();
+                renderAll();
+                playVoteSound(delta > 0);
+            }
+        }
+
+        function getTopGroups(category) {
+            const activeGroups = appState.groups.slice(0, appState.groupCount);
+            let maxVotes = 0;
+            activeGroups.forEach(g => {
+                if (g.votes[category] > maxVotes) {
+                    maxVotes = g.votes[category];
+                }
+            });
+
+            if (maxVotes === 0) {
+                return { winners: [], maxVotes: 0 };
+            }
+
+            const winners = activeGroups.filter(g => g.votes[category] === maxVotes);
+            return { winners, maxVotes };
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Cập nhật giao diện 3 bục vinh danh ở khu vực 4/5
+        function updatePodiums() {
+            const categories = [
+                { key: 'perf', colorWinner: 'text-amber-300' },
+                { key: 'design', colorWinner: 'text-sky-300' },
+                { key: 'green', colorWinner: 'text-emerald-300' }
+            ];
+
+            categories.forEach(cat => {
+                const { winners, maxVotes } = getTopGroups(cat.key);
+                const statusEl = document.getElementById(`status-${cat.key}`);
+                const nameEl = document.getElementById(`winner-name-${cat.key}`);
+                const votesEl = document.getElementById(`winner-votes-${cat.key}`);
+                const cardEl = document.getElementById(`card-${cat.key}`);
+                const sunburstEl = document.getElementById(`sunburst-${cat.key}`);
+                const isAnnounced = appState.announced[cat.key];
+
+                if (maxVotes === 0) {
+                    statusEl.textContent = 'Đang bình chọn...';
+                    nameEl.textContent = 'Chưa công bố';
+                    nameEl.className = 'font-display font-black text-xl lg:text-2xl xl:text-3xl text-slate-500 leading-snug full-text-title';
+                    votesEl.innerHTML = '<span>0 phiếu bình chọn</span>';
+                    cardEl.classList.remove('crowned');
+                    sunburstEl.classList.remove('opacity-100');
+                    sunburstEl.classList.add('opacity-0');
+                } else {
+                    const isTie = winners.length > 1;
+                    const namesText = winners.map(w => w.name).join(' & ');
+
+                    if (isAnnounced) {
+                        statusEl.innerHTML = isTie ? '🏆 ĐỒNG HẠNG VINH DANH 🏆' : '🏆 CHÍNH THỨC VINH DANH 🏆';
+                        cardEl.classList.add('crowned');
+                        sunburstEl.classList.remove('opacity-0');
+                        sunburstEl.classList.add('opacity-100');
+
+                        const sizeClass = namesText.length > 18 
+                            ? 'text-lg lg:text-xl xl:text-2xl' 
+                            : 'text-2xl lg:text-3xl xl:text-4xl';
+
+                        nameEl.textContent = namesText.toUpperCase();
+                        nameEl.className = `font-display font-black ${sizeClass} ${cat.colorWinner} leading-snug drop-shadow full-text-title`;
+                        votesEl.innerHTML = `<span>${maxVotes} phiếu bình chọn ${isTie ? '(Mỗi nhóm)' : ''}</span>`;
+                    } else {
+                        statusEl.textContent = isTie ? '⚖️ Đang đồng hạng dẫn đầu' : '🔥 Đang dẫn đầu bình chọn';
+                        cardEl.classList.remove('crowned');
+                        sunburstEl.classList.remove('opacity-100');
+                        sunburstEl.classList.add('opacity-0');
+
+                        const sizeClass = namesText.length > 18 
+                            ? 'text-lg lg:text-xl xl:text-2xl' 
+                            : 'text-xl lg:text-2xl xl:text-3xl';
+
+                        nameEl.textContent = namesText;
+                        nameEl.className = `font-display font-black ${sizeClass} text-white/90 leading-snug full-text-title`;
+                        votesEl.innerHTML = `<span>${maxVotes} phiếu bình chọn ${isTie ? '(Mỗi nhóm)' : ''}</span>`;
+                    }
+                }
+            });
+
+            // Cập nhật tổng số phiếu toàn lớp
+            const activeGroups = appState.groups.slice(0, appState.groupCount);
+            const totalVotes = activeGroups.reduce((sum, g) => sum + g.votes.perf + g.votes.design + g.votes.green, 0);
+            document.getElementById('total-votes-badge').textContent = totalVotes;
+        }
+
+        // Render danh sách 6-10 nhóm ở cột 1/5 bên phải
+        function renderGroupsList() {
+            const container = document.getElementById('groups-list');
+            const countLabel = document.getElementById('group-count-label');
+            const decBtn = document.getElementById('btn-dec-group');
+            const incBtn = document.getElementById('btn-inc-group');
+
+            countLabel.textContent = appState.groupCount;
+            decBtn.disabled = appState.groupCount <= 6;
+            incBtn.disabled = appState.groupCount >= 10;
+
+            const activeGroups = appState.groups.slice(0, appState.groupCount);
+
+            container.innerHTML = activeGroups.map((group, idx) => {
+                const totalGroupVotes = group.votes.perf + group.votes.design + group.votes.green;
+                return `
+                <div class="rounded-xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 p-2 transition">
+                    <!-- Hàng trên: Số thứ tự, Tên nhóm có thể chỉnh sửa trực tiếp, Tổng phiếu nhóm -->
+                    <div class="flex items-center justify-between gap-1.5 mb-1.5">
+                        <div class="flex items-center gap-1.5 flex-1 min-w-0">
+                            <span class="w-5 h-5 rounded-md bg-slate-800 text-slate-300 font-extrabold text-[11px] flex items-center justify-center shrink-0">
+                                ${idx + 1}
+                            </span>
+                            <input
+                                type="text"
+                                value="${escapeHtml(group.name)}"
+                                onchange="updateGroupName(${idx}, this.value)"
+                                onfocus="this.select()"
+                                class="w-full bg-transparent hover:bg-slate-800/80 focus:bg-slate-800 text-white font-bold text-xs px-1.5 py-0.5 rounded border border-transparent focus:border-amber-400/50 outline-none truncate transition"
+                                title="Bấm để đổi tên nhóm"
+                            />
+                        </div>
+                        <span class="text-[10px] font-bold text-slate-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800 shrink-0" title="Tổng phiếu của nhóm">
+                            ${totalGroupVotes}đ
+                        </span>
+                    </div>
+
+                    <!-- Hàng dưới: 3 cụm nút bình chọn cho 3 danh hiệu -->
+                    <div class="grid grid-cols-3 gap-1">
+                        <!-- Nút 1: Hiệu suất (Vàng kim) -->
+                        <div class="flex items-center justify-between bg-amber-950/40 border border-amber-500/25 rounded-lg px-1 py-0.5">
+                            <button onclick="updateVote(${idx}, 'perf', -1)" class="w-5 h-5 rounded hover:bg-amber-500/20 text-amber-300 font-bold text-xs flex items-center justify-center active:scale-90 transition cursor-pointer" title="Giảm 1 phiếu Hiệu suất">-</button>
+                            <span class="font-extrabold text-xs text-amber-300">${group.votes.perf}</span>
+                            <button onclick="updateVote(${idx}, 'perf', 1)" class="w-5 h-5 rounded bg-amber-500/30 hover:bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center active:scale-90 transition cursor-pointer" title="Tăng 1 phiếu Hiệu suất">+</button>
+                        </div>
+
+                        <!-- Nút 2: Cơ khí sáng tạo (Xanh dương) -->
+                        <div class="flex items-center justify-between bg-sky-950/50 border border-sky-500/25 rounded-lg px-1 py-0.5">
+                            <button onclick="updateVote(${idx}, 'design', -1)" class="w-5 h-5 rounded hover:bg-sky-500/20 text-sky-300 font-bold text-xs flex items-center justify-center active:scale-90 transition cursor-pointer" title="Giảm 1 phiếu Cơ khí sáng tạo">-</button>
+                            <span class="font-extrabold text-xs text-sky-300">${group.votes.design}</span>
+                            <button onclick="updateVote(${idx}, 'design', 1)" class="w-5 h-5 rounded bg-sky-500/25 hover:bg-sky-500 text-white font-bold text-xs flex items-center justify-center active:scale-90 transition cursor-pointer" title="Tăng 1 phiếu Cơ khí sáng tạo">+</button>
+                        </div>
+
+                        <!-- Nút 3: Giải pháp xanh (Xanh lá) -->
+                        <div class="flex items-center justify-between bg-emerald-950/50 border border-emerald-500/25 rounded-lg px-1 py-0.5">
+                            <button onclick="updateVote(${idx}, 'green', -1)" class="w-5 h-5 rounded hover:bg-emerald-500/20 text-emerald-300 font-bold text-xs flex items-center justify-center active:scale-90 transition cursor-pointer" title="Giảm 1 phiếu Giải pháp xanh">-</button>
+                            <span class="font-extrabold text-xs text-emerald-300">${group.votes.green}</span>
+                            <button onclick="updateVote(${idx}, 'green', 1)" class="w-5 h-5 rounded bg-emerald-500/25 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center active:scale-90 transition cursor-pointer" title="Tăng 1 phiếu Giải pháp xanh">+</button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function renderAll() {
+            renderGroupsList();
+            updatePodiums();
+            updateSoundUI();
+        }
+
+        /* ==========================================================================
+           5. HIỆU ỨNG CÔNG BỐ VINH DANH & TIỆN ÍCH LỚP HỌC
+           ========================================================================== */
+        
+        // Công bố & Vinh danh từng hạng mục
+        function announceWinner(category) {
+            appState.announced[category] = true;
+            saveState();
+            updatePodiums();
+
+            // Vị trí bắn pháo giấy tương ứng với 3 cột trong khu vực 4/5 (80% màn hình)
+            const originMap = {
+                perf: 0.14,
+                design: 0.40,
+                green: 0.66
+            };
+
+            playFanfareSound();
+            launchConfetti(category, originMap[category] || 0.4);
+
+            // Hiệu ứng rung nhẹ thẻ được vinh danh
+            const card = document.getElementById(`card-${category}`);
+            card.classList.remove('animate-pop-in');
+            void card.offsetWidth;
+            card.classList.add('animate-pop-in');
+        }
+
+        // Vinh danh đồng loạt cả 3 hạng mục
+        function celebrateAll() {
+            appState.announced = { perf: true, design: true, green: true };
+            saveState();
+            updatePodiums();
+            playFanfareSound();
+            launchConfetti('all', 0.4);
+            setTimeout(() => launchConfetti('perf', 0.15), 250);
+            setTimeout(() => launchConfetti('green', 0.65), 450);
+        }
+
+        // Ẩn trạng thái công bố trên sân khấu (giữ nguyên số phiếu đã bình chọn)
+        function hideAnnouncements() {
+            appState.announced = { perf: false, design: false, green: false };
+            saveState();
+            updatePodiums();
+            playVoteSound(false);
+        }
+
+        // Hộp thoại xác nhận Reset phiếu
+        function confirmReset() {
+            const modal = document.getElementById('custom-modal');
+            const titleEl = document.getElementById('modal-title');
+            const msgEl = document.getElementById('modal-message');
+            const confirmBtn = document.getElementById('modal-confirm-btn');
+            const cancelBtn = document.getElementById('modal-cancel-btn');
+
+            titleEl.textContent = 'Đặt lại toàn bộ phiếu bình chọn?';
+            msgEl.textContent = 'Tất cả số phiếu của các nhóm sẽ được đưa về 0 và trạng thái vinh danh sẽ được làm mới (tên các nhóm vẫn được giữ nguyên).';
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            const closeModal = () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            };
+
+            cancelBtn.onclick = closeModal;
+            confirmBtn.onclick = () => {
+                appState.groups.forEach(g => {
+                    g.votes = { perf: 0, design: 0, green: 0 };
+                });
+                appState.announced = { perf: false, design: false, green: false };
+                saveState();
+                renderAll();
+                closeModal();
+            };
+        }
+
+        // Chế độ toàn màn hình trình chiếu
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().catch(() => {});
+                }
+            }
+        }
+
+        // Khởi chạy ứng dụng khi tải xong trang
+        window.onload = function () {
+            loadState();
+            renderAll();
+        };
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Chặn phím tắt: F12, Ctrl+U, Ctrl+Shift+I/J/C, Ctrl+S
+    document.addEventListener('keydown', function(e) {
+      const key = e.key.toLowerCase();
+
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) || 
+        (e.ctrlKey && (key === 'u' || key === 's'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 2. Chặn chuột phải (Context Menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  });
+    </script>
+</body>
+</html>
